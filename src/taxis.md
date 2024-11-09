@@ -102,6 +102,8 @@ const time_series = await db.query(`
     CAST(tpep_pickup_datetime AS DATE) AS date, 
     COUNT(*) AS num_trips 
   FROM taxi_data 
+  WHERE EXTRACT(MONTH FROM tpep_pickup_datetime) = 1
+    AND EXTRACT(YEAR FROM tpep_pickup_datetime) = 2024
   GROUP BY CAST(tpep_pickup_datetime AS DATE) 
   ORDER BY date
 `);
@@ -113,11 +115,15 @@ function plotTimeSeries(width = 960) {
       Plot.line(time_series, {x: "date", y: "num_trips"})
     ],
     x: {
-      label: "Date"
+      label: "Date",
+      tickFormat: d3.timeFormat("%b %d"),
+      tickRotate: 45
     },
     y: {
-      label: "Number of Trips"
-    }
+      label: "Number of Trips",
+      grid: true
+    },
+    marginBottom: 50
   })
 }
 
