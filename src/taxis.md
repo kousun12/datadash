@@ -15,19 +15,19 @@ In this notebook, we'll load NYC Taxi data from Parquet files using DuckDB, and 
 Let’s set up and initialize DuckDB within Observable’s environment. We are loading the DuckDBClient library here.
 
 ```js
-import * as DuckDB from "@duckdb/duckdb-wasm";
-import DuckDBWASM from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm";
-import DuckDBWASMThread from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js";
+import * as duckdb from "npm:@duckdb/duckdb-wasm";
+import duckdbWasm from "npm:@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm";
+import duckdbWorker from "npm:@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js";
 
 const DUCKDB_CONFIG = {
-  mainModule: DuckDBWASM,
-  mainWorker: DuckDBWASMThread,
+  mainModule: duckdbWasm,
+  mainWorker: duckdbWorker,
 };
 
 const db = await (async () => {
-  const worker = await DuckDB.createWorker(DUCKDB_CONFIG);
-  const logger = new DuckDB.ConsoleLogger();
-  const db = new DuckDB.AsyncDuckDB(logger, worker);
+  const worker = await duckdb.createWorker(DUCKDB_CONFIG);
+  const logger = new duckdb.ConsoleLogger();
+  const db = new duckdb.AsyncDuckDB(logger, worker);
   await db.instantiate();
   return db;
 })();
