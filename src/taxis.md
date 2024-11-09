@@ -91,10 +91,10 @@ Let's visualize how taxi demand evolves over time by plotting a time series of t
 ```js
 const time_series = await db.query(`
   SELECT 
-    CAST(pickup_datetime AS DATE) AS date, 
+    CAST(tpep_pickup_datetime AS DATE) AS date, 
     COUNT(*) AS num_trips 
   FROM taxi_data 
-  GROUP BY CAST(pickup_datetime AS DATE) 
+  GROUP BY CAST(tpep_pickup_datetime AS DATE) 
   ORDER BY date
 `);
 
