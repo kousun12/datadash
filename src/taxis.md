@@ -15,7 +15,10 @@ In this notebook, we'll load NYC Taxi data from Parquet files using DuckDB, and 
 Let’s set up and initialize DuckDB within Observable’s environment. We are loading the DuckDBClient library here.
 
 ```js
-db = new DuckDBClient();
+const db = {
+  const client = new DuckDBClient();
+  return client;
+}
 ```
 
 ## Load NYC Taxi Parquet Data
