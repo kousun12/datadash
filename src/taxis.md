@@ -71,17 +71,26 @@ Now, we’ll use `Plot` from Observable to visualize the distribution of trip di
 
 const trip_distances = await db.query(`SELECT trip_distance FROM taxi_data WHERE trip_distance < 20 LIMIT 10000`);
 
-Plot.plot({
-  marks: [
-    Plot.barY(trip_distances, Plot.binX({y: "count"}, {x: "trip_distance", thresholds: 20}))
-  ],
-  x: {
-    label: "Trip Distance (miles)"
-  },
-  y: {
-    label: "Number of Trips"
-  }
-})
+function plotDistribution(width = 960) {
+  return Plot.plot({
+    width,
+    marks: [
+      Plot.barY(trip_distances, Plot.binX({y: "count"}, {x: "trip_distance", thresholds: 20}))
+    ],
+    x: {
+      label: "Trip Distance (miles)"
+    },
+    y: {
+      label: "Number of Trips"
+    }
+  })
+}
+
+<div class="grid grid-cols-1">
+  <div class="card">
+    ${resize((width) => plotDistribution(width))}
+  </div>
+</div>
 ```
 
 ### Interactive: Time Series of Taxi Demand
@@ -98,15 +107,24 @@ const time_series = await db.query(`
   ORDER BY date
 `);
 
-display(Plot.plot({
-  marks: [
-    Plot.line(time_series, {x: "date", y: "num_trips"})
-  ],
-  x: {
-    label: "Date"
-  },
-  y: {
-    label: "Number of Trips"
-  }
-}))
+function plotTimeSeries(width = 960) {
+  return Plot.plot({
+    width,
+    marks: [
+      Plot.line(time_series, {x: "date", y: "num_trips"})
+    ],
+    x: {
+      label: "Date"
+    },
+    y: {
+      label: "Number of Trips"
+    }
+  })
+}
+
+<div class="grid grid-cols-1">
+  <div class="card">
+    ${resize((width) => plotTimeSeries(width))}
+  </div>
+</div>
 ```
