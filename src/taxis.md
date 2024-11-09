@@ -15,9 +15,7 @@ In this notebook, we'll load NYC Taxi data from Parquet files using DuckDB, and 
 Let’s set up and initialize DuckDB within Observable’s environment. We are loading the DuckDBClient library here.
 
 ```js
-import { DuckDBClient } from "npm:@observablehq/duckdb";
-
-const db = new DuckDBClient();
+const db = DuckDBClient.of({taxi_data: FileAttachment('./data/yellow_tripdata_2024-01.parquet')});
 ```
 
 ## Load NYC Taxi Parquet Data
@@ -25,10 +23,7 @@ const db = new DuckDBClient();
 Next, we’ll connect to the NYC TLC Taxi Parquet dataset, which you can host if you don't have direct access yet:
 
 ```js
-taxi_data = db.query(`
-  CREATE TABLE IF NOT EXISTS taxi_data AS 
-  SELECT * 
-  FROM read_parquet('https://media.substrate.run/yellow_tripdata_2024-01.parquet');
+const taxi_data = db.query(`
   SELECT * FROM taxi_data LIMIT 10
 `)
 ```
@@ -40,7 +35,7 @@ taxi_data = db.query(`
 Let’s run a query to inspect the first few rows of the dataset.
 
 ```js
-data = await db.query(`SELECT * FROM taxi_data LIMIT 10`);
+const data = await db.query(`SELECT * FROM taxi_data LIMIT 10`);
 data
 ```
 
@@ -58,7 +53,7 @@ Try running and inspecting the schema to ensure the data appears correctly.
 Let’s start by summarizing the data. We can use DuckDB to compute some aggregate statistics over the data, such as the number of trips, average fare, and average trip distance.
 
 ```js
-summary = await db.query(`SELECT 
+const summary = await db.query(`SELECT 
     COUNT(*) AS num_trips, 
     AVG(trip_distance) AS avg_distance, 
     AVG(fare_amount) AS avg_fare, 
@@ -73,9 +68,8 @@ summary
 Now, we’ll use `Plot` from Observable to visualize the distribution of trip distances. You may want to filter or limit datasets for performance, especially with large datasets.
 
 ```js
-import { Plot } from define1;
 
-trip_distances = await db.query(`SELECT trip_distance FROM taxi_data WHERE trip_distance < 20 LIMIT 10000`);
+const trip_distances = await db.query(`SELECT trip_distance FROM taxi_data WHERE trip_distance < 20 LIMIT 10000`);
 
 Plot.plot({
   marks: [
@@ -95,7 +89,7 @@ Plot.plot({
 Let's visualize how taxi demand evolves over time by plotting a time series of the number of trips per day:
 
 ```js
-time_series = await db.query(`
+const time_series = await db.query(`
   SELECT 
     CAST(pickup_datetime AS DATE) AS date, 
     COUNT(*) AS num_trips 
