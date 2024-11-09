@@ -25,19 +25,12 @@ const db = new DuckDBClient();
 Next, we’ll connect to the NYC TLC Taxi Parquet dataset, which you can host if you don't have direct access yet:
 
 ```js
-viewof taxi_data = {
-  const conn = await db.connect();
-  try {
-    await conn.query(`
-      CREATE TABLE taxi_data AS 
-      SELECT * 
-      FROM read_parquet('https://media.substrate.run/yellow_tripdata_2024-01.parquet')
-    `);
-    return Inputs.table(await conn.query(`SELECT * FROM taxi_data LIMIT 10`));
-  } finally {
-    await conn.close();
-  }
-}
+taxi_data = db.query(`
+  CREATE TABLE IF NOT EXISTS taxi_data AS 
+  SELECT * 
+  FROM read_parquet('https://media.substrate.run/yellow_tripdata_2024-01.parquet');
+  SELECT * FROM taxi_data LIMIT 10
+`)
 ```
 
 ⚠️ **Note**: If you don't have a ready-to-use URL for NYC taxi data stored as a parquet, you’d need to upload the data to an accessible link or adjust this notebook with your own setup.
