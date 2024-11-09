@@ -16,8 +16,6 @@ Let’s set up and initialize DuckDB within Observable’s environment. We are l
 
 ```js
 import * as duckdb from "npm:@duckdb/duckdb-wasm";
-import duckdbWasm from "npm:@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm";
-import duckdbWorker from "npm:@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js";
 
 const DUCKDB_CONFIG = {
   mainModule: duckdbWasm,
