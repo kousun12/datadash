@@ -15,7 +15,22 @@ In this notebook, we'll load NYC Taxi data from Parquet files using DuckDB, and 
 Let’s set up and initialize DuckDB within Observable’s environment. We are loading the DuckDBClient library here.
 
 ```js
-const db = new DuckDBClient();
+import * as DuckDB from "@duckdb/duckdb-wasm";
+import DuckDBWASM from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
+import DuckDBWASMThread from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url";
+
+const DUCKDB_CONFIG = {
+  mainModule: DuckDBWASM,
+  mainWorker: DuckDBWASMThread,
+};
+
+const db = {
+  const worker = await DuckDB.createWorker(DUCKDB_CONFIG);
+  const logger = new DuckDB.ConsoleLogger();
+  const db = new DuckDB.AsyncDuckDB(logger, worker);
+  await db.instantiate();
+  return db;
+}
 ```
 
 ## Load NYC Taxi Parquet Data
@@ -23,10 +38,19 @@ const db = new DuckDBClient();
 Next, we’ll connect to the NYC TLC Taxi Parquet dataset, which you can host if you don't have direct access yet:
 
 ```js
-// DuckDB SQL query to load the Parquet file from a URL or local file.
-// Example with URL to parquet file:
-await db.query(`CREATE TABLE taxi_data AS SELECT '`);
-
+taxi_data = {
+  const conn = await db.connect();
+  try {
+    await conn.query(`
+      CREATE TABLE taxi_data AS 
+      SELECT * 
+      FROM read_parquet('https://media.substrate.run/yellow_tripdata_2024-01.parquet')
+    `);
+    return await conn.query(`SELECT * FROM taxi_data LIMIT 10`);
+  } finally {
+    await conn.close();
+  }
+}
 ```
 
 ⚠️ **Note**: If you don't have a ready-to-use URL for NYC taxi data stored as a parquet, you’d need to upload the data to an accessible link or adjust this notebook with your own setup.
