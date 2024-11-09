@@ -1,3 +1,9 @@
+---
+theme: dashboard
+title: NYC Taxi Data Exploration
+toc: false
+---
+
 # NYC Taxi Data Exploration with DuckDB, Parquet, and Observable
 
 In this notebook, we'll load NYC Taxi data from Parquet files using DuckDB, and perform basic data exploration and visualization using Observable's built-in features.
