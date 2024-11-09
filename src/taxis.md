@@ -59,8 +59,7 @@ const summary = await db.query(`SELECT
     AVG(fare_amount) AS avg_fare, 
     AVG(tip_amount) AS avg_tip 
 FROM taxi_data`);
-
-summary
+display(Inputs.table(summary));
 ```
 
 ## Visualizing Trip Distance Distribution
@@ -86,12 +85,12 @@ function plotDistribution(width = 960) {
   })
 }
 
+```
 <div class="grid grid-cols-1">
   <div class="card">
     ${resize((width) => plotDistribution(width))}
   </div>
 </div>
-```
 
 ### Interactive: Time Series of Taxi Demand
 
@@ -122,9 +121,9 @@ function plotTimeSeries(width = 960) {
   })
 }
 
+```
 <div class="grid grid-cols-1">
   <div class="card">
     ${resize((width) => plotTimeSeries(width))}
   </div>
 </div>
-```
