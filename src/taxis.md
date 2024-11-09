@@ -98,7 +98,7 @@ const time_series = await db.query(`
   ORDER BY date
 `);
 
-Plot.plot({
+display(Plot.plot({
   marks: [
     Plot.line(time_series, {x: "date", y: "num_trips"})
   ],
@@ -108,5 +108,5 @@ Plot.plot({
   y: {
     label: "Number of Trips"
   }
-})
+}))
 ```
