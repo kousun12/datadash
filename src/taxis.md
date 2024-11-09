@@ -24,13 +24,13 @@ const DUCKDB_CONFIG = {
   mainWorker: DuckDBWASMThread,
 };
 
-const db = {
+const db = await (async () => {
   const worker = await DuckDB.createWorker(DUCKDB_CONFIG);
   const logger = new DuckDB.ConsoleLogger();
   const db = new DuckDB.AsyncDuckDB(logger, worker);
   await db.instantiate();
   return db;
-}
+})();
 ```
 
 ## Load NYC Taxi Parquet Data
