@@ -13,8 +13,8 @@ const cpiPage = await FileAttachment("./cpi.md").text();
   <a href="https://observablehq.com/framework/getting-started">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
 </div>
 
-<div class="grid grid-cols-2" style="grid-auto-rows: 504px;">
-  <div class="card">${
+<div class="grid grid-cols-4" style="grid-auto-rows: 504px;">
+  <div class="card col-span-1">${
     resize((width) => Plot.plot({
       title: "Your awesomeness over time 🚀",
       subtitle: "Up and to the right!",
@@ -26,9 +26,9 @@ const cpiPage = await FileAttachment("./cpi.md").text();
       ]
     }))
   }</div>
-  <div class="card">${
+  <div class="card col-span-3">${
     resize((width) => Plot.plot({
-      title: "How big are penguins, anyway? 🐧",
+      title: "How big are penguins, anyway? 🐧", 
       width,
       grid: true,
       x: {label: "Body mass (g)"},
