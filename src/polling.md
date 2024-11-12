@@ -1,7 +1,10 @@
 ---
-theme: dashboard
 title: Polling 2024
 toc: false
+sidebar: false
+header: false
+footer: false
+pager: false
 ---
 
 

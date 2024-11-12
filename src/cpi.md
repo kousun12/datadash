@@ -1,7 +1,11 @@
 ---
-theme: dashboard
 title: CPI Over time
 toc: false
+sidebar: false
+header: false
+footer: false
+pager: false
+
 ---
 
 # CPI Over time

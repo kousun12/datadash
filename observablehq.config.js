@@ -21,14 +21,15 @@ export default {
 
   // The path to the source root.
   root: "src",
+  dynamicPaths: ['/components/timeline.js'],
 
   // Some additional configuration options and their defaults:
-  // theme: "default", // try "light", "dark", "slate", etc.
-  // header: "", // what to show in the header (HTML)
-  // footer: "Built with Observable.", // what to show in the footer (HTML)
-  // sidebar: true, // whether to show the sidebar
-  // toc: true, // whether to show the table of contents
-  // pager: true, // whether to show previous & next links in the footer
+  theme: ["cotton", "alt", "wide"], // try "light", "dark", "slate", etc.
+  header: "", // what to show in the header (HTML)
+  footer: "", // what to show in the footer (HTML)
+  sidebar: false, // whether to show the sidebar
+  toc: false, // whether to show the table of contents
+  pager: false, // whether to show previous & next links in the footer
   // output: "dist", // path to the output root for build
   // search: true, // activate search
   // linkify: true, // convert URLs in Markdown to links

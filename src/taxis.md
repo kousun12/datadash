@@ -1,7 +1,11 @@
 ---
-theme: dashboard
 title: NYC Taxi Data Exploration
 toc: false
+sidebar: false
+header: false
+footer: false
+pager: false
+
 ---
 
 # NYC Taxi Data Exploration with DuckDB, Parquet, and Observable
