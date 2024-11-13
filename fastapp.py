@@ -48,10 +48,10 @@ def get_modify_coder(fnames=None):
     )
 
 
-app = FastAPI()
+fast_app = FastAPI()
 
 
-@app.get("/")
+@fast_app.post("/")
 async def root(request: Request):
     body_json = await request.json()
     ac = get_ask_coder()
@@ -67,4 +67,4 @@ async def root(request: Request):
     )
     print(f"\n~~~~~~~~~CODE_EDIT~~~~~~~~~~~\n{mc.aider_edited_files}")
 
-    return {"message": "Hello World", "body": body_json}
+    return {"body": body_json, "modify": modify, "todo": todo}
