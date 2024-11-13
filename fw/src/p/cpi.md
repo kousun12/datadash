@@ -76,7 +76,7 @@ function plotTimeline(data, {width} = {}) {
     
     caption: "Source: Federal Reserve Economic Data (FRED)"
   });
-}// display(plotTimeline(data));
+}
 ```
 
 
