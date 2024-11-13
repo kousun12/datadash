@@ -12,9 +12,19 @@ const promptInput = Inputs.textarea({
 });
 
 const send = Inputs.button("Send", { reduce: (prev) => {
-    console.log("You said:", promptInput.value);
-    promptInput.value = ""
-    fetch()
+    const prompt = promptInput.value
+    console.log("Prompt:", prompt);
+    // post request to url:
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({query: prev})
+    }).then(response => response.json()).then(data => {
+      console.log("Data:", data);
+      promptInput.value = ""
+    });
     return prev + 1;
   }}
 );
@@ -29,8 +39,11 @@ const send = Inputs.button("Send", { reduce: (prev) => {
 
 <div class="grid" style="grid-template-columns: 1fr 3fr; grid-auto-rows: 504px;">
   <div class="card">
+    <div>
     ${promptInput}
     ${send}
+    </div>
+
 </div>
   <div class="card">${
     resize((width) => Plot.plot({
@@ -49,16 +62,17 @@ const send = Inputs.button("Send", { reduce: (prev) => {
 </div>
 
 <style>
-  .card div textarea {
+  .card div form {
     width: 100%;
+  }
+  .card div textarea {
     height: 48px;
     padding: 9px;
-    margin-bottom: 12px;
     border-radius: 6px;
     resize: none;
   }
   .card button {
-    padding: 4px;
+    padding: 4px 10px;
     margin: 12px 0;
   }
 </style>
