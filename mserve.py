@@ -40,7 +40,7 @@ class DataServer:
         ac = self.get_ask_coder()
         print(ac)
         todo = ac.run(
-            "what is something interesting i can do to visualize this cpi data. reply with just a short description of an idea and nothing else."
+            "what is one way i can improve this data visualization for cpi data. reply with just a short description of an incremental idea and nothing else."
         )
         print("todo", todo)
         mc = self.get_modify_coder()
