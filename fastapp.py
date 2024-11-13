@@ -38,13 +38,34 @@ def get_ask_coder(fnames=None, **kwargs):
         kwargs = {}
     if fnames is None:
         fnames = [project_root / "fw/src/index.md"]
-    return get_coder(edit_format="ask", fnames=fnames, **kwargs)
+    read_only_fnames = []
+    for example in examples:
+        read_only_fnames.append(project_root / f"fw/src/examples/{example}.md")
+
+    return get_coder(
+        edit_format="ask", fnames=fnames, read_only_fnames=read_only_fnames, **kwargs
+    )
+
+
+examples = [
+    "cpi",
+    "dams",
+    "electricity",
+    "hotels",
+    "mortgages",
+    "package_dl",
+    "polling",
+    "taxis",
+]
 
 
 def get_modify_coder(fnames=None):
     if fnames is None:
         fnames = [project_root / "fw/src/index.md"]
+
     read_only_fnames = []
+    for example in examples:
+        read_only_fnames.append(project_root / f"fw/src/examples/{example}.md")
     return get_coder(
         fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=False
     )

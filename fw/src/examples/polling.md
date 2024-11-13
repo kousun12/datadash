@@ -10,7 +10,7 @@ pager: false
 
 ```js
 // First, properly parse the dates and numbers
-const polling_data = await FileAttachment("./data/polling.csv")
+const polling_data = await FileAttachment("../data/polling.csv")
   .csv()
   .then(data => data.map(d => ({
     modeldate: d3.timeParse("%m/%d/%y")(d.modeldate), // Properly parse MM/DD/YY format
