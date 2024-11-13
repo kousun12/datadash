@@ -19,10 +19,9 @@ function plotTimeline(data, {width} = {}) {
       tickFormat: d => d.toLocaleString()
     },
     x: {
-      label: "Date →",
+      label: "Year →",
       grid: true,
       tickFormat: d3.timeFormat("%Y"),
-      tickRotate: 45
     },
     
     marks: [
@@ -67,6 +66,22 @@ function plotTimeline(data, {width} = {}) {
         fill: "#88888802", y: 0, y2: d3.max(data, d => d.CPIAUCSL) 
       }),
       Plot.ruleY([100], {stroke: "#888888", strokeDasharray: "5,5"}),
+
+      // Add markers for major CPI events
+      Plot.ruleX([
+        {date: new Date("1973-10-01"), label: "1973 Oil Crisis"},
+        {date: new Date("1980-01-01"), label: "1980s Inflation Peak"},
+        {date: new Date("2008-09-15"), label: "2008 Financial Crisis"},
+        {date: new Date("2020-03-11"), label: "COVID-19 Pandemic"},
+        {date: new Date("1951-02-07"), label: "1951 Inflation Spike"},
+        {date: new Date("1990-07-01"), label: "1990 Oil Price Shock"}
+      ], {
+        x: "date",
+        stroke: "var(--theme-red)",
+        strokeWidth: 1.5,
+        strokeDasharray: "4,2",
+        title: d => d.label, // Add hover title for major events
+      }),
     ],
     
     caption: "Source: Federal Reserve Economic Data (FRED)"
@@ -110,6 +125,10 @@ const send = Inputs.button("Send", { reduce: (prev) => {
 );
 ```
 
+```js
+console.log(todos);
+```
+
 <div>
     <div class="card-body">
     <h2>CPI Over time</h2>
@@ -121,11 +140,7 @@ const send = Inputs.button("Send", { reduce: (prev) => {
   <div class="card">
     <div class="card-content">
       <div class="content-area">
-        <div>
-          <ul>
-            ${todos.map(todo => `<li>${todo}</li>`)}
-          </ul>
-        </div>
+        ${todos.map(todo => html`<div class="todo-item">${todo}</div>`)}
       </div>
       <div class="input-area">
         ${promptInput}
@@ -173,5 +188,11 @@ const send = Inputs.button("Send", { reduce: (prev) => {
   .card button {
     padding: 4px 10px;
     margin: 12px 0;
+  }
+  .todo-item {
+    padding: 0.3rem;
+    margin: 0.5rem;
+    background: var(--theme-foreground-faintest);
+    border-radius: 4px;
   }
 </style>
