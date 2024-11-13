@@ -100,24 +100,6 @@ class DataServer:
             fnames = [project_root / "fw/src/index.md"]
         return self.get_coder(edit_format="ask", fnames=fnames, **kwargs)
 
-    def get_reflect_coder(self, from_coder=None, fnames=None, **kwargs):
-        if kwargs is None:
-            kwargs = {}
-        if fnames is None:
-            fnames = [
-                # self.file_paths["visual_descriptions"],
-            ]
-        read_only_fnames = [
-            # self.file_paths["main"],
-        ]
-        return self.get_coder(
-            from_coder=from_coder,
-            fnames=fnames,
-            read_only_fnames=read_only_fnames,
-            auto_commits=True,
-            **kwargs,
-        )
-
     def get_modify_coder(self, fnames=None):
         if fnames is None:
             fnames = [project_root / "fw/src/index.md"]
@@ -125,12 +107,5 @@ class DataServer:
             # self.file_paths["notebook"],
         ]
         return self.get_coder(
-            fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=True
+            fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=False
         )
-
-
-# @app.function(
-#     # volumes={"/data": vol},
-#     allow_concurrent_inputs=20,
-#     timeout=60 * 10,
-# )
