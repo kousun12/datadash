@@ -84,7 +84,7 @@ const send = Inputs.button("Send", { reduce: (prev) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({query: prev})
+      body: JSON.stringify({ prompt })
     }).then(response => response.json()).then(data => {
       console.log("Data:", data);
       promptInput.value = ""

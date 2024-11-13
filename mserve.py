@@ -50,8 +50,9 @@ class DataServer:
         ...
 
     @modal.web_endpoint(label="datadash-api", method="POST")
-    def update(self, request: Request):
-        return {"message": "Hello World"}
+    async def update(self, request: Request):
+        body_json = await request.json()
+        return {"message": "Hello World", "body": body_json}
 
     @modal.web_server(label="datadash-ui", port=3000, startup_timeout=120)
     def server(self):
