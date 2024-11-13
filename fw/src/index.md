@@ -133,7 +133,9 @@ const send = Inputs.button("Send", { reduce: (prev) => {
       </div>
     </div>
   </div>
-  <div class="card">${resize((width) => plotTimeline(data, {width}))}</div>
+  <div class="card">
+    ${resize((width) => plotTimeline(data, {width}))}
+  </div>
 </div>
 
 <style>
