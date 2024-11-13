@@ -39,12 +39,16 @@ const send = Inputs.button("Send", { reduce: (prev) => {
 
 <div class="grid" style="grid-template-columns: 1fr 3fr; grid-auto-rows: 504px;">
   <div class="card">
-    <div>
-    ${promptInput}
-    ${send}
+    <div class="card-content">
+      <div class="content-area">
+        <!-- Content will go here -->
+      </div>
+      <div class="input-area">
+        ${promptInput}
+        ${send}
+      </div>
     </div>
-
-</div>
+  </div>
   <div class="card">${
     resize((width) => Plot.plot({
       title: "How big are penguins, anyway? 🐧", 
@@ -62,6 +66,22 @@ const send = Inputs.button("Send", { reduce: (prev) => {
 </div>
 
 <style>
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .content-area {
+    flex: 1;
+    min-height: 0;
+  }
+  .input-area {
+    margin-top: auto;
+  }
   .card div form {
     width: 100%;
   }
@@ -70,6 +90,7 @@ const send = Inputs.button("Send", { reduce: (prev) => {
     padding: 9px;
     border-radius: 6px;
     resize: none;
+    width: 100%;
   }
   .card button {
     padding: 4px 10px;
