@@ -3,7 +3,8 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-project_root = Path("/app")
+# project_root = Path("/app")
+project_root = Path(__file__).parent
 
 
 def get_coder(**kwargs):

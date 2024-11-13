@@ -51,8 +51,15 @@ function plotTimeline(data, {width} = {}) {
         strokeWidth: 1,
         r: 2,
         filter: d => new Date(d.DATE).getMonth() === 0,
-        tip: true,
-        title: d => `${d3.timeFormat("%B %Y")(new Date(d.DATE))}\nCPI: ${d.CPIAUCSL.toFixed(1)}`
+        title: d => `${d3.timeFormat("%B %Y")(new Date(d.DATE))}`,
+        fill: "var(--theme-foreground-fainter)",
+        strokeWidth: 1,
+        r: 2,
+        filter: d => new Date(d.DATE).getMonth() === 0,
+        tip: {
+          title: d => `${d3.timeFormat("%B %Y")(new Date(d.DATE))}`,
+          body: d => `CPI: ${d.CPIAUCSL.toFixed(1)}`
+        },
       }),
       // mark the baseline years:
       Plot.rectY(data, { 
@@ -75,6 +82,11 @@ const promptInput = Inputs.textarea({
   placeholder: "What do you want to do?",
   value: ""
 });
+const todos = Mutable([])
+const addItem = (item) => {
+  todos.value.push(item)
+  return todos.value
+}
 
 const send = Inputs.button("Send", { reduce: (prev) => {
     const prompt = promptInput.value
@@ -88,6 +100,9 @@ const send = Inputs.button("Send", { reduce: (prev) => {
       body: JSON.stringify({ prompt })
     }).then(response => response.json()).then(data => {
       console.log("Data:", data);
+      if (data.todo) {
+        addItem(data.todo)
+      }
       promptInput.value = ""
     });
     return prev + 1;
@@ -106,7 +121,11 @@ const send = Inputs.button("Send", { reduce: (prev) => {
   <div class="card">
     <div class="card-content">
       <div class="content-area">
-        <!-- Content will go here -->
+        <div>
+          <ul>
+            ${todos.map(todo => `<li>${todo}</li>`)}
+          </ul>
+        </div>
       </div>
       <div class="input-area">
         ${promptInput}
