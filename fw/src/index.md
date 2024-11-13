@@ -4,6 +4,7 @@ toc: false
 
 ```js
 const cpiPage = await FileAttachment("./cpi.md").text();
+console.log('hello')
 ```
 
 <div class="grid" style="grid-template-columns: 1fr 3fr; grid-auto-rows: 504px;">
