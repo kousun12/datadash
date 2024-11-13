@@ -46,7 +46,7 @@ class DataServer:
         ...
 
     @modal.web_endpoint(label="datadash-api", method="POST")
-    def predict(self, request: Request):
+    def update(self, request: Request):
         return {"message": "Hello World"}
 
 
@@ -59,7 +59,7 @@ class DataServer:
 def server():
     commands = [
         "echo 'Starting DataDash'",
-        "cd /data/fw",
+        "cd /app/fw",
         "echo 'Installing yarn'",
         "yarn install",
         "echo 'Starting Preview Server'",
