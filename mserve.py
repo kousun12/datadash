@@ -24,23 +24,27 @@ def mount_condition(path: str):
 
 
 git_url = "https://github.com/kousun12/datadash.git"
+git_sha = "878de15"
 
 
 img = (
     modal.Image.from_registry("node:20-bookworm", add_python="3.12")
     .apt_install("git")
     .pip_install("fastapi[standard]", "httpx")
-    .run_commands(f"git clone {git_url} /app")
+    .run_commands(f"git clone {git_url} /app", f"cd /app && git checkout {git_sha}")
 )
 app = modal.App("datadash", image=img)
 # vol = modal.Volume.from_name("datadash_vol", create_if_missing=True)
 
 
 @app.cls(
-    # volumes={"/data": vol},
     allow_concurrent_inputs=20,
 )
 class DataServer:
+    @modal.build()
+    def startup(self):
+        os.system("cd /app/fw && yarn install && yarn build")
+
     @modal.enter()
     def foo(self):
         ...
@@ -49,22 +53,21 @@ class DataServer:
     def update(self, request: Request):
         return {"message": "Hello World"}
 
+    @modal.web_server(label="datadash-ui", port=3000, startup_timeout=120)
+    def server(self):
+        commands = [
+            "echo 'Starting DataDash'",
+            "cd /app/fw",
+            "echo 'Starting Preview Server'",
+            "yarn preview",
+            "echo 'DataDash Ready'",
+        ]
+        env = {"OBSERVABLE_TELEMETRY_DISABLE": "true"}
+        subprocess.Popen(" && ".join(commands), shell=True, env=env)
 
-@app.function(
-    # volumes={"/data": vol},
-    allow_concurrent_inputs=20,
-    timeout=60 * 10,
-)
-@modal.web_server(label="datadash-ui", port=3000, startup_timeout=120)
-def server():
-    commands = [
-        "echo 'Starting DataDash'",
-        "cd /app/fw",
-        "echo 'Installing yarn'",
-        "yarn install",
-        "echo 'Starting Preview Server'",
-        "yarn preview",
-        "echo 'DataDash Ready'",
-    ]
-    env = {"OBSERVABLE_TELEMETRY_DISABLE": "true"}
-    subprocess.Popen(" && ".join(commands), shell=True, env=env)
+
+# @app.function(
+#     # volumes={"/data": vol},
+#     allow_concurrent_inputs=20,
+#     timeout=60 * 10,
+# )
