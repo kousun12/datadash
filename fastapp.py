@@ -67,7 +67,7 @@ async def root(request: Request):
     ac = get_ask_coder()
     print(ac)
     todo = ac.run(
-        "what is one way i can improve this data visualization for cpi data. reply with just a short description of an incremental idea and nothing else"
+        "what is one idea for digging into this data more deeply? It can be an idea to improve a chart, add a new chart, a new metric, a new filter, or a new way to visualize the data. reply with just a short description of the idea and nothing else."
     )
     print("todo", todo)
     mc = get_modify_coder()
