@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 project_root = Path("/app")
 
@@ -49,6 +50,14 @@ def get_modify_coder(fnames=None):
 
 
 fast_app = FastAPI()
+
+fast_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @fast_app.post("/")
