@@ -19,7 +19,7 @@ def get_coder(**kwargs):
     io = InputOutput()
     io.yes = False
     auto_commits = kwargs.pop("auto_commits", False)
-    temp = kwargs.pop("temperature", 0.3)
+    temp = kwargs.pop("temperature", 0.8)
     coder: Coder = Coder.create(
         # main_model=Model("claude-3-5-sonnet-20240620"),
         io=io,
@@ -94,7 +94,7 @@ async def root(request: Request):
     mc = get_modify_coder()
     print(mc)
     modify = mc.run(
-        f"Implement following idea. Only modify things in the second card element where the chart(s) are. Do not modify the first card where there is a text input:\n\n{todo}"
+        f"Implement following idea.\nOnly modify things in the second card element where the chart(s) are. Do not modify the first card where there is a text input. Follow the patterns set by the examples and NOT what you know about Observable Notebook, this is Observable Framework:\n\n{todo}"
     )
     print(f"\n~~~~~~~~~CODE_EDIT~~~~~~~~~~~\n{mc.aider_edited_files}")
 

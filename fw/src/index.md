@@ -5,7 +5,7 @@ toc: false
 
 ```js
 const db = await DuckDBClient.of({base: FileAttachment("./data/cpi.parquet")});
-const data = db.sql`SELECT * FROM base`;
+const data = db.sql`SELECT * FROM base`; // returns Arrow table
 ```
 
 ```js
