@@ -68,7 +68,8 @@ function plotTimeline(data, {width} = {}) {
 ```
 
 ```js
-const url = 'https://substratelabs--datadash-api.modal.run';
+// const url = 'https://substratelabs--datadash-api.modal.run';
+const url = 'http://127.0.0.1:8000';
 
 const promptInput = Inputs.textarea({
   placeholder: "What do you want to do?",
