@@ -2,6 +2,9 @@ from aider.models import Model
 import textwrap
 from io import StringIO
 import duckdb
+import json
+import os
+from pathlib import Path
 
 
 class LLMAnalyst:
@@ -9,6 +12,23 @@ class LLMAnalyst:
         self.model_name = model_name
         self.db_path = db_path
         self.db = None
+        self._summary_cache = {}
+        self._cache_file = Path("table_summaries_cache.json")
+        self._load_cache()
+        
+    def _load_cache(self):
+        """Load cached summaries from file if it exists"""
+        if self._cache_file.exists():
+            with open(self._cache_file) as f:
+                cache = json.load(f)
+                # Use db_path as top-level key
+                self._summary_cache = cache.get(str(self.db_path) or "", {})
+                
+    def _save_cache(self):
+        """Save cached summaries to file"""
+        cache = {str(self.db_path): self._summary_cache}
+        with open(self._cache_file, 'w') as f:
+            json.dump(cache, f, indent=2)
 
     def connect(self):
         if self.db_path and not self.db:
@@ -136,11 +156,21 @@ class LLMAnalyst:
         return output.getvalue()
 
     def table_human_summary(self, table_name: str) -> str:
+        # Check in-memory cache first
+        if table_name in self._summary_cache:
+            return self._summary_cache[table_name]
+            
+        # Generate new summary if not cached
         stats = self.table_summary_stats(table_name)
         ac = self.get_ask_coder()
         res = ac.run(
             f"""Give a detailed summary of this table, "{table_name}". What is it for, and what what kinds of information does it include? answer in only a sentence or two. Reply with just the summary, nothing else. {stats}"""
         )
+        
+        # Cache the result both in memory and file
+        self._summary_cache[table_name] = res
+        self._save_cache()
+        
         return res
 
 
