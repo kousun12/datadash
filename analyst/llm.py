@@ -3,19 +3,27 @@ import textwrap
 from io import StringIO
 import duckdb
 import json
-import os
 from pathlib import Path
+
+default_cache_dir = Path("/tmp/analyst")
+cache_filename = "table_summaries_cache.json"
 
 
 class LLMAnalyst:
-    def __init__(self, model_name="claude-3-5-sonnet-20240620", db_path=None):
+    def __init__(
+        self,
+        model_name="claude-3-5-sonnet-20240620",
+        db_path=None,
+        cache_dir=default_cache_dir,
+    ):
         self.model_name = model_name
         self.db_path = db_path
         self.db = None
         self._summary_cache = {}
-        self._cache_file = Path("table_summaries_cache.json")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        self._cache_file = Path(cache_dir) / cache_filename
         self._load_cache()
-        
+
     def _load_cache(self):
         """Load cached summaries from file if it exists"""
         if self._cache_file.exists():
@@ -23,11 +31,11 @@ class LLMAnalyst:
                 cache = json.load(f)
                 # Use db_path as top-level key
                 self._summary_cache = cache.get(str(self.db_path) or "", {})
-                
+
     def _save_cache(self):
         """Save cached summaries to file"""
         cache = {str(self.db_path): self._summary_cache}
-        with open(self._cache_file, 'w') as f:
+        with open(self._cache_file, "w") as f:
             json.dump(cache, f, indent=2)
 
     def connect(self):
@@ -159,18 +167,18 @@ class LLMAnalyst:
         # Check in-memory cache first
         if table_name in self._summary_cache:
             return self._summary_cache[table_name]
-            
+
         # Generate new summary if not cached
         stats = self.table_summary_stats(table_name)
         ac = self.get_ask_coder()
         res = ac.run(
             f"""Give a detailed summary of this table, "{table_name}". What is it for, and what what kinds of information does it include? answer in only a sentence or two. Reply with just the summary, nothing else. {stats}"""
         )
-        
+
         # Cache the result both in memory and file
         self._summary_cache[table_name] = res
         self._save_cache()
-        
+
         return res
 
 
@@ -180,5 +188,10 @@ if __name__ == "__main__":
     analyst = LLMAnalyst(db_path=db_path)
     # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
     for table in analyst.get_tables():
-        # print(analyst.table_summary_stats(table))
-        print(analyst.table_human_summary(table))
+        stats = analyst.table_summary_stats(table)
+        overview = analyst.table_human_summary(table)
+        print(overview, stats)
+        query = analyst.get_ask_coder().run(
+            f"How would you visually present this table? Given your response, what sql query would you need in order to generate the data for this visualization? For the sql, put it in a code fence block.\n\n{overview}\n{stats}"
+        )
+        print(query)
