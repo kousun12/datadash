@@ -12,7 +12,7 @@ pager: false
 
 
 ```js
-const db = DuckDBClient.of({base: FileAttachment("../data/cpi.parquet")});
+const db = DuckDBClient.of({base: FileAttachment("/data/cpi.parquet")});
 ```
 
 ```js

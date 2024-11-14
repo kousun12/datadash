@@ -1,12 +1,39 @@
+import uuid
+from typing import Dict, Any
+
 from aider.models import Model
 import textwrap
 from io import StringIO
 import duckdb
 import json
+import pydantic
 from pathlib import Path
 
-default_cache_dir = Path("/tmp/analyst")
-cache_filename = "table_summaries_cache.json"
+default_data_dir = Path("/tmp/analyst")
+cache_filename = "analyst_cache.json"
+
+
+class ChartIdea(pydantic.BaseModel):
+    id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    concept: str
+    sql: str
+    vega_lite: Dict[str, Any]
+    dataframe: Any = None
+
+    def render(self):
+        import altair as alt
+        import pandas as pd
+
+        if self.dataframe is not None and isinstance(self.dataframe, pd.DataFrame):
+            data = alt.Data(values=self.dataframe.to_dict("records"))
+        else:
+            data = alt.Data(values=[])
+
+        chart = alt.Chart.from_dict(self.vega_lite)
+        if "data" not in chart.to_dict():
+            chart = chart.properties(data=data)
+
+        return chart
 
 
 class LLMAnalyst:
@@ -14,27 +41,24 @@ class LLMAnalyst:
         self,
         model_name="claude-3-5-sonnet-20240620",
         db_path=None,
-        cache_dir=default_cache_dir,
+        data_dir=default_data_dir,
     ):
         self.model_name = model_name
         self.db_path = db_path
         self.db = None
-        self._summary_cache = {}
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        self._cache_file = Path(cache_dir) / cache_filename
+        self._cache = {}
+        data_dir.mkdir(parents=True, exist_ok=True)
+        self._cache_file = Path(data_dir) / cache_filename
         self._load_cache()
 
     def _load_cache(self):
-        """Load cached summaries from file if it exists"""
         if self._cache_file.exists():
             with open(self._cache_file) as f:
                 cache = json.load(f)
-                # Use db_path as top-level key
-                self._summary_cache = cache.get(str(self.db_path) or "", {})
+                self._cache = cache.get(str(self.db_path) or "", {})
 
     def _save_cache(self):
-        """Save cached summaries to file"""
-        cache = {str(self.db_path): self._summary_cache}
+        cache = {str(self.db_path): self._cache}
         with open(self._cache_file, "w") as f:
             json.dump(cache, f, indent=2)
 
@@ -163,23 +187,59 @@ class LLMAnalyst:
 
         return output.getvalue()
 
-    def table_human_summary(self, table_name: str) -> str:
-        # Check in-memory cache first
-        if table_name in self._summary_cache:
-            return self._summary_cache[table_name]
+    def _get_from_cache(self, cache_type: str, key: str):
+        if cache_type not in self._cache:
+            self._cache[cache_type] = {}
+        return self._cache[cache_type].get(key, None)
 
-        # Generate new summary if not cached
+    def _set_cache(self, cache_type: str, key: str, value: str):
+        if cache_type not in self._cache:
+            self._cache[cache_type] = {}
+        self._cache[cache_type][key] = value
+        self._save_cache()
+
+    def table_human_summary(self, table_name: str) -> str:
+        cached = self._get_from_cache("human_summary", table_name)
+        if cached:
+            return cached
+
         stats = self.table_summary_stats(table_name)
         ac = self.get_ask_coder()
         res = ac.run(
             f"""Give a detailed summary of this table, "{table_name}". What is it for, and what what kinds of information does it include? answer in only a sentence or two. Reply with just the summary, nothing else. {stats}"""
         )
-
-        # Cache the result both in memory and file
-        self._summary_cache[table_name] = res
-        self._save_cache()
+        self._set_cache("human_summary", table_name, res)
 
         return res
+
+    def execute_sql(self, sql: str, as_df=True):
+        self.connect()
+        if as_df:
+            return self.db.execute(sql).fetchdf()
+        return self.db.execute(sql).fetchall()
+
+    def get_chart_idea(self, table_name: str):
+        id = uuid.uuid4()
+        stats = self.table_summary_stats(table_name)
+        overview = self.table_human_summary(table_name)
+        ac = self.get_ask_coder()
+        concept = ac.run(
+            f"How would you visually present this table? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works.\n\n{overview}\n{stats}"
+        )
+        implementation = ac.run(
+            f"Respond with both the SQL and the Vega-Lite code required to implement this visualization. Respond only with a single sql code fence and a json code fence, nothing else."
+        )
+        parsed_sql = implementation.split("```sql")[1].split("```")[0].strip()
+        parsed_json = implementation.split("```json")[1].split("```")[0].strip()
+        df = self.execute_sql(parsed_sql)
+
+        return ChartIdea(
+            id=id,
+            concept=concept,
+            sql=parsed_sql,
+            vega_lite=json.loads(parsed_json),
+            dataframe=df,
+        )
 
 
 if __name__ == "__main__":
@@ -188,10 +248,85 @@ if __name__ == "__main__":
     analyst = LLMAnalyst(db_path=db_path)
     # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
     for table in analyst.get_tables():
-        stats = analyst.table_summary_stats(table)
-        overview = analyst.table_human_summary(table)
-        print(overview, stats)
-        query = analyst.get_ask_coder().run(
-            f"How would you visually present this table? Given your response, what sql query would you need in order to generate the data for this visualization? For the sql, put it in a code fence block.\n\n{overview}\n{stats}"
-        )
-        print(query)
+        idea = analyst.get_chart_idea(table)
+        print(idea)
+
+
+"""
+sample data
+```sql
+WITH ranked_commodities AS (
+  SELECT Commodity, 
+         SUM(CASE WHEN Attribute = 'Production' THEN "Value text" ELSE 0 END) as total_production,
+         ROW_NUMBER() OVER (ORDER BY SUM(CASE WHEN Attribute = 'Production' THEN "Value text" ELSE 0 END) DESC) as rank
+  FROM ag_data
+  WHERE Attribute = 'Production' AND "Marketing/calendar year" >= '2010/11'
+  GROUP BY Commodity
+),
+top_commodities AS (
+  SELECT Commodity
+  FROM ranked_commodities
+  WHERE rank <= 5
+),
+filtered_data AS (
+  SELECT a."Marketing/calendar year" as year, 
+         a.Commodity, 
+         a.Attribute, 
+         a."Value text" as value
+  FROM ag_data a
+  JOIN top_commodities t ON a.Commodity = t.Commodity
+  WHERE a.Attribute IN ('Production', 'Domestic use', 'Exports')
+    AND a."Marketing/calendar year" >= '2010/11'
+)
+SELECT *
+FROM filtered_data
+ORDER BY year, Commodity, Attribute
+```
+
+```json
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {"name": "filtered_data"},
+  "vconcat": [
+    {
+      "width": 600,
+      "height": 300,
+      "mark": "line",
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal", "title": "Marketing/Calendar Year"},
+        "y": {"field": "value", "type": "quantitative", "title": "Value"},
+        "color": {"field": "Commodity", "type": "nominal"},
+        "strokeDash": {"field": "Attribute", "type": "nominal"}
+      },
+      "transform": [
+        {"filter": {"field": "Attribute", "equal": "Production"}}
+      ]
+    },
+    {
+      "width": 600,
+      "height": 300,
+      "mark": "bar",
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal", "title": "Marketing/Calendar Year"},
+        "y": {"field": "value", "type": "quantitative", "stack": "normalize", "title": "Percentage"},
+        "color": {"field": "Attribute", "type": "nominal"},
+        "tooltip": [
+          {"field": "year", "type": "ordinal", "title": "Year"},
+          {"field": "Commodity", "type": "nominal"},
+          {"field": "Attribute", "type": "nominal"},
+          {"field": "value", "type": "quantitative", "format": ".2f"}
+        ]
+      },
+      "transform": [
+        {"filter": {"field": "Attribute", "oneOf": ["Production", "Domestic use", "Exports"]}}
+      ]
+    }
+  ],
+  "resolve": {"scale": {"color": "independent"}},
+  "config": {
+    "axis": {"labelAngle": -45}
+  }
+}
+```
+
+"""

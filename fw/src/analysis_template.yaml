@@ -1,0 +1,34 @@
+chart:
+  type: multi-line
+  title: Commodity Trends Over Time
+
+axes:
+  x:
+    label: Marketing/Calendar Year
+    data_column: Marketing/calendar year
+  y:
+    label: Value
+    data_column: Value text
+
+attributes:
+  - Beginning stocks
+  - Production
+  - Imports
+
+visualization:
+  lines:
+    data: Commodity
+    color_coding: unique_per_commodity
+
+# Optional
+interactivity:
+  grouping:
+    - Crops
+    - Livestock/Dairy
+  filters:
+    - attribute_selector
+
+data_query:
+  type: SQL
+  base_query: |
+    TODO
