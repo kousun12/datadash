@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf7f0;  /* Warm off-white color */
+  --foreground: #2d2d2d;  /* Softer black for better contrast */
 }
 
 body {
