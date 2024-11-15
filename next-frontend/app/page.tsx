@@ -2,13 +2,6 @@
 'use client';
 import { useState } from 'react';
 
-const sampleMessages = [
-  { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
-  { id: 2, role: 'assistant', content: 'I\'d be happy to help analyze the agricultural data. What specific aspects would you like to explore?' },
-  { id: 3, role: 'user', content: 'Show me trends in corn stocks over time.' },
-  { id: 4, role: 'assistant', content: 'I\'ve loaded the visualization showing corn stock trends. You can see there are significant seasonal variations, with peaks typically occurring after harvest seasons.' },
-];
-
 export default function Home() {
   const [input, setInput] = useState('');
   
