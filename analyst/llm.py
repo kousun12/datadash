@@ -10,7 +10,7 @@ import re
 from unidecode import unidecode
 import shutil
 
-from analyst.chart_def import ChartIdea
+from analyst.chart_def import ChartDef
 from constants import base_path, default_data_dir, default_model
 
 guide_path = base_path / "plot_guide.md"
@@ -288,7 +288,7 @@ function plotChart(data, {width} = {}) {
         with open(idea_dir / "data.csv", "w") as f:
             df.to_csv(f, index=False)
 
-        idea = ChartIdea(
+        idea = ChartDef(
             id=id,
             title=title,
             description=desc,

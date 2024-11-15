@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from analyst.llm import LLMAnalyst, ChartIdea
+from analyst.llm import LLMAnalyst, ChartDef
 
 
 class TestLLMAnalyst(unittest.TestCase):
@@ -97,7 +97,7 @@ class TestLLMAnalyst(unittest.TestCase):
         mock_execute.return_value = pd.DataFrame({"a": [1, 2, 3]})
 
         chart_idea = self.analyst.get_chart_idea("test_table")
-        self.assertIsInstance(chart_idea, ChartIdea)
+        self.assertIsInstance(chart_idea, ChartDef)
         self.assertEqual(chart_idea.sql, "SELECT * FROM test")
         self.assertEqual(chart_idea.vega_lite, {"mark": "bar"})
         pd.testing.assert_frame_equal(

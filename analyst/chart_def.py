@@ -11,7 +11,7 @@ from constants import base_path
 observable_template_file = base_path / "templates/plot.j2"
 
 
-class ChartIdea(pydantic.BaseModel):
+class ChartDef(pydantic.BaseModel):
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
     title: str
     description: str
