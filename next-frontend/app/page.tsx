@@ -17,7 +17,7 @@ export default function Home() {
       <main className="h-screen">
         <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 116px)' }}>
+          <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - var(--input-height))' }}>
             <div className="flex flex-col justify-end min-h-full gap-4">
             {sampleMessages.map((message) => (
               <div

@@ -5,6 +5,7 @@
 :root {
   --background: #faf7f0;  /* Warm off-white color */
   --foreground: #2d2d2d;  /* Softer black for better contrast */
+  --input-height: 116px;  /* Height of input area: textarea(72px) + padding(32px) + border(1px) + spacing(11px) */
 }
 
 body {
