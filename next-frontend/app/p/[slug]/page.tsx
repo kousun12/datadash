@@ -53,8 +53,9 @@ export default function PlotPage({
       <main className="h-screen">
         <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
           {/* Messages container */}
-          <div className="messages-container p-4">
-            <div className="flex flex-col gap-4">
+          <div className="messages-container">
+            <div className="messages-content p-4">
+              <div className="flex flex-col gap-4">
             {sampleMessages.map((message) => (
               <div
                 key={message.id}
@@ -67,7 +68,8 @@ export default function PlotPage({
                 {message.content}
               </div>
             ))}
-            <div ref={messagesEndRef} />
+              </div>
+              <div ref={messagesEndRef} />
             </div>
           </div>
           <div className="p-4 border-t border-gray-200">

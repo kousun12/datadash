@@ -20,6 +20,13 @@ body {
   scroll-behavior: smooth;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-content {
+  margin-top: auto;
+  width: 100%;
 }
 
 /* Custom scrollbar for webkit browsers */
