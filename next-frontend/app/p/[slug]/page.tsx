@@ -55,10 +55,10 @@ export default function PlotPage({
             />
           </div>
         </div>
-        <div className="min-h-screen">
+        <div className="fixed right-0 top-0 bottom-0 left-96 bg-white">
           <iframe
             src={iframeUrl}
-            className="w-full h-screen border-0"
+            className="w-full h-full border-0"
             allow="fullscreen"
           />
         </div>
