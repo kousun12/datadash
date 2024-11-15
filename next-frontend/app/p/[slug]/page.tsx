@@ -1,10 +1,12 @@
 'use client';
+import { use } from 'react';
 
 export default function PlotPage({
-  params: { slug },
+  params
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = use(params);
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
   const iframeUrl = `${baseUrl}/p/${slug}`;
 
