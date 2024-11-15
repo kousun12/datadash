@@ -112,7 +112,7 @@ export default function PlotPage({
             />
           </div>
         </div>
-        <div className={`fixed right-0 top-0 bottom-0 ${isCollapsed ? 'left-12' : 'left-96'} bg-white transition-[left] duration-300 ease-in-out`}>
+        <div className={`fixed right-0 top-0 bottom-0 ${isCollapsed ? 'left-[60px]' : 'left-[396px]'} bg-white transition-[left] duration-300 ease-in-out`}>
           <iframe
             src={iframeUrl}
             className="w-full h-full border-0"
