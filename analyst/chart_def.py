@@ -14,6 +14,15 @@ observable_template_file = base_path / "templates/plot.j2"
 
 
 class ChartDef(pydantic.BaseModel):
+    class FileTypes:
+        METADATA = "metadata.json"
+        CONCEPT = "concept.md"
+        SQL = "sql.sql"
+        PLOT_JS = "plot.js"
+        DATA = "data.csv"
+        VEGA_CHART = "chart.html"
+        OBSERVABLE_PLOT = "plot.md"
+
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
     title: str
     description: str
@@ -28,19 +37,19 @@ class ChartDef(pydantic.BaseModel):
     @classmethod
     def from_path(cls, path: Path) -> "ChartDef":
         path = Path(path)
-        with open(path / "metadata.json") as f:
+        with open(path / cls.FileTypes.METADATA) as f:
             metadata = json.load(f)
-        with open(path / "concept.md") as f:
+        with open(path / cls.FileTypes.CONCEPT) as f:
             concept = f.read()
-        with open(path / "sql.sql") as f:
+        with open(path / cls.FileTypes.SQL) as f:
             sql = f.read()
         plot_js = None
-        if (path / "plot.js").exists():
-            with open(path / "plot.js") as f:
+        if (path / cls.FileTypes.PLOT_JS).exists():
+            with open(path / cls.FileTypes.PLOT_JS) as f:
                 plot_js = f.read()
         dataframe = None
-        if (path / "data.csv").exists():
-            dataframe = pd.read_csv(path / "data.csv")
+        if (path / cls.FileTypes.DATA).exists():
+            dataframe = pd.read_csv(path / cls.FileTypes.DATA)
         id = uuid.UUID(metadata.get("id")) if metadata.get("id") else uuid.uuid4()
 
         return cls(
@@ -88,13 +97,13 @@ class ChartDef(pydantic.BaseModel):
     def _render_main_artifact(self, dest_dir) -> Path:
         if self.vega_lite:
             html = self.render_vega_lite()
-            out = Path(dest_dir) / "chart.html"
+            out = Path(dest_dir) / self.FileTypes.VEGA_CHART
             with open(out, "w") as f:
                 f.write(html)
             return out
         elif self.plot_js:
             md = self.plot_observable(db_path=self.db_path)
-            out = Path(dest_dir) / "plot.md"
+            out = Path(dest_dir) / self.FileTypes.OBSERVABLE_PLOT
             with open(out, "w") as f:
                 f.write(md)
             return out
@@ -104,14 +113,14 @@ class ChartDef(pydantic.BaseModel):
     def save(self, in_dir: Path, skip_df=True) -> Path:
         dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
         dest_dir.mkdir(parents=True, exist_ok=True)
-        with open(dest_dir / "concept.md", "w") as f:
+        with open(dest_dir / self.FileTypes.CONCEPT, "w") as f:
             f.write(self.concept)
-        with open(dest_dir / "sql.sql", "w") as f:
+        with open(dest_dir / self.FileTypes.SQL, "w") as f:
             f.write(self.sql)
         if self.plot_js:
-            with open(dest_dir / "plot.js", "w") as f:
+            with open(dest_dir / self.FileTypes.PLOT_JS, "w") as f:
                 f.write(self.plot_js)
-        with open(dest_dir / "metadata.json", "w") as f:
+        with open(dest_dir / self.FileTypes.METADATA, "w") as f:
             json.dump(
                 {
                     "title": self.title,
@@ -124,7 +133,7 @@ class ChartDef(pydantic.BaseModel):
             )
 
         if self.dataframe is not None and not skip_df:
-            with open(dest_dir / "data.csv", "w") as f:
+            with open(dest_dir / self.FileTypes.DATA, "w") as f:
                 self.dataframe.to_csv(f, index=False)
 
         return self._render_main_artifact(dest_dir)
