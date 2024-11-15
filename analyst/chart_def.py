@@ -15,46 +15,6 @@ observable_template_file = base_path / "templates/plot.j2"
 
 class ChartDef(pydantic.BaseModel):
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
-    
-    @classmethod
-    def from_path(cls, path: Path) -> "ChartDef":
-        """Load a ChartDef instance from a directory containing saved files"""
-        path = Path(path)
-        
-        # Load metadata
-        with open(path / "metadata.json") as f:
-            metadata = json.load(f)
-            
-        # Load concept
-        with open(path / "concept.md") as f:
-            concept = f.read()
-            
-        # Load SQL
-        with open(path / "sql.sql") as f:
-            sql = f.read()
-            
-        # Load plot.js if it exists
-        plot_js = None
-        if (path / "plot.js").exists():
-            with open(path / "plot.js") as f:
-                plot_js = f.read()
-                
-        # Load dataframe if it exists
-        dataframe = None
-        if (path / "data.csv").exists():
-            dataframe = pd.read_csv(path / "data.csv")
-            
-        return cls(
-            id=uuid.UUID(path.name),
-            title=metadata["title"],
-            description=metadata["description"],
-            concept=concept,
-            sql=sql,
-            db_path=metadata["db_path"],
-            table_name=metadata["table_name"],
-            plot_js=plot_js,
-            dataframe=dataframe
-        )
     title: str
     description: str
     concept: str
@@ -64,6 +24,36 @@ class ChartDef(pydantic.BaseModel):
     plot_js: Optional[str] = None
     dataframe: Any = None
     vega_lite: Optional[Dict[str, Any]] = None
+
+    @classmethod
+    def from_path(cls, path: Path) -> "ChartDef":
+        path = Path(path)
+        with open(path / "metadata.json") as f:
+            metadata = json.load(f)
+        with open(path / "concept.md") as f:
+            concept = f.read()
+        with open(path / "sql.sql") as f:
+            sql = f.read()
+        plot_js = None
+        if (path / "plot.js").exists():
+            with open(path / "plot.js") as f:
+                plot_js = f.read()
+        dataframe = None
+        if (path / "data.csv").exists():
+            dataframe = pd.read_csv(path / "data.csv")
+        id = uuid.UUID(metadata.get("id")) if metadata.get("id") else uuid.uuid4()
+
+        return cls(
+            id=id,
+            title=metadata["title"],
+            description=metadata["description"],
+            concept=concept,
+            sql=sql,
+            db_path=metadata["db_path"],
+            table_name=metadata["table_name"],
+            plot_js=plot_js,
+            dataframe=dataframe,
+        )
 
     def render_vega_lite(self):
         import altair as alt
@@ -128,6 +118,7 @@ class ChartDef(pydantic.BaseModel):
                     "description": self.description,
                     "db_path": self.db_path,
                     "table_name": self.table_name,
+                    "id": str(self.id),
                 },
                 f,
             )
