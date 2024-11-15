@@ -16,7 +16,6 @@ export default function Home() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      // Handle send message here
       setInput('');
     }
   };
@@ -42,20 +41,18 @@ export default function Home() {
             ))}
           </div>
           
-          {/* Input box */}
           <div className="p-4 border-t border-gray-200">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Type a message... (Enter to send)"
+              placeholder="Explore the data..."
               className="w-full p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
             />
           </div>
         </div>
         
-        {/* Right pane with iframe */}
         <div className="col-span-2">
           <iframe 
             src={iframeUrl}

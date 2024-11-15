@@ -1,107 +1,27 @@
 import uuid
-from typing import Dict, Any, Optional
 
 from aider.models import Model
 import textwrap
 from io import StringIO
 import duckdb
 import json
-import pydantic
 from pathlib import Path
 import re
 from unidecode import unidecode
-import sqlparse
-from sqlparse.sql import Identifier
 import shutil
 
-base_path = Path("/Users/robcheung/code/fred")
+from analyst.chart_def import ChartIdea
+from constants import base_path, default_data_dir, default_model
+
 guide_path = base_path / "plot_guide.md"
-default_data_dir = Path("/tmp/analyst")
 cache_filename = "analyst_cache.json"
 observable_plot_version = "0.6.0"
-observable_template_file = base_path / "templates/plot.j2"
-
-
-def qualify_table_refs(sql, schema, table_name):
-    parsed = sqlparse.parse(sql)[0]
-
-    def traverse(token):
-        if (
-            isinstance(token, Identifier)
-            and token.get_real_name().lower() == table_name.lower()
-        ):
-            token.tokens = [
-                sqlparse.sql.Token(sqlparse.tokens.Name, f"{schema}.{table_name}")
-            ]
-        elif hasattr(token, "tokens"):
-            for sub_token in token.tokens:
-                traverse(sub_token)
-
-    traverse(parsed)
-    return str(parsed)
-
-
-class ChartIdea(pydantic.BaseModel):
-    id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
-    title: str
-    description: str
-    concept: str
-    sql: str
-    vega_lite: Optional[Dict[str, Any]] = None
-    plot_js: Optional[str] = None
-    dataframe: Any = None
-    table_name: Optional[str] = None
-
-    def render_vega_lite(self):
-        import altair as alt
-        import pandas as pd
-
-        if self.dataframe is not None and isinstance(self.dataframe, pd.DataFrame):
-            data = alt.Data(values=self.dataframe.to_dict("records"))
-        else:
-            data = alt.Data(values=[])
-
-        chart = alt.Chart.from_dict(self.vega_lite)
-        if "data" not in chart.to_dict():
-            chart = chart.properties(data=data)
-
-        return chart.to_html()
-
-    def plot_observable(self, db_path) -> str:
-        from jinja2 import Template
-
-        with open(observable_template_file) as f:
-            template = Template(f.read())
-
-        context = {
-            "title": self.title,
-            "db_path": f"/{db_path}",
-            "sql_block": qualify_table_refs(self.sql, "ds", self.table_name),
-            "plot_code": self.plot_js,
-        }
-        return template.render(context)
-
-    def render(self, directory, db_path: Optional[str] = None) -> Path:
-        if self.vega_lite:
-            html = self.render_vega_lite()
-            out = Path(directory) / "chart.html"
-            with open(out, "w") as f:
-                f.write(html)
-            return out
-        elif self.plot_js:
-            md = self.plot_observable(db_path=db_path)
-            out = Path(directory) / "plot.md"
-            with open(out, "w") as f:
-                f.write(md)
-            return out
-        else:
-            raise ValueError("No plot data available")
 
 
 class LLMAnalyst:
     def __init__(
         self,
-        model_name="claude-3-5-sonnet-20240620",
+        model_name=default_model,
         db_path=None,
         data_dir=default_data_dir,
     ):
@@ -402,82 +322,3 @@ if __name__ == "__main__":
     analyst = LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db")
     for table in analyst.get_tables():
         print(analyst.get_chart_idea(table))
-
-"""
-sample data
-```sql
-WITH ranked_commodities AS (
-  SELECT Commodity, 
-         SUM(CASE WHEN Attribute = 'Production' THEN "Value text" ELSE 0 END) as total_production,
-         ROW_NUMBER() OVER (ORDER BY SUM(CASE WHEN Attribute = 'Production' THEN "Value text" ELSE 0 END) DESC) as rank
-  FROM ag_data
-  WHERE Attribute = 'Production' AND "Marketing/calendar year" >= '2010/11'
-  GROUP BY Commodity
-),
-top_commodities AS (
-  SELECT Commodity
-  FROM ranked_commodities
-  WHERE rank <= 5
-),
-filtered_data AS (
-  SELECT a."Marketing/calendar year" as year, 
-         a.Commodity, 
-         a.Attribute, 
-         a."Value text" as value
-  FROM ag_data a
-  JOIN top_commodities t ON a.Commodity = t.Commodity
-  WHERE a.Attribute IN ('Production', 'Domestic use', 'Exports')
-    AND a."Marketing/calendar year" >= '2010/11'
-)
-SELECT *
-FROM filtered_data
-ORDER BY year, Commodity, Attribute
-```
-
-```json
-{
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "data": {"name": "filtered_data"},
-  "vconcat": [
-    {
-      "width": 600,
-      "height": 300,
-      "mark": "line",
-      "encoding": {
-        "x": {"field": "year", "type": "ordinal", "title": "Marketing/Calendar Year"},
-        "y": {"field": "value", "type": "quantitative", "title": "Value"},
-        "color": {"field": "Commodity", "type": "nominal"},
-        "strokeDash": {"field": "Attribute", "type": "nominal"}
-      },
-      "transform": [
-        {"filter": {"field": "Attribute", "equal": "Production"}}
-      ]
-    },
-    {
-      "width": 600,
-      "height": 300,
-      "mark": "bar",
-      "encoding": {
-        "x": {"field": "year", "type": "ordinal", "title": "Marketing/Calendar Year"},
-        "y": {"field": "value", "type": "quantitative", "stack": "normalize", "title": "Percentage"},
-        "color": {"field": "Attribute", "type": "nominal"},
-        "tooltip": [
-          {"field": "year", "type": "ordinal", "title": "Year"},
-          {"field": "Commodity", "type": "nominal"},
-          {"field": "Attribute", "type": "nominal"},
-          {"field": "value", "type": "quantitative", "format": ".2f"}
-        ]
-      },
-      "transform": [
-        {"filter": {"field": "Attribute", "oneOf": ["Production", "Domestic use", "Exports"]}}
-      ]
-    }
-  ],
-  "resolve": {"scale": {"color": "independent"}},
-  "config": {
-    "axis": {"labelAngle": -45}
-  }
-}
-```
-
-"""
