@@ -41,8 +41,7 @@ textarea {
 .messages-container {
   height: calc(100vh - var(--input-height));
   overflow-y: auto;
-  scroll-behavior: smooth;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;

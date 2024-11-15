@@ -20,26 +20,6 @@ export default function PlotPage({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry.isIntersecting) {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }
-      },
-      {
-        root: null,
-        threshold: 0,
-      }
-    );
-
-    if (messagesEndRef.current) {
-      observer.observe(messagesEndRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [sampleMessages]);
 
   const handleKeyPress = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
