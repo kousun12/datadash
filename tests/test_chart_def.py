@@ -1,7 +1,6 @@
 import pytest
 import uuid
 import pandas as pd
-from pathlib import Path
 from analyst.chart_def import ChartDef
 
 
@@ -32,7 +31,10 @@ class TestChartDef:
 
         # Load it back
         chart_dir = (
-            tmp_path / "sessions" / sample_chart_def.table_name / str(sample_chart_def.id)
+            tmp_path
+            / "sessions"
+            / sample_chart_def.table_name
+            / str(sample_chart_def.id)
         )
         loaded_def = ChartDef.from_path(chart_dir)
 
@@ -57,7 +59,10 @@ class TestChartDef:
 
         # Load it back
         chart_dir = (
-            tmp_path / "sessions" / sample_chart_def.table_name / str(sample_chart_def.id)
+            tmp_path
+            / "sessions"
+            / sample_chart_def.table_name
+            / str(sample_chart_def.id)
         )
         loaded_def = ChartDef.from_path(chart_dir)
 

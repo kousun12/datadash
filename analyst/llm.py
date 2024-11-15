@@ -265,3 +265,24 @@ function plotChart(data, {width} = {}) {
             dataframe=df,
             plot_js=parsed_ob_plot,
         )
+
+    def modify_chart(self, at_dir: Path):
+        chart = ChartDef.from_path(at_dir)
+        ac = self.get_modify_coder(fnames=[at_dir / "concept.md"])
+        new_concept = ac.run(
+            f"Update the concept for this chart. Respond with the updated concept. Do not include anything else in your response."
+        )
+        new_title_desc = ac.run(
+            f"Update the title and description for this chart. Respond with the title on one line and the description on the next line. Do not include anything else in your response."
+        )
+        new_title, new_desc = [i for i in new_title_desc.split("\n") if i]
+        new_plot = ac.run(
+            f"Update the plot code for this chart. Respond with the updated plot code. Do not include anything else in your response."
+        )
+
+        chart.title = new_title
+        chart.description = new_desc
+        chart.concept = new_concept
+        chart.plot_js = new_plot
+
+        return chart
