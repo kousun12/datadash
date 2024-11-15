@@ -27,9 +27,6 @@ export default function PlotPage({
       const newMessage = { id: sampleMessages.length + 1, role: 'user', content: input };
       sampleMessages.push(newMessage);
       setInput('');
-      
-      // Scroll to bottom after adding new message
-      messagesEndRef.current?.scrollIntoView();
 
       try {
         const response = await fetch('/api/messages', {
@@ -46,6 +43,11 @@ export default function PlotPage({
         if (!response.ok) {
           throw new Error('Failed to send message');
         }
+        
+        // Scroll to bottom after API call completes and DOM updates
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView();
+        }, 50);
       } catch (error) {
         console.error('Error sending message:', error);
         // TODO: Add proper error handling UI
