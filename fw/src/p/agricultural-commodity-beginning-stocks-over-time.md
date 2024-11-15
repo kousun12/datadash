@@ -1,11 +1,10 @@
 ---
-title: "Agricultural Commodity Beginning Stocks Over Time"
+title: Agricultural Commodity Beginning Stocks Over Time
 toc: false
 sidebar: false
 header: false
 footer: false
 pager: false
-
 ---
 
 # Agricultural Commodity Beginning Stocks Over Time
