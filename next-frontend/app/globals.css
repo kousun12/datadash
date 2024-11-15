@@ -62,9 +62,9 @@ textarea {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 30;
   transition: transform 0.3s ease-in-out;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  pointer-events: auto;
 }
 
 .toggle-button:hover {
