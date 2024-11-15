@@ -15,12 +15,26 @@ body {
 }
 
 .chat-sidebar {
-  transition: width 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
   width: 384px; /* 24rem = 384px */
+  overflow: hidden;
 }
 
 .chat-sidebar.collapsed {
   width: 48px;
+}
+
+.chat-sidebar.collapsed .messages-content,
+.chat-sidebar.collapsed textarea {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.messages-content,
+textarea {
+  transition: opacity 0.2s ease-in-out;
+  opacity: 1;
+  min-width: 360px; /* Prevent content from squishing */
 }
 
 .messages-container {

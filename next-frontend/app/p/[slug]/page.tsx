@@ -82,8 +82,8 @@ export default function PlotPage({
             ›
           </button>
           {/* Messages container */}
-          <div className="messages-container">
-            <div className="messages-content p-4">
+          <div className="messages-container overflow-hidden">
+            <div className="messages-content p-4 w-[360px]">
               <div className="flex flex-col gap-4">
             {sampleMessages.map((message) => (
               <div
