@@ -31,7 +31,7 @@ export default function PlotPage({
       <main className="h-screen">
         <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col h-full">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto flex flex-col justify-end p-4 gap-4">
+          <div className="flex-1 overflow-y-auto flex flex-col justify-end p-4 gap-4 min-h-0">
             {sampleMessages.map((message) => (
               <div
                 key={message.id}
