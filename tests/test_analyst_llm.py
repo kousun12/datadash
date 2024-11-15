@@ -96,7 +96,7 @@ class TestLLMAnalyst(unittest.TestCase):
         mock_get_coder.return_value = mock_coder
         mock_execute.return_value = pd.DataFrame({"a": [1, 2, 3]})
 
-        chart_idea = self.analyst.get_chart_idea("test_table")
+        chart_idea = self.analyst.create_chart("test_table")
         self.assertIsInstance(chart_idea, ChartDef)
         self.assertEqual(chart_idea.sql, "SELECT * FROM test")
         self.assertEqual(chart_idea.vega_lite, {"mark": "bar"})

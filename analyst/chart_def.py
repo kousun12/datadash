@@ -1,3 +1,4 @@
+import json
 import uuid
 from typing import Dict, Any, Optional
 
@@ -17,10 +18,11 @@ class ChartDef(pydantic.BaseModel):
     description: str
     concept: str
     sql: str
-    vega_lite: Optional[Dict[str, Any]] = None
+    db_path: str
+    table_name: str
     plot_js: Optional[str] = None
     dataframe: Any = None
-    table_name: Optional[str] = None
+    vega_lite: Optional[Dict[str, Any]] = None
 
     def render_vega_lite(self):
         import altair as alt
@@ -52,21 +54,56 @@ class ChartDef(pydantic.BaseModel):
         }
         return template.render(context)
 
-    def render(self, directory, db_path: Optional[str] = None) -> Path:
+    def _render_main_artifact(self, dest_dir) -> Path:
         if self.vega_lite:
             html = self.render_vega_lite()
-            out = Path(directory) / "chart.html"
+            out = Path(dest_dir) / "chart.html"
             with open(out, "w") as f:
                 f.write(html)
             return out
         elif self.plot_js:
-            md = self.plot_observable(db_path=db_path)
-            out = Path(directory) / "plot.md"
+            md = self.plot_observable(db_path=self.db_path)
+            out = Path(dest_dir) / "plot.md"
             with open(out, "w") as f:
                 f.write(md)
             return out
         else:
             raise ValueError("No plot data available")
+
+    def save(self, in_dir: Path, skip_df=True) -> Path:
+        dest_dir = in_dir / f"ideas/{self.table_name}/{self.id}"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(dest_dir / "concept.md", "w") as f:
+            f.write(self.concept)
+
+        with open(dest_dir / "sql.sql", "w") as f:
+            f.write(self.sql)
+
+        if self.plot_js:
+            with open(dest_dir / "plot.js", "w") as f:
+                f.write(self.plot_js)
+
+        with open(dest_dir / "metadata.json", "w") as f:
+            json.dump(
+                {
+                    "title": self.title,
+                    "description": self.description,
+                    "db_path": self.db_path,
+                    "table_name": self.table_name,
+                },
+                f,
+            )
+
+        if self.dataframe is not None and not skip_df:
+            with open(dest_dir / "data.csv", "w") as f:
+                self.dataframe.to_csv(f, index=False)
+
+        return self._render_main_artifact(dest_dir)
+
+        # slug = slugify(title)
+        # copy_pth = base_path / f"fw/src/p/{slug}{out_path.suffix}"
+        # shutil.copy2(out_path, copy_pth)
 
 
 def qualify_table_refs(sql, schema, table_name) -> str:

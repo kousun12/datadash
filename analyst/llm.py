@@ -203,12 +203,7 @@ class LLMAnalyst:
             return self.db.execute(sql).fetchdf()
         return self.db.execute(sql).fetchall()
 
-    def get_chart_idea(self, table_name: str):
-        id = uuid.uuid4()
-
-        idea_dir = default_data_dir / f"ideas/{table_name}/{id}"
-        idea_dir.mkdir(parents=True, exist_ok=True)
-
+    def create_chart(self, table_name: str):
         stats = self.table_summary_stats(table_name)
         overview = self.table_human_summary(table_name)
         ac = self.get_ask_coder()
@@ -260,54 +255,21 @@ function plotChart(data, {width} = {}) {
         if df is None or not parsed_sql or not parsed_ob_plot:
             raise ValueError("Failed to get valid SQL and Plot code")
 
-        with open(idea_dir / "concept.md", "w") as f:
-            f.write(concept)
-
-        with open(idea_dir / "sql.sql", "w") as f:
-            f.write(parsed_sql)
-
-        with open(idea_dir / "plot.js", "w") as f:
-            f.write(parsed_ob_plot)
-
         title_desc = ac.run(
             f"Give a title and description for this chart. Respond with the title on one line and the description on the next line. Do not include anything else in your response."
         )
         title, desc = [i for i in title_desc.split("\n") if i]
 
-        with open(idea_dir / "metadata.json", "w") as f:
-            json.dump(
-                {
-                    "title": title,
-                    "description": desc,
-                    "db_path": self.db_path.as_posix(),
-                    "table_name": table_name,
-                },
-                f,
-            )
-
-        with open(idea_dir / "data.csv", "w") as f:
-            df.to_csv(f, index=False)
-
-        idea = ChartDef(
-            id=id,
+        return ChartDef(
             title=title,
             description=desc,
             concept=concept,
             sql=parsed_sql,
-            vega_lite=None,
-            plot_js=parsed_ob_plot,
-            dataframe=df,
             table_name=table_name,
+            db_path=self.db_path.relative_to(base_path / "fw/src").as_posix(),
+            dataframe=df,
+            plot_js=parsed_ob_plot,
         )
-        out_path = idea.render(
-            idea_dir, db_path=self.db_path.relative_to(base_path / "fw/src").as_posix()
-        )
-
-        slug = slugify(title)
-        copy_pth = base_path / f"fw/src/p/{slug}{out_path.suffix}"
-        shutil.copy2(out_path, copy_pth)
-
-        return idea
 
 
 def slugify(title):
@@ -321,4 +283,4 @@ if __name__ == "__main__":
     # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
     analyst = LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db")
     for table in analyst.get_tables():
-        print(analyst.get_chart_idea(table))
+        print(analyst.create_chart(table))
