@@ -73,17 +73,13 @@ class ChartDef(pydantic.BaseModel):
     def save(self, in_dir: Path, skip_df=True) -> Path:
         dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
         dest_dir.mkdir(parents=True, exist_ok=True)
-
         with open(dest_dir / "concept.md", "w") as f:
             f.write(self.concept)
-
         with open(dest_dir / "sql.sql", "w") as f:
             f.write(self.sql)
-
         if self.plot_js:
             with open(dest_dir / "plot.js", "w") as f:
                 f.write(self.plot_js)
-
         with open(dest_dir / "metadata.json", "w") as f:
             json.dump(
                 {
