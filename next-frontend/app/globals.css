@@ -54,7 +54,8 @@ textarea {
   top: 50%;
   transform: translateY(-50%);
   background: white;
-  border: 1px solid #e5e7eb;
+  border: none;
+  box-shadow: 0 0 0 1px #e5e7eb;
   border-radius: 50%;
   width: 24px;
   height: 24px;
