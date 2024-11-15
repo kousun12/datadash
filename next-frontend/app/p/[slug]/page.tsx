@@ -20,30 +20,40 @@ export default function PlotPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.parentElement?.parentElement;
-      if (container) {
-        // Force a reflow to ensure accurate scrollHeight
-        void container.offsetHeight;
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: 'smooth'
-        });
+    requestAnimationFrame(() => {
+      if (messagesEndRef.current) {
+        const container = messagesEndRef.current.parentElement?.parentElement;
+        if (container) {
+          const scrollHeight = container.scrollHeight;
+          const height = container.clientHeight;
+          const maxScrollTop = scrollHeight - height;
+          container.scrollTo({
+            top: maxScrollTop,
+            behavior: 'smooth'
+          });
+        }
       }
-    }
+    });
   };
 
   useEffect(() => {
-    // Initial immediate scroll
+    // Initial scroll without animation
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.parentElement?.parentElement;
       if (container) {
         container.scrollTop = container.scrollHeight;
       }
     }
-    // Smooth scroll after content renders
-    const timeoutId = setTimeout(scrollToBottom, 50);
-    return () => clearTimeout(timeoutId);
+    
+    // Queue multiple scroll attempts to handle dynamic content
+    const scrollAttempts = [100, 200, 500];
+    const timeouts = scrollAttempts.map(delay => 
+      setTimeout(scrollToBottom, delay)
+    );
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+    };
   }, [sampleMessages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
