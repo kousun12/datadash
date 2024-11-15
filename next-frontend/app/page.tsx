@@ -8,17 +8,29 @@ export default function Home() {
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      const parent = messagesEndRef.current.parentElement?.parentElement;
-      if (parent) {
-        parent.scrollTop = parent.scrollHeight;
+      const container = messagesEndRef.current.parentElement?.parentElement;
+      if (container) {
+        // Force a reflow to ensure accurate scrollHeight
+        void container.offsetHeight;
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     }
   };
 
   useEffect(() => {
-    // Scroll immediately and then again after a short delay to handle content rendering
-    scrollToBottom();
-    setTimeout(scrollToBottom, 100);
+    // Initial immediate scroll
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement?.parentElement;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+    // Smooth scroll after content renders
+    const timeoutId = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timeoutId);
   }, [sampleMessages]);
   
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -33,8 +45,8 @@ export default function Home() {
       <main className="h-screen">
         <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - var(--input-height))' }}>
-            <div className="flex flex-col justify-end min-h-full gap-4">
+          <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - var(--input-height))', scrollBehavior: 'smooth' }}>
+            <div className="flex flex-col gap-4">
             {sampleMessages.map((message) => (
               <div
                 key={message.id}
