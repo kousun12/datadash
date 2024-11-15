@@ -266,23 +266,29 @@ function plotChart(data, {width} = {}) {
             plot_js=parsed_ob_plot,
         )
 
-    def modify_chart(self, at_dir: Path):
-        chart = ChartDef.from_path(at_dir)
-        ac = self.get_modify_coder(fnames=[at_dir / "concept.md"])
+    def modify_chart(self, instructions: str, at_dir: Path):
+        fnames = [at_dir / f for f in ChartDef.get_all_mutable_files()]
+        ac = self.get_modify_coder(fnames=fnames)
         new_concept = ac.run(
-            f"Update the concept for this chart. Respond with the updated concept. Do not include anything else in your response."
+            f"Given these instructions, update the concept and corresponding metadata for this chart:\nInstructions: {instructions}"
         )
-        new_title_desc = ac.run(
-            f"Update the title and description for this chart. Respond with the title on one line and the description on the next line. Do not include anything else in your response."
-        )
-        new_title, new_desc = [i for i in new_title_desc.split("\n") if i]
+        print(new_concept)
         new_plot = ac.run(
-            f"Update the plot code for this chart. Respond with the updated plot code. Do not include anything else in your response."
+            f"Given the new concept, update the plot js code for this chart"
         )
+        print(new_plot)
+        reloaded = ChartDef.from_path(at_dir)
+        reloaded.render_main_artifact(at_dir)
+        print(reloaded)
+        return reloaded
 
-        chart.title = new_title
-        chart.description = new_desc
-        chart.concept = new_concept
-        chart.plot_js = new_plot
 
-        return chart
+if __name__ == "__main__":
+    with LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db") as analyst:
+        p = (
+            base_path
+            / "chart_defs/sessions/ag_data/2faffd8d-27e1-4502-aae6-0daa6079d7c0"
+        )
+        analyst.modify_chart(
+            "fix this error: Uncaught (in promise) TypeError: t is not iterable", p
+        )

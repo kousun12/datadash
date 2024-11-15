@@ -64,6 +64,15 @@ class ChartDef(pydantic.BaseModel):
             dataframe=dataframe,
         )
 
+    @classmethod
+    def get_all_mutable_files(cls):
+        return [
+            cls.FileTypes.METADATA,
+            cls.FileTypes.CONCEPT,
+            cls.FileTypes.SQL,
+            cls.FileTypes.PLOT_JS,
+        ]
+
     def render_vega_lite(self):
         import altair as alt
         import pandas as pd
@@ -79,7 +88,7 @@ class ChartDef(pydantic.BaseModel):
 
         return chart.to_html()
 
-    def plot_observable(self, db_path) -> str:
+    def plot_observable(self) -> str:
         from jinja2 import Template
 
         with open(observable_template_file) as f:
@@ -87,14 +96,14 @@ class ChartDef(pydantic.BaseModel):
 
         context = {
             "title": self.title,
-            "db_path": f"/{db_path}",
+            "db_path": f"/{self.db_path}",
             "sql_block": qualify_table_refs(self.sql, "ds", self.table_name),
             "plot_code": self.plot_js,
             "description": self.description,
         }
         return template.render(context)
 
-    def _render_main_artifact(self, dest_dir) -> Path:
+    def render_main_artifact(self, dest_dir) -> Path:
         if self.vega_lite:
             html = self.render_vega_lite()
             out = Path(dest_dir) / self.FileTypes.VEGA_CHART
@@ -102,7 +111,7 @@ class ChartDef(pydantic.BaseModel):
                 f.write(html)
             return out
         elif self.plot_js:
-            md = self.plot_observable(db_path=self.db_path)
+            md = self.plot_observable()
             out = Path(dest_dir) / self.FileTypes.OBSERVABLE_PLOT
             with open(out, "w") as f:
                 f.write(md)
@@ -131,12 +140,11 @@ class ChartDef(pydantic.BaseModel):
                 },
                 f,
             )
-
         if self.dataframe is not None and not skip_df:
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
                 self.dataframe.to_csv(f, index=False)
 
-        return self._render_main_artifact(dest_dir)
+        return self.render_main_artifact(dest_dir)
 
 
 def qualify_table_refs(sql, schema, table_name) -> str:

@@ -1,1 +1,14 @@
-{"title": "Agricultural Commodity Trends Over Time", "description": "This chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector.", "db_path": "data/us_ag.db", "table_name": "ag_data", "id": "2faffd8d-27e1-4502-aae6-0daa6079d7c0"}
+{
+  "title": "Agricultural Commodity Trends Over Time",
+  "description": "This interactive chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector. The visualization includes data validation and error handling to ensure proper rendering and user experience.",
+  "db_path": "data/us_ag.db",
+  "table_name": "ag_data",
+  "id": "2faffd8d-27e1-4502-aae6-0daa6079d7c0",
+  "features": [
+    "Time series visualization",
+    "Interactive commodity and attribute selection",
+    "Data validation and error handling",
+    "Dynamic Y-axis scaling",
+    "Tooltips with detailed information"
+  ]
+}
