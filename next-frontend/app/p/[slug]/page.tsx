@@ -1,5 +1,5 @@
 'use client';
-import {use, useState} from 'react';
+import {use, useState, useRef, useEffect} from 'react';
 
 const sampleMessages = [
   { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
@@ -17,6 +17,15 @@ export default function PlotPage({
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
   const iframeUrl = `${baseUrl}/p/${slug}`;
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [sampleMessages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -45,6 +54,7 @@ export default function PlotPage({
                 {message.content}
               </div>
             ))}
+            <div ref={messagesEndRef} />
             </div>
           </div>
           <div className="p-4 border-t border-gray-200">
