@@ -12,12 +12,12 @@ class ObservablePageGenerator:
         self.db_path = db_path
         self.analyst = LLMAnalyst(db_path=db_path)
 
-    def generate_pages(self):
+    def generate_pages(self, slug_override=None):
         for table in self.analyst.get_tables():
             chart_def = self.analyst.create_chart(table)
             print(chart_def)
             out_path = chart_def.save(in_dir=default_data_dir)
-            slug = slugify(chart_def.title)
+            slug = slug_override or slugify(chart_def.title)
             copy_pth = observable_pages_dir / f"{slug}{out_path.suffix}"
             shutil.copy2(out_path, copy_pth)
             print(f"Generated {copy_pth}")
@@ -31,4 +31,4 @@ def slugify(title):
 
 if __name__ == "__main__":
     gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
-    gen.generate_pages()
+    gen.generate_pages(slug_override="us-agriculture")

@@ -25,12 +25,24 @@ const data = db.sql`
 
 ```js
 {{ plot_code }}
+
+function displayError(message) {
+    return html`<div style="color: red; teit-align: center; padding: 20px;">${message}</div>`;
+}
+
+function plotOrError(data, options) {
+    try {
+        return plotChart(data, options);
+    } catch (e) {
+        return displayError(e.message);
+    }
+}
 ```
 
 
 <div class="grid grid-cols-1">
     <div class="card">
-        ${resize((width) => plotChart(data, {width}))}
+        ${resize((width) => plotOrError(data, {width}))}
     </div>
 </div>
 

@@ -72,6 +72,7 @@ class LLMAnalyst:
             cache_prompts=True,
             stream=False,
             auto_commits=auto_commits,
+            verbose=True,
             **kwargs,
         )
         # coder.repo.aider_ignore_file = self.adhoc_ignore
@@ -290,5 +291,6 @@ if __name__ == "__main__":
             / "chart_defs/sessions/ag_data/2faffd8d-27e1-4502-aae6-0daa6079d7c0"
         )
         analyst.modify_chart(
-            "fix this error: Uncaught (in promise) TypeError: t is not iterable", p
+            "getting error: Uncaught (in promise) TypeError: Cannot read properties of null (reading '0')",
+            p,
         )
