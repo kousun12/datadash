@@ -21,6 +21,7 @@ export default function PlotPage({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      sampleMessages.push({ id: sampleMessages.length + 1, role: 'user', content: input });
       setInput('');
     }
   };
