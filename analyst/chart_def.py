@@ -71,7 +71,7 @@ class ChartDef(pydantic.BaseModel):
             raise ValueError("No plot data available")
 
     def save(self, in_dir: Path, skip_df=True) -> Path:
-        dest_dir = in_dir / f"ideas/{self.table_name}/{self.id}"
+        dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         with open(dest_dir / "concept.md", "w") as f:
@@ -100,10 +100,6 @@ class ChartDef(pydantic.BaseModel):
                 self.dataframe.to_csv(f, index=False)
 
         return self._render_main_artifact(dest_dir)
-
-        # slug = slugify(title)
-        # copy_pth = base_path / f"fw/src/p/{slug}{out_path.suffix}"
-        # shutil.copy2(out_path, copy_pth)
 
 
 def qualify_table_refs(sql, schema, table_name) -> str:

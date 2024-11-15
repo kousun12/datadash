@@ -1,14 +1,9 @@
-import uuid
-
 from aider.models import Model
 import textwrap
 from io import StringIO
 import duckdb
 import json
 from pathlib import Path
-import re
-from unidecode import unidecode
-import shutil
 
 from analyst.chart_def import ChartDef
 from constants import base_path, default_data_dir, default_model
@@ -270,17 +265,3 @@ function plotChart(data, {width} = {}) {
             dataframe=df,
             plot_js=parsed_ob_plot,
         )
-
-
-def slugify(title):
-    slug = re.sub(r"[^\w\s-]", "", unidecode(title).lower())
-    slug = re.sub(r"[\s_-]+", "-", slug)
-    return slug.strip("-")
-
-
-if __name__ == "__main__":
-    # path = "/Users/robcheung/code/fred/summarize_table.py"
-    # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
-    analyst = LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db")
-    for table in analyst.get_tables():
-        print(analyst.create_chart(table))
