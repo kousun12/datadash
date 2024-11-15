@@ -47,7 +47,7 @@ export default function PlotPage({
         // Scroll to bottom after API call completes and DOM updates
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView();
-        }, 50);
+        }, 20);
       } catch (error) {
         console.error('Error sending message:', error);
         // TODO: Add proper error handling UI
@@ -58,23 +58,23 @@ export default function PlotPage({
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] light">
       <main className="h-screen">
-        <div className={`chat-sidebar fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col relative ${isCollapsed ? 'collapsed' : ''}`}>
+        <div className={`chat-sidebar left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col relative ${isCollapsed ? 'collapsed' : ''}`}>
           {/* Messages container */}
           <div className="messages-container overflow-hidden">
             <div className="messages-content p-4 w-[360px]">
               <div className="flex flex-col gap-4">
-            {sampleMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`max-w-[85%] p-3 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-blue-100 ml-auto'
-                    : 'bg-gray-100'
-                }`}
-              >
-                {message.content}
-              </div>
-            ))}
+              {sampleMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`max-w-[85%] p-3 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-blue-100 ml-auto'
+                      : 'bg-gray-100'
+                  }`}
+                >
+                  {message.content}
+                </div>
+              ))}
               </div>
               <div ref={messagesEndRef} />
             </div>
