@@ -40,11 +40,32 @@ export default function PlotPage({
     return () => observer.disconnect();
   }, [sampleMessages]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sampleMessages.push({ id: sampleMessages.length + 1, role: 'user', content: input });
+      const newMessage = { id: sampleMessages.length + 1, role: 'user', content: input };
+      sampleMessages.push(newMessage);
       setInput('');
+
+      try {
+        const response = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: input,
+            slug: slug
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send message');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // TODO: Add proper error handling UI
+      }
     }
   };
 
