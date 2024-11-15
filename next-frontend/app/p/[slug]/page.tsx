@@ -74,13 +74,6 @@ export default function PlotPage({
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] light">
       <main className="h-screen">
         <div className={`chat-sidebar fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col relative ${isCollapsed ? 'collapsed' : ''}`}>
-          <button 
-            className="toggle-button"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            aria-label={isCollapsed ? 'Expand chat' : 'Collapse chat'}
-          >
-            ›
-          </button>
           {/* Messages container */}
           <div className="messages-container overflow-hidden">
             <div className="messages-content p-4 w-[360px]">
@@ -113,6 +106,13 @@ export default function PlotPage({
           </div>
         </div>
         <div className={`fixed right-0 top-0 bottom-0 ${isCollapsed ? 'left-[48px]' : 'left-[384px]'} bg-white transition-[left] duration-300 ease-in-out pointer-events-none`}>
+          <button 
+            className="toggle-button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={isCollapsed ? 'Expand chat' : 'Collapse chat'}
+          >
+            ›
+          </button>
           <iframe
             src={iframeUrl}
             className="w-full h-full border-0 pointer-events-auto"
