@@ -19,41 +19,25 @@ export default function PlotPage({
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    requestAnimationFrame(() => {
-      if (messagesEndRef.current) {
-        const container = messagesEndRef.current.parentElement?.parentElement;
-        if (container) {
-          const scrollHeight = container.scrollHeight;
-          const height = container.clientHeight;
-          const maxScrollTop = scrollHeight - height;
-          container.scrollTo({
-            top: maxScrollTop,
-            behavior: 'smooth'
-          });
-        }
-      }
-    });
-  };
-
   useEffect(() => {
-    // Initial scroll without animation
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.parentElement?.parentElement;
-      if (container) {
-        container.scrollTop = container.scrollHeight;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry.isIntersecting) {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+      },
+      {
+        root: null,
+        threshold: 0,
       }
-    }
-    
-    // Queue multiple scroll attempts to handle dynamic content
-    const scrollAttempts = [100, 200, 500];
-    const timeouts = scrollAttempts.map(delay => 
-      setTimeout(scrollToBottom, delay)
     );
 
-    return () => {
-      timeouts.forEach(clearTimeout);
-    };
+    if (messagesEndRef.current) {
+      observer.observe(messagesEndRef.current);
+    }
+
+    return () => observer.disconnect();
   }, [sampleMessages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -69,7 +53,7 @@ export default function PlotPage({
       <main className="h-screen">
         <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - var(--input-height))', scrollBehavior: 'smooth' }}>
+          <div className="messages-container p-4">
             <div className="flex flex-col gap-4">
             {sampleMessages.map((message) => (
               <div
