@@ -1,5 +1,5 @@
 ---
-title: {{ title }}
+title: "{{ title }}"
 toc: false
 sidebar: false
 header: false
@@ -16,15 +16,10 @@ const db = DuckDBClient.of({ds: FileAttachment("{{ db_path }}")});
 ```
 
 ```js
-// data is an arrow object
 const data = db.sql`
-{{ sql_block }}
+{{ sql_block }}`
 ```
 
-
-```js
-display(Inputs.table(data));
-```
 
 ```js
 {{ plot_code }}
@@ -36,3 +31,7 @@ display(Inputs.table(data));
         ${resize((width) => plotChart(data, {width}))}
     </div>
 </div>
+
+```js
+display(Inputs.table(data));
+```

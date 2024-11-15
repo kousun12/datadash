@@ -8,6 +8,11 @@ import duckdb
 import json
 import pydantic
 from pathlib import Path
+import re
+from unidecode import unidecode
+import sqlparse
+from sqlparse.sql import Identifier
+import shutil
 
 base_path = Path("/Users/robcheung/code/fred")
 guide_path = base_path / "plot_guide.md"
@@ -15,6 +20,25 @@ default_data_dir = Path("/tmp/analyst")
 cache_filename = "analyst_cache.json"
 observable_plot_version = "0.6.0"
 observable_template_file = base_path / "templates/plot.j2"
+
+
+def qualify_table_refs(sql, schema, table_name):
+    parsed = sqlparse.parse(sql)[0]
+
+    def traverse(token):
+        if (
+            isinstance(token, Identifier)
+            and token.get_real_name().lower() == table_name.lower()
+        ):
+            token.tokens = [
+                sqlparse.sql.Token(sqlparse.tokens.Name, f"{schema}.{table_name}")
+            ]
+        elif hasattr(token, "tokens"):
+            for sub_token in token.tokens:
+                traverse(sub_token)
+
+    traverse(parsed)
+    return str(parsed)
 
 
 class ChartIdea(pydantic.BaseModel):
@@ -26,6 +50,7 @@ class ChartIdea(pydantic.BaseModel):
     vega_lite: Optional[Dict[str, Any]] = None
     plot_js: Optional[str] = None
     dataframe: Any = None
+    table_name: Optional[str] = None
 
     def render_vega_lite(self):
         import altair as alt
@@ -42,29 +67,33 @@ class ChartIdea(pydantic.BaseModel):
 
         return chart.to_html()
 
-    def plot_observable(self) -> str:
+    def plot_observable(self, db_path) -> str:
         from jinja2 import Template
 
         with open(observable_template_file) as f:
             template = Template(f.read())
 
         context = {
-            "title": "Your Chart Title",
-            "db_path": "path/to/your/database.db",
-            "sql_block": "SELECT * FROM your_table",
-            "plot_code": "function plotChart(data, options) { /* Your plotting code here */ }",
+            "title": self.title,
+            "db_path": f"/{db_path}",
+            "sql_block": qualify_table_refs(self.sql, "ds", self.table_name),
+            "plot_code": self.plot_js,
         }
         return template.render(context)
 
-    def render(self, directory):
+    def render(self, directory, db_path: Optional[str] = None) -> Path:
         if self.vega_lite:
             html = self.render_vega_lite()
-            with open(Path(directory) / "chart.html", "w") as f:
+            out = Path(directory) / "chart.html"
+            with open(out, "w") as f:
                 f.write(html)
+            return out
         elif self.plot_js:
-            md = self.plot_observable()
-            with open(Path(directory) / "plot.md", "w") as f:
+            md = self.plot_observable(db_path=db_path)
+            out = Path(directory) / "plot.md"
+            with open(out, "w") as f:
                 f.write(md)
+            return out
         else:
             raise ValueError("No plot data available")
 
@@ -109,6 +138,9 @@ class LLMAnalyst:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def __del__(self):
         self.close()
 
     def get_coder(self, **kwargs):
@@ -270,7 +302,7 @@ The javascript code fence should ONLY include a single function `plotChart` that
 For example your response should be in this form:
 
 ```sql
-<your sql code here>
+<Your SQL code here>
 ```
 
 ```javascript
@@ -284,11 +316,29 @@ function plotChart(data, {width} = {}) {
 ```
 """
         )
-        parsed_sql = implementation.split("```sql")[1].split("```")[0].strip()
-        parsed_ob_plot = (
-            implementation.split("```javascript")[1].split("```")[0].strip()
-        )
+        max_tries = 3
 
+        df = None
+        parsed_sql = None
+        parsed_ob_plot = None
+        for i in range(max_tries):
+            parsed_sql = implementation.split("```sql")[1].split("```")[0].strip()
+            parsed_ob_plot = (
+                implementation.split("```javascript")[1].split("```")[0].strip()
+            )
+            try:
+                df = self.execute_sql(parsed_sql)
+                if df is not None:
+                    break
+            except Exception as e:
+                message = f"Error executing SQL: {e}"
+                print(message, parsed_sql)
+                implementation = ac.run(
+                    f"Executing that SQL produced an error: {message}. Respond with a new SQL and Plot code. Again, only respond with the new code blocks, nothing else."
+                )
+
+        if df is None or not parsed_sql or not parsed_ob_plot:
+            raise ValueError("Failed to get valid SQL and Plot code")
         # save files:
         with open(idea_dir / "concept.md", "w") as f:
             f.write(concept)
@@ -307,8 +357,6 @@ function plotChart(data, {width} = {}) {
         with open(idea_dir / "metadata.json", "w") as f:
             json.dump({"title": title, "description": desc}, f)
 
-        df = self.execute_sql(parsed_sql)
-
         with open(idea_dir / "data.csv", "w") as f:
             df.to_csv(f, index=False)
 
@@ -321,16 +369,29 @@ function plotChart(data, {width} = {}) {
             vega_lite=None,
             plot_js=parsed_ob_plot,
             dataframe=df,
+            table_name=table_name,
         )
-        idea.render(idea_dir)
+        out_path = idea.render(
+            idea_dir, db_path=self.db_path.relative_to(base_path / "fw/src").as_posix()
+        )
+
+        slug = slugify(title)
+        copy_pth = base_path / f"fw/src/p/{slug}{out_path.suffix}"
+        shutil.copy2(out_path, copy_pth)
 
         return idea
+
+
+def slugify(title):
+    slug = re.sub(r"[^\w\s-]", "", unidecode(title).lower())
+    slug = re.sub(r"[\s_-]+", "-", slug)
+    return slug.strip("-")
 
 
 if __name__ == "__main__":
     # path = "/Users/robcheung/code/fred/summarize_table.py"
     # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
-    analyst = LLMAnalyst(db_path=base_path / "us_ag.db")
+    analyst = LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db")
     for table in analyst.get_tables():
         print(analyst.get_chart_idea(table))
 
