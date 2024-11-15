@@ -20,11 +20,18 @@ export default function PlotPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      const parent = messagesEndRef.current.parentElement?.parentElement;
+      if (parent) {
+        parent.scrollTop = parent.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
+    // Scroll immediately and then again after a short delay to handle content rendering
     scrollToBottom();
+    setTimeout(scrollToBottom, 100);
   }, [sampleMessages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
