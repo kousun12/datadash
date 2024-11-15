@@ -288,7 +288,7 @@ if __name__ == "__main__":
     with LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db") as analyst:
         p = (
             base_path
-            / "chart_defs/sessions/ag_data/2faffd8d-27e1-4502-aae6-0daa6079d7c0"
+            / "chart_defs/sessions/ag_data/119de9af-ba2a-484f-a136-3906f6d7425a"
         )
         analyst.modify_chart(
             "getting error: Uncaught (in promise) TypeError: Cannot read properties of null (reading '0')",

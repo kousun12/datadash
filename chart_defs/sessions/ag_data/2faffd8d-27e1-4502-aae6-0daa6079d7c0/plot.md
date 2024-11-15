@@ -10,7 +10,7 @@ pager: false
 
 # Agricultural Commodity Trends Over Time
 
-This interactive chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector. The visualization leverages Apache Arrow for efficient data handling, includes data validation, and implements error handling to ensure proper rendering and optimal user experience.
+This robust interactive chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector. The visualization leverages Apache Arrow for efficient data handling, implements comprehensive data validation and error handling to ensure proper rendering and optimal user experience, even with imperfect or incomplete data.
 
 
 ```js
@@ -33,120 +33,159 @@ ORDER BY "Marketing/calendar year"`
 
 ```js
 function plotChart(data, {width} = {}) {
-  // Data validation and preparation
+  // Comprehensive data validation and error handling
   if (!data || typeof data.getColumn !== 'function') {
     console.error("Invalid or empty Arrow data");
-    return displayError("No data available to display");
+    return displayError("No data available to display. Please check the data source.");
   }
 
-  // Extract columns using Arrow methods
-  const years = data.getColumn('year').toArray();
-  const commodities = data.getColumn('Commodity').toArray();
-  const attributes = data.getColumn('Attribute').toArray();
-  const units = data.getColumn('Unit').toArray();
-  const values = data.getColumn('value').toArray();
-  const commodityTypes = data.getColumn('commodity_type').toArray();
+  try {
+    // Extract columns using Arrow methods with error handling
+    const years = data.getColumn('year')?.toArray() ?? [];
+    const commodities = data.getColumn('Commodity')?.toArray() ?? [];
+    const attributes = data.getColumn('Attribute')?.toArray() ?? [];
+    const units = data.getColumn('Unit')?.toArray() ?? [];
+    const values = data.getColumn('value')?.toArray() ?? [];
+    const commodityTypes = data.getColumn('commodity_type')?.toArray() ?? [];
 
-  // Convert 'value' to numeric, filtering out non-numeric values
-  const validData = values.map((value, i) => {
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      console.warn(`Invalid numeric value: ${value} for ${commodities[i]}`);
-      return null;
+    if (!years.length || !commodities.length || !attributes.length || !values.length) {
+      throw new Error("One or more required columns are missing or empty");
     }
-    return {
-      year: years[i],
-      commodity: commodities[i],
-      attribute: attributes[i],
-      unit: units[i],
-      value: numValue,
-      commodity_type: commodityTypes[i]
-    };
-  }).filter(d => d !== null);
 
-  if (validData.length === 0) {
-    return displayError("No valid numeric data to display");
+    // Convert 'value' to numeric, filtering out non-numeric values
+    const validData = values.map((value, i) => {
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        console.warn(`Invalid numeric value: ${value} for ${commodities[i]} in year ${years[i]}`);
+        return null;
+      }
+      return {
+        year: years[i],
+        commodity: commodities[i],
+        attribute: attributes[i],
+        unit: units[i] || 'N/A',
+        value: numValue,
+        commodity_type: commodityTypes[i] || 'Unspecified'
+      };
+    }).filter(d => d !== null);
+
+    if (validData.length === 0) {
+      return displayError("No valid numeric data to display. All values were invalid or missing.");
+    }
+
+    // Get unique commodities, attributes, and commodity types for dropdowns
+    const uniqueCommodities = [...new Set(validData.map(d => d.commodity))];
+    const uniqueAttributes = [...new Set(validData.map(d => d.attribute))];
+    const uniqueCommodityTypes = [...new Set(validData.map(d => d.commodity_type))];
+
+    // Create dropdown inputs
+    const commodityTypeSelect = Inputs.select(uniqueCommodityTypes, {label: "Commodity Type", value: uniqueCommodityTypes[0]});
+    const commoditySelect = Inputs.select(uniqueCommodities, {label: "Commodity", value: uniqueCommodities[0]});
+    const attributeSelect = Inputs.select(uniqueAttributes, {label: "Attribute", value: uniqueAttributes[0]});
+
+    // Reactive filtering of data based on selections
+    const filteredData = Generators.observe(notify => {
+      const filtered = validData.filter(d => 
+        d.commodity_type === commodityTypeSelect &&
+        d.commodity === commoditySelect &&
+        d.attribute === attributeSelect
+      );
+      notify(filtered);
+      return filtered;
+    });
+
+    // Determine y-axis range dynamically
+    const yExtent = d3.extent(filteredData, d => d.value);
+    const yDomain = [Math.min(0, yExtent[0]), yExtent[1] * 1.1]; // Add 10% padding to the top
+
+    // Create the plot
+    const plot = Plot.plot({
+      width,
+      height: 500,
+      marginRight: 120,
+      x: {
+        label: "Marketing/Calendar Year",
+        tickRotate: 45
+      },
+      y: {
+        label: filteredData.length > 0 ? `${filteredData[0].attribute} (${filteredData[0].unit})` : "Value",
+        grid: true,
+        domain: yDomain
+      },
+      color: {
+        legend: true
+      },
+      marks: [
+        Plot.line(filteredData, {
+          x: "year",
+          y: "value",
+          stroke: "commodity_type",
+          strokeWidth: 2,
+          curve: "natural"
+        }),
+        Plot.dot(filteredData, {
+          x: "year",
+          y: "value",
+          stroke: "commodity_type",
+          fill: "white",
+          title: d => `${d.commodity}: ${d.attribute}\nValue: ${d.value.toLocaleString()} ${d.unit}\nYear: ${d.year}`
+        }),
+        Plot.text(filteredData, Plot.selectLast({
+          x: "year",
+          y: "value",
+          text: d => d.commodity,
+          dx: 3,
+          dy: -3,
+          fontSize: 10,
+          fontWeight: "bold",
+          fill: "commodity_type"
+        }))
+      ]
+    });
+
+    // Combine inputs and plot
+    return html`
+      <div>
+        ${commodityTypeSelect}
+        ${commoditySelect}
+        ${attributeSelect}
+        ${plot}
+      </div>
+    `;
+  } catch (error) {
+    console.error("Error in plotChart:", error);
+    return displayError(`An error occurred while processing the data: ${error.message}`);
   }
+}
 
-  // Get unique commodities and attributes for dropdowns
-  const uniqueCommodities = [...new Set(commodities)];
-  const uniqueAttributes = [...new Set(attributes)];
-
-  // Create dropdown inputs
-  const commoditySelect = Inputs.select(uniqueCommodities, {label: "Commodity", value: uniqueCommodities[0]});
-  const attributeSelect = Inputs.select(uniqueAttributes, {label: "Attribute", value: uniqueAttributes[0]});
-
-  // Filter data based on selections
-  const filteredData = validData.filter(d => 
-    d.commodity === commoditySelect && d.attribute === attributeSelect
-  );
-
-  // Determine y-axis range
-  const yExtent = d3.extent(filteredData, d => d.value);
-  const yDomain = [Math.min(0, yExtent[0]), yExtent[1]];
-
-  // Create the plot
-  const plot = Plot.plot({
-    width,
-    height: 500,
-    marginRight: 80,
-    x: {
-      label: "Marketing/Calendar Year",
-      tickRotate: 45
-    },
-    y: {
-      label: "Value",
-      grid: true,
-      domain: yDomain
-    },
-    color: {
-      legend: true
-    },
-    marks: [
-      Plot.line(filteredData, {
-        x: "year",
-        y: "value",
-        stroke: "commodity_type",
-        strokeWidth: 2,
-        curve: "natural"
-      }),
-      Plot.dot(filteredData, {
-        x: "year",
-        y: "value",
-        stroke: "commodity_type",
-        fill: "white",
-        title: d => `${d.commodity}: ${d.attribute}\nValue: ${d.value} ${d.unit}\nYear: ${d.year}`
-      }),
-      Plot.text(filteredData, Plot.selectLast({
-        x: "year",
-        y: "value",
-        text: d => d.commodity,
-        dx: 3,
-        anchor: "start"
-      }))
-    ]
-  });
-
-  // Combine inputs and plot
+function displayError(message) {
   return html`
-    <div>
-      ${commoditySelect}
-      ${attributeSelect}
-      ${plot}
+    <div style="color: red; text-align: center; padding: 20px; border: 1px solid red; border-radius: 5px; background-color: #ffeeee;">
+      <h3>Error</h3>
+      <p>${message}</p>
+      <p>Please check the data source and try again.</p>
     </div>
   `;
 }
 
+
 function displayError(message) {
-  return html`<div style="color: red; text-align: center; padding: 20px;">${message}</div>`;
+    return html`<div style="color: red; teit-align: center; padding: 20px;">${message}</div>`;
 }
 
+function plotOrError(data, options) {
+    try {
+        return plotChart(data, options);
+    } catch (e) {
+        return displayError(e.message);
+    }
+}
 ```
 
 
 <div class="grid grid-cols-1">
     <div class="card">
-        ${resize((width) => plotChart(data, {width}))}
+        ${resize((width) => plotOrError(data, {width}))}
     </div>
 </div>
 

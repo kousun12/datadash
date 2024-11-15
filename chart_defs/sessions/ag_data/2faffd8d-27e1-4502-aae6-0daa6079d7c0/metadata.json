@@ -1,6 +1,6 @@
 {
   "title": "Agricultural Commodity Trends Over Time",
-  "description": "This interactive chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector. The visualization leverages Apache Arrow for efficient data handling, includes data validation, and implements error handling to ensure proper rendering and optimal user experience.",
+  "description": "This robust interactive chart displays historical and projected values for various agricultural commodities, separated into crops and livestock/dairy categories. It allows for comparison of trends across different commodities and years, providing insights into production, stocks, and market dynamics in the agricultural sector. The visualization leverages Apache Arrow for efficient data handling, implements comprehensive data validation and error handling to ensure proper rendering and optimal user experience, even with imperfect or incomplete data.",
   "db_path": "data/us_ag.db",
   "table_name": "ag_data",
   "id": "2faffd8d-27e1-4502-aae6-0daa6079d7c0",
@@ -8,9 +8,12 @@
     "Time series visualization using Apache Arrow data",
     "Interactive commodity and attribute selection",
     "Efficient data filtering and processing",
-    "Data validation and error handling",
+    "Comprehensive data validation and error handling",
+    "Graceful degradation for partial or incomplete data",
+    "User-friendly error messages and fallback views",
     "Dynamic Y-axis scaling",
     "Tooltips with detailed information",
-    "Performance optimization for large datasets"
+    "Performance optimization for large datasets",
+    "Robust against null or undefined values"
   ]
 }
