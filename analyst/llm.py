@@ -339,7 +339,7 @@ function plotChart(data, {width} = {}) {
 
         if df is None or not parsed_sql or not parsed_ob_plot:
             raise ValueError("Failed to get valid SQL and Plot code")
-        # save files:
+
         with open(idea_dir / "concept.md", "w") as f:
             f.write(concept)
 
@@ -355,7 +355,15 @@ function plotChart(data, {width} = {}) {
         title, desc = [i for i in title_desc.split("\n") if i]
 
         with open(idea_dir / "metadata.json", "w") as f:
-            json.dump({"title": title, "description": desc}, f)
+            json.dump(
+                {
+                    "title": title,
+                    "description": desc,
+                    "db_path": self.db_path.as_posix(),
+                    "table_name": table_name,
+                },
+                f,
+            )
 
         with open(idea_dir / "data.csv", "w") as f:
             df.to_csv(f, index=False)
