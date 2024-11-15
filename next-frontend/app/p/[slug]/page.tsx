@@ -27,6 +27,9 @@ export default function PlotPage({
       const newMessage = { id: sampleMessages.length + 1, role: 'user', content: input };
       sampleMessages.push(newMessage);
       setInput('');
+      
+      // Scroll to bottom after adding new message
+      messagesEndRef.current?.scrollIntoView();
 
       try {
         const response = await fetch('/api/messages', {
