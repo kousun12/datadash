@@ -1,0 +1,38 @@
+---
+title: {{ title }}
+toc: false
+sidebar: false
+header: false
+footer: false
+pager: false
+
+---
+
+# {{ title }}
+
+
+```js
+const db = DuckDBClient.of({ds: FileAttachment("{{ db_path }}")});
+```
+
+```js
+// data is an arrow object
+const data = db.sql`
+{{ sql_block }}
+```
+
+
+```js
+display(Inputs.table(data));
+```
+
+```js
+{{ plot_code }}
+```
+
+
+<div class="grid grid-cols-1">
+    <div class="card">
+        ${resize((width) => plotChart(data, {width}))}
+    </div>
+</div>

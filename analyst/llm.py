@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from aider.models import Model
 import textwrap
@@ -9,18 +9,25 @@ import json
 import pydantic
 from pathlib import Path
 
+base_path = Path("/Users/robcheung/code/fred")
+guide_path = base_path / "plot_guide.md"
 default_data_dir = Path("/tmp/analyst")
 cache_filename = "analyst_cache.json"
+observable_plot_version = "0.6.0"
+observable_template_file = base_path / "templates/plot.j2"
 
 
 class ChartIdea(pydantic.BaseModel):
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    title: str
+    description: str
     concept: str
     sql: str
-    vega_lite: Dict[str, Any]
+    vega_lite: Optional[Dict[str, Any]] = None
+    plot_js: Optional[str] = None
     dataframe: Any = None
 
-    def render(self):
+    def render_vega_lite(self):
         import altair as alt
         import pandas as pd
 
@@ -33,7 +40,33 @@ class ChartIdea(pydantic.BaseModel):
         if "data" not in chart.to_dict():
             chart = chart.properties(data=data)
 
-        return chart
+        return chart.to_html()
+
+    def plot_observable(self) -> str:
+        from jinja2 import Template
+
+        with open(observable_template_file) as f:
+            template = Template(f.read())
+
+        context = {
+            "title": "Your Chart Title",
+            "db_path": "path/to/your/database.db",
+            "sql_block": "SELECT * FROM your_table",
+            "plot_code": "function plotChart(data, options) { /* Your plotting code here */ }",
+        }
+        return template.render(context)
+
+    def render(self, directory):
+        if self.vega_lite:
+            html = self.render_vega_lite()
+            with open(Path(directory) / "chart.html", "w") as f:
+                f.write(html)
+        elif self.plot_js:
+            md = self.plot_observable()
+            with open(Path(directory) / "plot.md", "w") as f:
+                f.write(md)
+        else:
+            raise ValueError("No plot data available")
 
 
 class LLMAnalyst:
@@ -103,7 +136,7 @@ class LLMAnalyst:
             kwargs = {}
         if fnames is None:
             fnames = []
-        read_only_fnames = []
+        read_only_fnames = [guide_path]
 
         return self.get_coder(
             edit_format="ask",
@@ -115,7 +148,7 @@ class LLMAnalyst:
     def get_modify_coder(self, fnames=None):
         if fnames is None:
             fnames = []
-        read_only_fnames = []
+        read_only_fnames = [guide_path]
         return self.get_coder(
             fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=False
         )
@@ -220,6 +253,10 @@ class LLMAnalyst:
 
     def get_chart_idea(self, table_name: str):
         id = uuid.uuid4()
+
+        idea_dir = default_data_dir / f"ideas/{table_name}/{id}"
+        idea_dir.mkdir(parents=True, exist_ok=True)
+
         stats = self.table_summary_stats(table_name)
         overview = self.table_human_summary(table_name)
         ac = self.get_ask_coder()
@@ -227,30 +264,75 @@ class LLMAnalyst:
             f"How would you visually present this table? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works.\n\n{overview}\n{stats}"
         )
         implementation = ac.run(
-            f"Respond with both the SQL and the Vega-Lite code required to implement this visualization. Respond only with a single sql code fence and a json code fence, nothing else."
+            """Respond with both the SQL and Observable Plot code required to implement this visualization. 
+Respond only with a single sql code fence and a javascript code fence, nothing else. 
+The javascript code fence should ONLY include a single function `plotChart` that returns a valid Observable Framework Plot. No other code or imports should be included.
+For example your response should be in this form:
+
+```sql
+<your sql code here>
+```
+
+```javascript
+function plotChart(data, {width} = {}) {
+  // NB data is an Apache Arrow table
+  return Plot.plot({
+    width,
+    ...
+  });
+}
+```
+"""
         )
         parsed_sql = implementation.split("```sql")[1].split("```")[0].strip()
-        parsed_json = implementation.split("```json")[1].split("```")[0].strip()
+        parsed_ob_plot = (
+            implementation.split("```javascript")[1].split("```")[0].strip()
+        )
+
+        # save files:
+        with open(idea_dir / "concept.md", "w") as f:
+            f.write(concept)
+
+        with open(idea_dir / "sql.sql", "w") as f:
+            f.write(parsed_sql)
+
+        with open(idea_dir / "plot.js", "w") as f:
+            f.write(parsed_ob_plot)
+
+        title_desc = ac.run(
+            f"Give a title and description for this chart. Respond with the title on one line and the description on the next line. Do not include anything else in your response."
+        )
+        title, desc = [i for i in title_desc.split("\n") if i]
+
+        with open(idea_dir / "metadata.json", "w") as f:
+            json.dump({"title": title, "description": desc}, f)
+
         df = self.execute_sql(parsed_sql)
 
-        return ChartIdea(
+        with open(idea_dir / "data.csv", "w") as f:
+            df.to_csv(f, index=False)
+
+        idea = ChartIdea(
             id=id,
+            title=title,
+            description=desc,
             concept=concept,
             sql=parsed_sql,
-            vega_lite=json.loads(parsed_json),
+            vega_lite=None,
+            plot_js=parsed_ob_plot,
             dataframe=df,
         )
+        idea.render(idea_dir)
+
+        return idea
 
 
 if __name__ == "__main__":
-    path = "/Users/robcheung/code/fred/summarize_table.py"
-    db_path = "/Users/robcheung/code/fred/us_ag.db"
-    analyst = LLMAnalyst(db_path=db_path)
+    # path = "/Users/robcheung/code/fred/summarize_table.py"
     # res = analyst.get_ask_coder(fnames=[path]).run("what does this file do")
+    analyst = LLMAnalyst(db_path=base_path / "us_ag.db")
     for table in analyst.get_tables():
-        idea = analyst.get_chart_idea(table)
-        print(idea)
-
+        print(analyst.get_chart_idea(table))
 
 """
 sample data
