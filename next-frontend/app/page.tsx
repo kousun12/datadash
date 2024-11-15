@@ -27,7 +27,7 @@ export default function Home() {
         {/* Left pane - Chat */}
         <div className="col-span-1 border-r border-gray-200 flex flex-col h-full">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-4">
+          <div className="flex-1 overflow-y-auto flex flex-col p-4 gap-4">
             {sampleMessages.map((message) => (
               <div
                 key={message.id}
