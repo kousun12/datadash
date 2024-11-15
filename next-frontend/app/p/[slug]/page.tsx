@@ -111,7 +111,7 @@ export default function PlotPage({
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label={isCollapsed ? 'Expand chat' : 'Collapse chat'}
           >
-            ›
+            {isCollapsed ? '›' : '‹'}
           </button>
           <iframe
             src={iframeUrl}

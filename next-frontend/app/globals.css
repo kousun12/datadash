@@ -73,7 +73,7 @@ textarea {
 }
 
 .chat-sidebar.collapsed .toggle-button {
-  transform: translateY(-50%) rotate(180deg);
+  transform: translateY(-50%);
 }
 
 .messages-content {
