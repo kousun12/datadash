@@ -10,7 +10,6 @@ const sampleMessages = [
 ];
 
 export default function Home() {
-  const iframeUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000/p/agricultural-commodity-beginning-stocks-over-time';
   const [input, setInput] = useState('');
   
   const handleKeyPress = (e: React.KeyboardEvent) => {
