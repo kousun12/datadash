@@ -15,9 +15,9 @@ export default function Home() {
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] light">
       <main className="h-screen">
-        <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col h-full">
+        <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
           {/* Messages container */}
-          <div className="flex-1 overflow-y-auto flex flex-col justify-end p-4 gap-4 min-h-0">
+          <div className="flex-1 overflow-y-auto flex flex-col p-4 gap-4" style={{ height: 'calc(100vh - 116px)' }}>
             {sampleMessages.map((message) => (
               <div
                 key={message.id}
