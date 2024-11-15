@@ -18,7 +18,7 @@ body {
   transition: all 0.3s ease-in-out;
   width: 384px; /* 24rem = 384px */
   overflow: hidden;
-  z-index: 50;
+  z-index: 1000;
 }
 
 .chat-sidebar.collapsed {
@@ -62,7 +62,7 @@ textarea {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 100;
+  z-index: 1001;
   transition: transform 0.3s ease-in-out;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
