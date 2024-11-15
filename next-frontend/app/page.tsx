@@ -22,9 +22,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] light">
-      <main className="grid grid-cols-3 h-screen">
-        {/* Left pane - Chat */}
-        <div className="col-span-1 border-r border-gray-200 flex flex-col h-full">
+      <main className="h-screen">
+        <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col h-full">
           {/* Messages container */}
           <div className="flex-1 overflow-y-auto flex flex-col justify-end p-4 gap-4">
             {sampleMessages.map((message) => (
@@ -51,14 +50,6 @@ export default function Home() {
               rows={3}
             />
           </div>
-        </div>
-        
-        <div className="col-span-2">
-          <iframe 
-            src={iframeUrl}
-            className="w-full h-full border-0"
-            allow="fullscreen"
-          />
         </div>
       </main>
     </div>
