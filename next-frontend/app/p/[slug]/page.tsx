@@ -17,6 +17,7 @@ export default function PlotPage({
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
   const iframeUrl = `${baseUrl}/p/${slug}`;
   const [input, setInput] = useState('');
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,7 +73,14 @@ export default function PlotPage({
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] light">
       <main className="h-screen">
-        <div className="w-96 fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col">
+        <div className={`chat-sidebar fixed left-0 top-0 bottom-0 border-r border-gray-200 flex flex-col relative ${isCollapsed ? 'collapsed' : ''}`}>
+          <button 
+            className="toggle-button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={isCollapsed ? 'Expand chat' : 'Collapse chat'}
+          >
+            ›
+          </button>
           {/* Messages container */}
           <div className="messages-container">
             <div className="messages-content p-4">
@@ -104,7 +112,7 @@ export default function PlotPage({
             />
           </div>
         </div>
-        <div className="fixed right-0 top-0 bottom-0 left-96 bg-white">
+        <div className={`fixed right-0 top-0 bottom-0 ${isCollapsed ? 'left-12' : 'left-96'} bg-white transition-[left] duration-300 ease-in-out`}>
           <iframe
             src={iframeUrl}
             className="w-full h-full border-0"
