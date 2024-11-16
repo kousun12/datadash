@@ -26,17 +26,21 @@ function plotChart(data, {width} = {}) {
         strokeWidth: 1,
         curve: "natural"
       })),
-      Plot.tip(data, Plot.pointerX({
+      Plot.tip(data, Plot.pointerY({
         x: "year",
-        y: "value",
+        y: Plot.stackY({
+          y: "value",
+          offset: "zero",
+          order: "sum",
+          reverse: true
+        }),
         title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
         fill: "Commodity",
         fillOpacity: 0.8
       }))
     ],
     tooltip: {
-      hidden: false,
-      position: "fixed"
+      hidden: false
     }
   });
 }
