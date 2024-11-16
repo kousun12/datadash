@@ -1,4 +1,4 @@
-Here's a comprehensive guide to Observable Plot:
+Here's a comprehensive guide to using the Observable Plot Library:
 
 ## Basic Setup
 
@@ -388,7 +388,7 @@ Plot.plot({
 })
 ```
 
-Important!
+This is Important!
 NB: `data` is an Apache Arrow Table object, not a standard JavaScript array:
 No direct indexing (e.g., data[0] doesn't work)
 Use Arrow-specific methods for data access (e.g., get(), getChild(), getChildAt(), numRows, numCols)

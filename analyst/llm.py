@@ -87,7 +87,7 @@ class LLMAnalyst:
             kwargs = {}
         if fnames is None:
             fnames = []
-        read_only_fnames = [guide_path, base_path / "templates/plot.j2"]
+        read_only_fnames = [guide_path]
 
         return self.get_coder(
             edit_format="ask",
@@ -278,7 +278,6 @@ function plotChart(data, {width} = {}) {
         start = ChartDef.from_path(at_dir)
         fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
         readonly_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
-        readonly_fnames.append(base_path / "templates/plot.j2")
         ac = self.get_modify_coder(fnames=fnames, read_only_fnames=readonly_fnames)
         new_concept = ac.run(
             f"Given these instructions, update the concept and corresponding metadata for this chart:\nInstructions: {instructions}"

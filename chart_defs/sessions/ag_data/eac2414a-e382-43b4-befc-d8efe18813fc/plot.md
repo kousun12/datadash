@@ -10,7 +10,7 @@ pager: false
 
 # Crop Beginning Stocks Over Time
 
-This chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities.
+This interactive chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities. Hover over data points to see detailed information for each year and commodity.
 
 
 ```js
@@ -66,13 +66,26 @@ function plotChart(data, {width} = {}) {
         x: "year",
         y: "value",
         stroke: "Commodity",
-        fill: "white",
-        title: d => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value}`
+        fill: "white"
       }),
+      Plot.tip(data, Plot.pointerX({
+        x: "year",
+        y: "value",
+        title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
+        stroke: "Commodity",
+        fill: "white",
+        fillOpacity: 0.8,
+        strokeWidth: 2
+      })),
       Plot.ruleY([0])
-    ]
+    ],
+    tooltip: {
+      hidden: false,
+      position: "fixed"
+    }
   });
 }
+
 
 function displayError(message) {
     return html`<div style="color: red; text-align: center; padding: 20px;">Error: ${message}</div>`;
@@ -93,6 +106,8 @@ function plotOrError(data, options) {
         ${resize((width) => plotOrError(data, {width}))}
     </div>
 </div>
+
+### Data
 
 ```js
 display(Inputs.table(data));

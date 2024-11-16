@@ -26,10 +26,22 @@ function plotChart(data, {width} = {}) {
         x: "year",
         y: "value",
         stroke: "Commodity",
-        fill: "white",
-        title: d => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value}`
+        fill: "white"
       }),
+      Plot.tip(data, Plot.pointerX({
+        x: "year",
+        y: "value",
+        title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
+        stroke: "Commodity",
+        fill: "white",
+        fillOpacity: 0.8,
+        strokeWidth: 2
+      })),
       Plot.ruleY([0])
-    ]
+    ],
+    tooltip: {
+      hidden: false,
+      position: "fixed"
+    }
   });
 }
