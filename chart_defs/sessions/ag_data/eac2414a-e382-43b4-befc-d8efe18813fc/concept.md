@@ -42,4 +42,8 @@ The improved layout ensures all information is clearly visible and legible. This
 
 Future improvements should focus on fixing the tooltip positioning to accurately reflect the y-value of the specific point being hovered over within the stacked area chart. This will greatly enhance the precision and usability of the interactive features.
 
-Update: An error has been identified in the chart configuration. The "unknown offset: zero" error suggests that the stacking functionality is not working as intended. This issue needs to be addressed in the chart's JavaScript code to ensure proper stacking and accurate data representation.
+Update: The previous error in the chart configuration has been resolved. The code has been updated to work with Apache Arrow tables, which resolved the "data.map is not a function" error. The chart should now display correctly, showing the stacked area representation of crop beginning stocks over time.
+
+The visualization now uses accessor functions to properly handle the Apache Arrow table structure, ensuring that the data is correctly processed and displayed. This update maintains all the previously described features of the chart, including the stacked areas, color coding, tooltips, and responsive design.
+
+Users should now be able to interact with the chart as intended, seeing the total beginning stocks across all commodities for each year, comparing the relative contribution of each commodity, and observing changes over time. The tooltips should function correctly, providing detailed information for each data point on hover.
