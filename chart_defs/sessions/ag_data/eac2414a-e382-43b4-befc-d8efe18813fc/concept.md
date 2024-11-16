@@ -41,3 +41,5 @@ The addition of tooltips enhances the user experience by providing precise data 
 The improved layout ensures all information is clearly visible and legible. This approach provides a clear and interactive way to explore the agricultural data, allowing users to identify trends and make comparisons across different crops and years, while also giving a sense of the total beginning stocks for all commodities combined.
 
 Future improvements should focus on fixing the tooltip positioning to accurately reflect the y-value of the specific point being hovered over within the stacked area chart. This will greatly enhance the precision and usability of the interactive features.
+
+Update: An error has been identified in the chart configuration. The "unknown offset: zero" error suggests that the stacking functionality is not working as intended. This issue needs to be addressed in the chart's JavaScript code to ensure proper stacking and accurate data representation.
