@@ -6,7 +6,12 @@ import json
 from pathlib import Path
 
 from analyst.chart_def import ChartDef
-from constants import base_path, default_data_dir, default_model
+from constants import (
+    base_path,
+    default_data_dir,
+    default_model,
+    observable_template_file,
+)
 
 guide_path = base_path / "plot_guide.md"
 cache_filename = "analyst_cache.json"
@@ -82,12 +87,17 @@ class LLMAnalyst:
         coder.temperature = temp
         return coder
 
-    def get_ask_coder(self, fnames=None, **kwargs):
+    def get_ask_coder(self, fnames=None, read_only_fnames=None, **kwargs):
         if kwargs is None:
             kwargs = {}
         if fnames is None:
             fnames = []
-        read_only_fnames = [guide_path]
+
+        req_readonly = [observable_template_file, guide_path]
+        if read_only_fnames:
+            read_only_fnames.extend(req_readonly)
+        else:
+            read_only_fnames = req_readonly
 
         return self.get_coder(
             edit_format="ask",
@@ -99,10 +109,11 @@ class LLMAnalyst:
     def get_modify_coder(self, fnames=None, read_only_fnames=None, auto_commits=False):
         if fnames is None:
             fnames = []
+        req_readonly = [observable_template_file, guide_path]
         if read_only_fnames:
-            read_only_fnames.append(guide_path)
+            read_only_fnames.extend(req_readonly)
         else:
-            read_only_fnames = [guide_path]
+            read_only_fnames = req_readonly
 
         return self.get_coder(
             fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=auto_commits
@@ -215,8 +226,10 @@ class LLMAnalyst:
         )
         implementation = ac.run(
             """Respond with both the SQL and Observable Plot code required to implement this visualization. 
-Respond only with a single sql code fence and a javascript code fence, nothing else. 
-The javascript code fence should ONLY include a single function `plotChart` that returns a valid Observable Framework Plot. No other code or imports should be included.
+Respond only with a single sql code fence and a javascript code fence, nothing else.
+The SQL flavor is DuckDB. 
+The javascript code fence should include a function `plotChart` that returns a valid Observable Plot. `displayError` will be available to you as per `plot.j2`. Do not include any new imports.
+Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing.
 For example your response should be in this form:
 
 ```sql
@@ -225,7 +238,6 @@ For example your response should be in this form:
 
 ```javascript
 function plotChart(data, {width} = {}) {
-  // NB data is an Apache Arrow table
   return Plot.plot({
     width,
     ...
@@ -275,20 +287,21 @@ function plotChart(data, {width} = {}) {
         )
 
     def modify_chart(self, instructions: str, at_dir: Path):
-        start = ChartDef.from_path(at_dir)
+        ChartDef.from_path(at_dir)
         fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
         readonly_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
-        ac = self.get_modify_coder(
+        modifier = self.get_modify_coder(
             fnames=fnames, read_only_fnames=readonly_fnames, auto_commits=True
         )
-        new_concept = ac.run(
-            f"Given these instructions, update the concept and corresponding metadata for this chart:\nInstructions: {instructions}"
+        modifier.run(
+            f"""
+Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.json as well. 
+The SQL flavor is DuckDB. 
+The javascript code should ALWAYS include a function `plotChart` that returns a valid Observable Plot; do not change this signature. `displayError` will be available to you as per `plot.j2`. Do not include any new imports.
+Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing.
+            
+Instructions: {instructions}"""
         )
-        print(new_concept)
-        new_plot = ac.run(
-            f"Given the new concept, update the plot js code for this chart"
-        )
-        print(new_plot)
         reloaded = ChartDef.from_path(at_dir)
         reloaded.render_main_artifact(at_dir)
         print(reloaded)

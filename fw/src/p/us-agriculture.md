@@ -1,5 +1,5 @@
 ---
-title: "Stacked Crop Beginning Stocks Over Time"
+title: "Crop Beginning Stocks Over Time"
 toc: false
 sidebar: false
 header: false
@@ -8,9 +8,9 @@ pager: false
 
 ---
 
-# Stacked Crop Beginning Stocks Over Time
+# Crop Beginning Stocks Over Time
 
-This interactive stacked area chart displays the cumulative beginning stocks for various crops in million bushels across different marketing years. It allows for easy comparison of trends between commodities and shows the total stocks for all commodities combined. Hover over areas to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.
+This interactive chart aims to display the beginning stocks for various crops in million bushels across different marketing years. It should allow for easy comparison of trends between commodities. However, there is currently an issue with the stacking functionality, resulting in an 'unknown offset: zero' error. This needs to be resolved for accurate data representation. When fixed, users will be able to hover over areas to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.
 
 
 ```js
@@ -39,15 +39,18 @@ ORDER BY year, Commodity`
 
 ```js
 function plotChart(data, {width} = {}) {
+  // Convert value to number
+  data = data.map(d => ({...d, value: +d.value}));
+
   return Plot.plot({
     width,
-    height: 600, // Increased height to accommodate rotated labels
-    marginBottom: 80, // Increased bottom margin for x-axis labels
-    marginRight: 120, // Increased right margin for legend
+    height: 600,
+    marginBottom: 80,
+    marginRight: 120,
     x: {
       label: "Marketing/Calendar Year",
       tickRotate: 45,
-      labelOffset: 50 // Increased offset to prevent overlap with rotated labels
+      labelOffset: 50
     },
     y: {
       label: "Value (Million bushels)",
@@ -55,28 +58,30 @@ function plotChart(data, {width} = {}) {
     },
     color: {
       legend: true,
-      scheme: "tableau10" // Use a color scheme that works well for multiple categories
+      scheme: "tableau10"
     },
     marks: [
       Plot.areaY(data, Plot.stackY({
         x: "year",
         y: "value",
+        z: "Commodity",
         fill: "Commodity",
         stroke: "white",
         strokeWidth: 1,
         curve: "natural"
       })),
+      Plot.ruleY([0]),
       Plot.tip(data, Plot.pointerX({
         x: "year",
         y: "value",
+        z: "Commodity",
         title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
         fill: "Commodity",
         fillOpacity: 0.8
       }))
     ],
     tooltip: {
-      hidden: false,
-      position: "fixed"
+      hidden: false
     }
   });
 }

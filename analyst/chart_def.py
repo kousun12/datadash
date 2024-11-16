@@ -1,23 +1,21 @@
 import json
 import uuid
 import pandas as pd
-from typing import Dict, Any, Optional, ClassVar
+from typing import Dict, Any, Optional
 
 import pydantic
 from pathlib import Path
 import sqlparse
 from sqlparse.sql import Identifier
 
-from constants import base_path
-
-observable_template_file = base_path / "templates/plot.j2"
+from constants import base_path, observable_template_file
 
 
 class ChartDef(pydantic.BaseModel):
     class FileTypes:
         METADATA = "metadata.json"
         CONCEPT = "concept.md"
-        SQL = "sql.sql"
+        SQL = "query.sql"
         PLOT_JS = "plot.js"
         DATA = "data.csv"
         VEGA_CHART = "chart.html"
@@ -145,6 +143,7 @@ class ChartDef(pydantic.BaseModel):
                     "id": str(self.id),
                 },
                 f,
+                indent=2,
             )
         if self.dataframe is not None and not skip_df:
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
