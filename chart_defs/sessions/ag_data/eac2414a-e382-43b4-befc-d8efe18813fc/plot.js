@@ -1,11 +1,13 @@
 function plotChart(data, {width} = {}) {
   return Plot.plot({
     width,
-    height: 500,
+    height: 600, // Increased height to accommodate rotated labels
+    marginBottom: 80, // Increased bottom margin for x-axis labels
     marginRight: 100,
     x: {
       label: "Marketing/Calendar Year",
-      tickRotate: 45
+      tickRotate: 45,
+      labelOffset: 50 // Increased offset to prevent overlap with rotated labels
     },
     y: {
       label: "Value (Million bushels)",
