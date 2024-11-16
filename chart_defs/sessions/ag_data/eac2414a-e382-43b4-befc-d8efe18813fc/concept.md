@@ -4,6 +4,8 @@ Based on the information provided about the "ag_data" table, we have created an 
 
 2. X-axis: Marketing/calendar year
    This allows us to see trends over time.
+   - Tick labels are rotated 45 degrees for better readability
+   - Additional bottom margin is added to prevent label overlap
 
 3. Y-axis: Value (Million bushels)
    This represents the numerical data for beginning stocks.
@@ -21,9 +23,14 @@ Based on the information provided about the "ag_data" table, we have created an 
    - Year
    - Value (in million bushels)
 
+8. Layout improvements:
+   - Increased bottom margin to accommodate rotated x-axis labels
+   - Adjusted overall chart height to maintain proportions
+
 This visualization allows users to:
 - Compare beginning stock trends across different crop commodities over time
 - See detailed information for specific years by hovering over data points
 - Easily identify peak years or significant changes for each commodity
+- Clearly read all x-axis labels without overlap
 
-The addition of tooltips enhances the user experience by providing precise data for each point without cluttering the chart. This approach provides a clear and interactive way to explore the agricultural data, allowing users to identify trends and make comparisons across different crops and years.
+The addition of tooltips enhances the user experience by providing precise data for each point without cluttering the chart. The improved layout ensures all information is clearly visible and legible. This approach provides a clear and interactive way to explore the agricultural data, allowing users to identify trends and make comparisons across different crops and years.
