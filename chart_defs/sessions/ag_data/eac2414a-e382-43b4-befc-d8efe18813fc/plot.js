@@ -3,7 +3,7 @@ function plotChart(data, {width} = {}) {
     width,
     height: 600, // Increased height to accommodate rotated labels
     marginBottom: 80, // Increased bottom margin for x-axis labels
-    marginRight: 100,
+    marginRight: 120, // Increased right margin for legend
     x: {
       label: "Marketing/Calendar Year",
       tickRotate: 45,
@@ -14,32 +14,25 @@ function plotChart(data, {width} = {}) {
       grid: true
     },
     color: {
-      legend: true
+      legend: true,
+      scheme: "tableau10" // Use a color scheme that works well for multiple categories
     },
     marks: [
-      Plot.line(data, {
+      Plot.areaY(data, Plot.stackY({
         x: "year",
         y: "value",
-        stroke: "Commodity",
-        strokeWidth: 2,
+        fill: "Commodity",
+        stroke: "white",
+        strokeWidth: 1,
         curve: "natural"
-      }),
-      Plot.dot(data, {
-        x: "year",
-        y: "value",
-        stroke: "Commodity",
-        fill: "white"
-      }),
+      })),
       Plot.tip(data, Plot.pointerX({
         x: "year",
         y: "value",
         title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
-        stroke: "Commodity",
-        fill: "white",
-        fillOpacity: 0.8,
-        strokeWidth: 2
-      })),
-      Plot.ruleY([0])
+        fill: "Commodity",
+        fillOpacity: 0.8
+      }))
     ],
     tooltip: {
       hidden: false,
