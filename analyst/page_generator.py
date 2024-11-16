@@ -41,6 +41,6 @@ if __name__ == "__main__":
     gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
     slug_override = "us-agriculture"
     # gen.generate_pages(slug_override=slug_override)
-    instruct = "the bottom chart x axis label is covered up by the diagonal tick values, let's fix that"
+    instruct = "it's a little muddled near the bottom with all the lines overlapping. why dont we make it a stacked chart"
     at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
     gen.modify_page(instruct, at_dir, slug_override=slug_override)
