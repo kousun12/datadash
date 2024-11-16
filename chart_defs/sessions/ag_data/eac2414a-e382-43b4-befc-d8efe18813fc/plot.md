@@ -39,9 +39,6 @@ ORDER BY year, Commodity`
 
 ```js
 function plotChart(data, {width} = {}) {
-  // Convert value to number
-  data = data.map(d => ({...d, value: +d.value}));
-
   return Plot.plot({
     width,
     height: 600,
@@ -62,21 +59,21 @@ function plotChart(data, {width} = {}) {
     },
     marks: [
       Plot.areaY(data, Plot.stackY({
-        x: "year",
-        y: "value",
-        z: "Commodity",
-        fill: "Commodity",
+        x: d => d.year,
+        y: d => +d.value,
+        z: d => d.Commodity,
+        fill: d => d.Commodity,
         stroke: "white",
         strokeWidth: 1,
         curve: "natural"
       })),
       Plot.ruleY([0]),
       Plot.tip(data, Plot.pointerX({
-        x: "year",
-        y: "value",
-        z: "Commodity",
-        title: (d) => `${d.Commodity}\nYear: ${d.year}\nValue: ${d.value.toLocaleString()} million bushels`,
-        fill: "Commodity",
+        x: d => d.year,
+        y: d => +d.value,
+        z: d => d.Commodity,
+        title: d => `${d.Commodity}\nYear: ${d.year}\nValue: ${(+d.value).toLocaleString()} million bushels`,
+        fill: d => d.Commodity,
         fillOpacity: 0.8
       }))
     ],
