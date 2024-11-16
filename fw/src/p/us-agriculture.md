@@ -10,7 +10,7 @@ pager: false
 
 # Crop Beginning Stocks Over Time
 
-This interactive chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities. Hover over data points to see detailed information for each year and commodity.
+This interactive chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities. Hover over data points to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.
 
 
 ```js
@@ -41,11 +41,13 @@ ORDER BY year, Commodity`
 function plotChart(data, {width} = {}) {
   return Plot.plot({
     width,
-    height: 500,
+    height: 600, // Increased height to accommodate rotated labels
+    marginBottom: 80, // Increased bottom margin for x-axis labels
     marginRight: 100,
     x: {
       label: "Marketing/Calendar Year",
-      tickRotate: 45
+      tickRotate: 45,
+      labelOffset: 50 // Increased offset to prevent overlap with rotated labels
     },
     y: {
       label: "Value (Million bushels)",

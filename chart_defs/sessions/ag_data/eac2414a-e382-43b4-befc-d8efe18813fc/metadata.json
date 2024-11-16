@@ -1,7 +1,1 @@
-{
-  "title": "Crop Beginning Stocks Over Time",
-  "description": "This interactive chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities. Hover over data points to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.",
-  "db_path": "data/us_ag.db",
-  "table_name": "ag_data",
-  "id": "eac2414a-e382-43b4-befc-d8efe18813fc"
-}
+{"title": "Crop Beginning Stocks Over Time", "description": "This interactive chart displays the beginning stocks for various crops in million bushels across different marketing years, allowing for easy comparison of trends between commodities. Hover over data points to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.", "db_path": "data/us_ag.db", "table_name": "ag_data", "id": "eac2414a-e382-43b4-befc-d8efe18813fc"}
