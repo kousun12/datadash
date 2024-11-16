@@ -391,7 +391,7 @@ Plot.plot({
 This is Important!
 NB: `data` is an Apache Arrow Table object, not a standard JavaScript array:
 No direct indexing (e.g., data[0] doesn't work)
-Use Arrow-specific methods for data access (e.g., get(), getChild(), getChildAt(), numRows, numCols)
+Use Arrow-specific methods for data access (e.g., getChild(), getChildAt(), numRows, numCols)
 Columnar structure: optimized for column-wise operations
 May support lazy evaluation
 Can't use standard array methods (map, filter, etc.) directly
