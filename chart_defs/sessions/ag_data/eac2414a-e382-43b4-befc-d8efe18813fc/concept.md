@@ -36,4 +36,8 @@ This visualization allows users to:
 
 The stacked area chart resolves the issue of overlapping lines at the bottom of the previous chart. It provides a clear view of both individual commodity trends and the overall trend in beginning stocks. The stacked nature of the chart makes it easy to see which commodities contribute more or less to the total stocks in any given year.
 
-The addition of tooltips enhances the user experience by providing precise data for each point without cluttering the chart. The improved layout ensures all information is clearly visible and legible. This approach provides a clear and interactive way to explore the agricultural data, allowing users to identify trends and make comparisons across different crops and years, while also giving a sense of the total beginning stocks for all commodities combined.
+The addition of tooltips enhances the user experience by providing precise data for each point without cluttering the chart. However, there is currently an issue with the y position of the hover tooltip not following the y value of the curve. This means that the tooltip may appear at a fixed vertical position regardless of where on the stacked area the user is hovering, which could lead to some confusion when trying to read values for specific commodities within the stack.
+
+The improved layout ensures all information is clearly visible and legible. This approach provides a clear and interactive way to explore the agricultural data, allowing users to identify trends and make comparisons across different crops and years, while also giving a sense of the total beginning stocks for all commodities combined.
+
+Future improvements should focus on fixing the tooltip positioning to accurately reflect the y-value of the specific point being hovered over within the stacked area chart. This will greatly enhance the precision and usability of the interactive features.
