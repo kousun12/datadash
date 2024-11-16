@@ -28,12 +28,17 @@ function plotChart(data, {width} = {}) {
         curve: "natural"
       })),
       Plot.ruleY([0]),
-      Plot.tip(data, Plot.pointerX({
+      Plot.tip(data, Plot.pointer({
         x: d => d.year,
         y: d => +d.value,
         z: d => d.Commodity,
-        title: d => `${d.Commodity}\nYear: ${d.year}\nValue: ${(+d.value).toLocaleString()} million bushels`,
-        fill: d => d.Commodity,
+        title: (d, i, x, y) => {
+          const commodity = d.get('Commodity');
+          const year = d.get('year');
+          const value = (+d.get('value')).toLocaleString();
+          return `${commodity}\nYear: ${year}\nValue: ${value} million bushels`;
+        },
+        fill: d => d.get('Commodity'),
         fillOpacity: 0.8
       }))
     ],
