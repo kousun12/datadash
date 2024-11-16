@@ -96,7 +96,7 @@ class LLMAnalyst:
             **kwargs,
         )
 
-    def get_modify_coder(self, fnames=None, read_only_fnames=None):
+    def get_modify_coder(self, fnames=None, read_only_fnames=None, auto_commits=False):
         if fnames is None:
             fnames = []
         if read_only_fnames:
@@ -105,7 +105,7 @@ class LLMAnalyst:
             read_only_fnames = [guide_path]
 
         return self.get_coder(
-            fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=False
+            fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=auto_commits
         )
 
     def get_tables(self) -> list[str]:
@@ -278,7 +278,9 @@ function plotChart(data, {width} = {}) {
         start = ChartDef.from_path(at_dir)
         fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
         readonly_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
-        ac = self.get_modify_coder(fnames=fnames, read_only_fnames=readonly_fnames)
+        ac = self.get_modify_coder(
+            fnames=fnames, read_only_fnames=readonly_fnames, auto_commits=True
+        )
         new_concept = ac.run(
             f"Given these instructions, update the concept and corresponding metadata for this chart:\nInstructions: {instructions}"
         )
