@@ -65,12 +65,18 @@ class ChartDef(pydantic.BaseModel):
         )
 
     @classmethod
-    def get_all_mutable_files(cls):
+    def mutable_file_names(cls):
         return [
             cls.FileTypes.METADATA,
             cls.FileTypes.CONCEPT,
             cls.FileTypes.SQL,
             cls.FileTypes.PLOT_JS,
+        ]
+
+    @classmethod
+    def readonly_file_names(cls):
+        return [
+            cls.FileTypes.OBSERVABLE_PLOT,
         ]
 
     def render_vega_lite(self):

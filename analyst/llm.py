@@ -65,7 +65,7 @@ class LLMAnalyst:
         io = InputOutput()
         io.yes = False
         auto_commits = kwargs.pop("auto_commits", False)
-        temp = kwargs.pop("temperature", 0.8)
+        temp = kwargs.pop("temperature", 0.6)
         coder: Coder = Coder.create(
             main_model=Model(self.model_name),
             io=io,
@@ -75,7 +75,10 @@ class LLMAnalyst:
             verbose=True,
             **kwargs,
         )
-        # coder.repo.aider_ignore_file = self.adhoc_ignore
+        coder.repo.aider_ignore_file = base_path / ".aiderignore-modify"
+        print(coder.get_all_relative_files())
+        print(coder.get_repo_map())
+
         coder.temperature = temp
         return coder
 
@@ -84,7 +87,7 @@ class LLMAnalyst:
             kwargs = {}
         if fnames is None:
             fnames = []
-        read_only_fnames = [guide_path]
+        read_only_fnames = [guide_path, base_path / "templates/plot.j2"]
 
         return self.get_coder(
             edit_format="ask",
@@ -93,10 +96,14 @@ class LLMAnalyst:
             **kwargs,
         )
 
-    def get_modify_coder(self, fnames=None):
+    def get_modify_coder(self, fnames=None, read_only_fnames=None):
         if fnames is None:
             fnames = []
-        read_only_fnames = [guide_path]
+        if read_only_fnames:
+            read_only_fnames.append(guide_path)
+        else:
+            read_only_fnames = [guide_path]
+
         return self.get_coder(
             fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=False
         )
@@ -268,8 +275,11 @@ function plotChart(data, {width} = {}) {
         )
 
     def modify_chart(self, instructions: str, at_dir: Path):
-        fnames = [at_dir / f for f in ChartDef.get_all_mutable_files()]
-        ac = self.get_modify_coder(fnames=fnames)
+        start = ChartDef.from_path(at_dir)
+        fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
+        readonly_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
+        readonly_fnames.append(base_path / "templates/plot.j2")
+        ac = self.get_modify_coder(fnames=fnames, read_only_fnames=readonly_fnames)
         new_concept = ac.run(
             f"Given these instructions, update the concept and corresponding metadata for this chart:\nInstructions: {instructions}"
         )
@@ -288,9 +298,9 @@ if __name__ == "__main__":
     with LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db") as analyst:
         p = (
             base_path
-            / "chart_defs/sessions/ag_data/119de9af-ba2a-484f-a136-3906f6d7425a"
+            / "chart_defs/sessions/ag_data/eac2414a-e382-43b4-befc-d8efe18813fc"
         )
         analyst.modify_chart(
-            "getting error: Uncaught (in promise) TypeError: Cannot read properties of null (reading '0')",
+            "getting error: No valid data points after filtering. let's simplify it a bunch",
             p,
         )

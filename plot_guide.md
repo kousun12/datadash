@@ -2,11 +2,6 @@ Here's a comprehensive guide to Observable Plot:
 
 ## Basic Setup
 
-Include Plot in your HTML page:
-```html
-<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
-```
-
 Access Plot via the global `Plot` object:
 ```javascript
 const chart = Plot.plot({
@@ -14,7 +9,6 @@ const chart = Plot.plot({
     Plot.dot(data, {x: "field1", y: "field2"})
   ]
 });
-document.body.appendChild(chart);
 ```
 
 ## Core Concepts
@@ -394,9 +388,10 @@ Plot.plot({
 })
 ```
 
-NB: `data` is an Apache Arrow object, not a standard JavaScript array:
+Important!
+NB: `data` is an Apache Arrow Table object, not a standard JavaScript array:
 No direct indexing (e.g., data[0] doesn't work)
-Use Arrow-specific methods for data access (e.g., getColumn(), get())
+Use Arrow-specific methods for data access (e.g., get(), getChild(), getChildAt(), numRows, numCols)
 Columnar structure: optimized for column-wise operations
 May support lazy evaluation
 Can't use standard array methods (map, filter, etc.) directly

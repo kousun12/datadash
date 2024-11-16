@@ -27,7 +27,7 @@ const data = db.sql`
 {{ plot_code }}
 
 function displayError(message) {
-    return html`<div style="color: red; teit-align: center; padding: 20px;">${message}</div>`;
+    return html`<div style="color: red; text-align: center; padding: 20px;">Error: ${message}</div>`;
 }
 
 function plotOrError(data, options) {
