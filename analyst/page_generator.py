@@ -40,6 +40,7 @@ if __name__ == "__main__":
     sha = "eac2414a-e382-43b4-befc-d8efe18813fc"
     gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
     slug_override = "us-agriculture"
+    # gen.generate_pages(slug_override=slug_override)
     instruct = ""
     at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
     gen.modify_page(instruct, at_dir, slug_override=slug_override)

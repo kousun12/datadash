@@ -292,15 +292,3 @@ function plotChart(data, {width} = {}) {
         reloaded.render_main_artifact(at_dir)
         print(reloaded)
         return reloaded
-
-
-if __name__ == "__main__":
-    with LLMAnalyst(db_path=base_path / "fw/src/data/us_ag.db") as analyst:
-        p = (
-            base_path
-            / "chart_defs/sessions/ag_data/eac2414a-e382-43b4-befc-d8efe18813fc"
-        )
-        analyst.modify_chart(
-            "getting error: No valid data points after filtering. let's simplify it a bunch",
-            p,
-        )
