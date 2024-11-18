@@ -10,7 +10,7 @@ pager: false
 
 # Crop Beginning Stocks Over Time
 
-This interactive chart aims to display the beginning stocks for various crops in million bushels across different marketing years. It should allow for easy comparison of trends between commodities. However, there is currently an issue with the stacking functionality, resulting in an 'unknown offset: zero' error. This needs to be resolved for accurate data representation. When fixed, users will be able to hover over areas to see detailed information for each year and commodity. The x-axis labels are rotated and spaced for improved readability.
+This interactive chart aims to display the beginning stocks for various crops in million bushels  across different marketing years. It should allow for easy comparison of trends between commodities.  However, there is currently an issue with the stacking functionality, resulting in an 'unknown offset: zero'  error. This needs to be resolved for accurate data representation. When fixed, users will be able to hover  over areas to see detailed information for each year and commodity. The x-axis labels are rotated and  spaced for improved readability.
 
 
 ```js
@@ -68,17 +68,17 @@ function plotChart(data, {width} = {}) {
         curve: "natural"
       })),
       Plot.ruleY([0]),
-      Plot.tip(data, Plot.pointer({
+      Plot.tip(data, Plot.pointerX({
         x: d => d.year,
         y: d => +d.value,
-        z: d => d.Commodity,
-        title: (d, i, x, y) => {
-          const commodity = d.get('Commodity');
-          const year = d.get('year');
-          const value = (+d.get('value')).toLocaleString();
+        title: d => {
+          const commodity = d.Commodity;
+          const year = d.year;
+          const value = (+d.value).toLocaleString();
           return `${commodity}\nYear: ${year}\nValue: ${value} million bushels`;
         },
-        fill: d => d.get('Commodity'),
+        lineWidth: 1,
+        frameAnchor: "bottom-left",
         fillOpacity: 0.8
       }))
     ],
