@@ -1,4 +1,4 @@
-import json
+import yaml
 import uuid
 import pandas as pd
 from typing import Dict, Any, Optional
@@ -13,7 +13,7 @@ from constants import base_path, observable_template_file
 
 class ChartDef(pydantic.BaseModel):
     class FileTypes:
-        METADATA = "metadata.json"
+        METADATA = "metadata.yaml"
         CONCEPT = "concept.md"
         SQL = "query.sql"
         PLOT_JS = "plot.js"
@@ -36,7 +36,7 @@ class ChartDef(pydantic.BaseModel):
     def from_path(cls, path: Path) -> "ChartDef":
         path = Path(path)
         with open(path / cls.FileTypes.METADATA) as f:
-            metadata = json.load(f)
+            metadata = yaml.safe_load(f)
         with open(path / cls.FileTypes.CONCEPT) as f:
             concept = f.read()
         with open(path / cls.FileTypes.SQL) as f:
@@ -134,7 +134,7 @@ class ChartDef(pydantic.BaseModel):
             with open(dest_dir / self.FileTypes.PLOT_JS, "w") as f:
                 f.write(self.plot_js)
         with open(dest_dir / self.FileTypes.METADATA, "w") as f:
-            json.dump(
+            yaml.dump(
                 {
                     "title": self.title,
                     "description": self.description,
@@ -143,7 +143,7 @@ class ChartDef(pydantic.BaseModel):
                     "id": str(self.id),
                 },
                 f,
-                indent=2,
+                sort_keys=False,
             )
         if self.dataframe is not None and not skip_df:
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
