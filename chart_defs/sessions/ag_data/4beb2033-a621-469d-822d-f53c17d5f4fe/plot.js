@@ -21,7 +21,7 @@ function plotChart(data, {width} = {}) {
       scheme: "category10"
     },
     facet: {
-      data,
+      data: data,
       x: "Commodity Type",
       y: "Commodity",
       marginRight: 120
@@ -37,6 +37,12 @@ function plotChart(data, {width} = {}) {
     ],
     style: {
       fontSize: "12px"
+    },
+    fx: {
+      label: null
+    },
+    fy: {
+      label: null
     }
   });
 }
