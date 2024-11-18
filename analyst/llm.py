@@ -304,5 +304,4 @@ Instructions: {instructions}"""
         )
         reloaded = ChartDef.from_path(at_dir)
         reloaded.render_main_artifact(at_dir)
-        print(reloaded)
         return reloaded

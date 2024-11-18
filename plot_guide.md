@@ -415,3 +415,13 @@ const index = data.indexOf(value, optionalOffset)
 const subset = data.select(['column1', 'column2'])
 // Select columns by index
 const subset = data.selectAt([0, 2])[1]
+
+When providing a closure, the object argument is a regular object, not an Apache arrow object, so you would do e.g.:
+Plot.areaY(data, Plot.stackY({ x: d => d.year + 1 })
+instead of:
+Plot.areaY(data, Plot.stackY({ x: d => d.get('year') + 1 })
+
+This is very important. Do not forget these semantics around data.
+
+
+
