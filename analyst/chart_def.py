@@ -175,7 +175,7 @@ def qualify_table_refs(sql, schema, table_name) -> str:
 
 
 if __name__ == "__main__":
-    chart = ChartDef.from_path(
+    _chart = ChartDef.from_path(
         base_path / "chart_defs/sessions/ag_data/2faffd8d-27e1-4502-aae6-0daa6079d7c0"
     )
-    print(chart)
+    print(_chart)
