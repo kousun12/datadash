@@ -295,7 +295,7 @@ function plotChart(data, {width} = {}) {
         )
         modifier.run(
             f"""
-Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.json as well. 
+Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
 The SQL flavor is DuckDB. 
 The javascript code should ALWAYS include a function `plotChart` that returns a valid Observable Plot; do not change this signature. `displayError` will be available to you as per `plot.j2`. Do not include any new imports.
 Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing.
