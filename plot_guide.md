@@ -424,4 +424,5 @@ Plot.areaY(data, Plot.stackY({ x: d => d.get('year') + 1 })
 This is very important. Do not forget these semantics around data.
 
 
-
+# Chart display
+- Don't mess with the chart margins unless there is a very good reason to. assume that the chart will be embedded properly within a nice card element.

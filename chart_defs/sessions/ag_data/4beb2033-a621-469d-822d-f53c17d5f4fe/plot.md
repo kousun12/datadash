@@ -1,5 +1,5 @@
 ---
-title: "Agricultural Commodity Trends: Top 5 Products (2010-Present)"
+title: "Agricultural Commodity Type Trends (2010-Present)"
 toc: false
 sidebar: false
 header: false
@@ -8,9 +8,9 @@ pager: false
 
 ---
 
-# Agricultural Commodity Trends: Top 5 Products (2010-Present)
+# Agricultural Commodity Type Trends (2010-Present)
 
-This stacked area chart displays trends for the top 5 agricultural commodities, showing beginning stocks, production, and imports from 2010 onwards. The chart is faceted by commodity type and individual commodities, allowing for easy comparison of trends across different products and categories.
+This stacked area chart displays trends for agricultural commodity types, showing the total value of beginning stocks, production, and imports from 2010 onwards. The chart allows for easy comparison of trends across different commodity types over time.
 
 
 ```js
@@ -19,30 +19,23 @@ const db = DuckDBClient.of({ds: FileAttachment("/data/us_ag.db")});
 
 ```js
 const data = db.sql`
-WITH ranked_commodities AS (
-  SELECT Commodity, COUNT(*) as count,
-         ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) as rank
-  FROM ds.ag_data
-  GROUP BY Commodity
-),
-top_commodities AS (
-  SELECT Commodity
-  FROM ranked_commodities
-  WHERE rank <= 5
-)
-SELECT ad."Commodity Type", ad.Commodity, ad.Attribute, ad."Marketing/calendar year" as Year, ad."Value text" as Value
-FROM ds.ag_data ad
-JOIN top_commodities tc ON ad.Commodity = tc.Commodity
-WHERE ad.Attribute IN ('Beginning stocks', 'Production', 'Imports')
-  AND ad."Marketing/calendar year" >= '2010/11'
-ORDER BY ad."Commodity Type", ad.Commodity, ad."Marketing/calendar year", ad.Attribute`
+SELECT 
+  "Commodity Type",
+  "Marketing/calendar year" AS Year,
+  SUM(CAST("Value text" AS FLOAT)) AS TotalValue
+FROM ds.ag_data
+WHERE "Marketing/calendar year" >= '2010/11'
+  AND Attribute IN ('Beginning stocks', 'Production', 'Imports')
+GROUP BY "Commodity Type", "Marketing/calendar year"
+ORDER BY "Commodity Type", "Marketing/calendar year"
+`
 ```
 
 
 ```js
 function plotChart(data, {width} = {}) {
-  const height = 800;
-  const margin = {top: 40, right: 120, bottom: 40, left: 60};
+  const height = 500;
+  const margin = {top: 20, right: 30, bottom: 40, left: 60};
 
   return Plot.plot({
     width,
@@ -53,38 +46,27 @@ function plotChart(data, {width} = {}) {
       tickFormat: d => d.slice(0, 4)
     },
     y: {
-      label: "Value",
+      label: "Total Value",
       grid: true,
-      transform: d => d / 1e6,
-      tickFormat: d => d.toFixed(0) + "M"
+      transform: d => d / 1e9,
+      tickFormat: d => d.toFixed(1) + "B"
     },
     color: {
       legend: true,
       scheme: "category10"
     },
-    facet: {
-      data: data,
-      x: "Commodity Type",
-      y: "Commodity",
-      marginRight: 120
-    },
     marks: [
       Plot.areaY(data, Plot.stackY({
-        x: "Year",
-        y: d => +d.Value,
-        fill: "Attribute",
-        title: d => `${d.Commodity}\n${d.Attribute}\nYear: ${d.Year}\nValue: ${(+d.Value).toLocaleString()}`
+        x: d => d.Year,
+        y: d => d.TotalValue,
+        z: d => d["Commodity Type"],
+        fill: d => d["Commodity Type"],
+        title: d => `${d["Commodity Type"]}\nYear: ${d.Year}\nValue: ${d.TotalValue.toLocaleString()}`
       })),
       Plot.ruleY([0])
     ],
     style: {
       fontSize: "12px"
-    },
-    fx: {
-      label: null
-    },
-    fy: {
-      label: null
     }
   });
 }
