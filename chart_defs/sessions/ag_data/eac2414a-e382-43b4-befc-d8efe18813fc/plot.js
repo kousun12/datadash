@@ -31,10 +31,10 @@ function plotChart(data, {width} = {}) {
       Plot.tip(data, Plot.pointerX({
         x: d => d.year,
         y: d => +d.value,
-        title: (d) => {
-          const commodity = d.get('Commodity');
-          const year = d.get('year');
-          const value = (+d.get('value')).toLocaleString();
+        title: d => {
+          const commodity = d.Commodity;
+          const year = d.year;
+          const value = (+d.value).toLocaleString();
           return `${commodity}\nYear: ${year}\nValue: ${value} million bushels`;
         },
         lineWidth: 1,
