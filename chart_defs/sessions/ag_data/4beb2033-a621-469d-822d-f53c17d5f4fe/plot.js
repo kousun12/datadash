@@ -22,9 +22,10 @@ function plotChart(data, {width} = {}) {
     },
     marks: [
       Plot.areaY(data, Plot.stackY({
-        x: "Year",
+        x: d => d.Year,
         y: d => d.TotalValue,
-        fill: "Commodity Type",
+        z: d => d["Commodity Type"],
+        fill: d => d["Commodity Type"],
         title: d => `${d["Commodity Type"]}\nYear: ${d.Year}\nValue: ${d.TotalValue.toLocaleString()}`
       })),
       Plot.ruleY([0])
