@@ -3,7 +3,6 @@ import shutil
 import re
 from unidecode import unidecode
 
-from analyst.chart_def import ChartDef
 from analyst.llm import LLMAnalyst
 from constants import observable_pages_dir, default_data_dir, base_path
 

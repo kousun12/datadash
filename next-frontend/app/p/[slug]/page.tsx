@@ -34,10 +34,7 @@ export default function PlotPage({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            message: input,
-            slug: slug
-          }),
+          body: JSON.stringify({ message: input, slug: slug }),
         });
 
         if (!response.ok) {

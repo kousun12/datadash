@@ -3,6 +3,9 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from analyst.page_generator import ObservablePageGenerator
+from constants import base_path
+
 project_root = Path(__file__).parent
 
 fast_app = FastAPI()
@@ -19,6 +22,14 @@ fast_app.add_middleware(
 @fast_app.post("/")
 async def root(request: Request):
     body_json = await request.json()
-    todo = body_json["prompt"]
+    print("body json", body_json)
+    prompt = body_json["message"]
+    db_path = base_path / "fw/src/data/us_ag.db"
+    sha = "4beb2033-a621-469d-822d-f53c17d5f4fe"
+    at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
+    slug = body_json.get("slug")
+    pg = ObservablePageGenerator(db_path=db_path)
+    print(pg)
+    pg.modify_page(prompt, at_dir=at_dir, slug_override=slug)
 
-    return {"body": body_json, "todo": todo}
+    return {"you_sent": body_json}
