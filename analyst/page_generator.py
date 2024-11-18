@@ -47,16 +47,15 @@ if __name__ == "__main__":
         at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
         gen.modify_page(instruct, at_dir, slug_override=override)
 
-    at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
-    cd = ChartDef.from_path(at_dir)
-    print(gen.analyst)
-    cd_after = cd.save(in_dir=default_data_dir)
-    print(cd_after)
+    # at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
+    # cd = ChartDef.from_path(at_dir)
+    # print(gen.analyst)
+    # cd_after = cd.save(in_dir=default_data_dir)
+    # print(cd_after)
 
-    # new_chart(base_path / "fw/src/data/us_ag.db", override="us-agriculture")
-    # update_chart(
-    #     db_path=base_path / "fw/src/data/us_ag.db",
-    #     sha="eac2414a-e382-43b4-befc-d8efe18813fc",
-    #     instruct="Error: d.get is not a function",
-    #     override="us-agriculture",
-    # )
+    # new_chart(override="us-agriculture")
+    update_chart(
+        sha="4beb2033-a621-469d-822d-f53c17d5f4fe",
+        instruct="i don't see anything other than a few colors in the top right for the legend and a whole bunch of overlapping text in the top right. chart area is blank",
+        override="us-agriculture",
+    )
