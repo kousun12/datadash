@@ -159,13 +159,19 @@ def qualify_table_refs(sql, schema, table_name) -> str:
     parsed = sqlparse.parse(sql)[0]
 
     def traverse(token):
-        if (
-            isinstance(token, Identifier)
-            and token.get_real_name().lower() == table_name.lower()
-        ):
-            token.tokens = [
-                sqlparse.sql.Token(sqlparse.tokens.Name, f"{schema}.{table_name}")
-            ]
+        if isinstance(token, Identifier):
+            # Check if this identifier is our target table
+            if token.get_real_name().lower() == table_name.lower():
+                # Get the original tokens to preserve any alias
+                original_tokens = token.tokens
+                # Find and modify just the table name part
+                for i, t in enumerate(original_tokens):
+                    if t.value.lower() == table_name.lower():
+                        original_tokens[i] = sqlparse.sql.Token(
+                            sqlparse.tokens.Name, f"{schema}.{table_name}"
+                        )
+                        break
+                token.tokens = original_tokens
         elif hasattr(token, "tokens"):
             for sub_token in token.tokens:
                 traverse(sub_token)
