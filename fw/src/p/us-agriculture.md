@@ -1,5 +1,5 @@
 ---
-title: "Crop Beginning Stocks Over Time"
+title: "Agricultural Commodity Trends: Top 5 Products (2010-Present)"
 toc: false
 sidebar: false
 header: false
@@ -8,9 +8,9 @@ pager: false
 
 ---
 
-# Crop Beginning Stocks Over Time
+# Agricultural Commodity Trends: Top 5 Products (2010-Present)
 
-This interactive chart aims to display the beginning stocks for various crops in million bushels  across different marketing years. It should allow for easy comparison of trends between commodities.  However, there is currently an issue with the stacking functionality, resulting in an 'unknown offset: zero'  error. This needs to be resolved for accurate data representation. When fixed, users will be able to hover  over areas to see detailed information for each year and commodity. The x-axis labels are rotated and  spaced for improved readability.
+This stacked area chart displays trends for the top 5 agricultural commodities, showing beginning stocks, production, and imports from 2010 onwards. The chart is faceted by commodity type and individual commodities, allowing for easy comparison of trends across different products and categories.
 
 
 ```js
@@ -19,59 +19,63 @@ const db = DuckDBClient.of({ds: FileAttachment("/data/us_ag.db")});
 
 ```js
 const data = db.sql`
-WITH filtered_data AS (
-  SELECT 
-    "Marketing/calendar year" AS year,
-    Commodity,
-    "Commodity Type",
-    Attribute,
-    Unit,
-    "Value text" AS value
+WITH ranked_commodities AS (
+  SELECT Commodity, COUNT(*) as count,
+         ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) as rank
   FROM ds.ag_data
-  WHERE "Commodity Type" = 'Crops'
-    AND Attribute = 'Beginning stocks'
-    AND Unit = 'Million bushels'
+  GROUP BY Commodity
+),
+top_commodities AS (
+  SELECT Commodity
+  FROM ranked_commodities
+  WHERE rank <= 5
 )
-SELECT * FROM filtered_data
-ORDER BY year, Commodity`
+SELECT ad."Commodity Type", ad.Commodity, ad.Attribute, ad."Marketing/calendar year" as Year, ad."Value text" as Value
+FROM ds.ag_data ad
+JOIN top_commodities tc ON ad.Commodity = tc.Commodity
+WHERE ad.Attribute IN ('Beginning stocks', 'Production', 'Imports')
+  AND ad."Marketing/calendar year" >= '2010/11'
+ORDER BY ad."Commodity Type", ad.Commodity, ad."Marketing/calendar year", ad.Attribute`
 ```
 
 
 ```js
 function plotChart(data, {width} = {}) {
+  const height = 500;
+  const margin = {top: 20, right: 30, bottom: 40, left: 50};
+
   return Plot.plot({
     width,
-    height: 600,
-    marginBottom: 64,
+    height,
+    margin,
     x: {
-      label: "Marketing/Calendar Year",
-      tickRotate: 45,
-      labelOffset: 64
+      label: "Year",
+      tickFormat: d => d.slice(0, 4)
     },
     y: {
-      label: "Value (Million bushels)",
+      label: "Value",
       grid: true
     },
     color: {
-      legend: true,
+      legend: true
+    },
+    facet: {
+      data,
+      x: "Commodity Type",
+      y: "Commodity",
+      marginRight: 90
     },
     marks: [
       Plot.areaY(data, Plot.stackY({
-        x: d => d.year,
-        y: d => +d.value,
-        fill: d => d.Commodity,
-        stroke: "white",
-        strokeWidth: 1,
-        tip: true
+        x: "Year",
+        y: "Value",
+        fill: "Attribute",
+        title: d => `${d.Commodity}\n${d.Attribute}\nYear: ${d.Year}\nValue: ${d.Value.toLocaleString()}`
       })),
-      Plot.ruleY([0]),
-    ],
-    tooltip: {
-      hidden: false
-    }
+      Plot.ruleY([0])
+    ]
   });
 }
-
 
 function displayError(message) {
     return html`<div style="color: red; text-align: center; padding: 20px;">Error: ${message}</div>`;

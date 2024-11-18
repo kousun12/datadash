@@ -5,6 +5,7 @@ import duckdb
 import json
 from pathlib import Path
 
+from analyst import prompts
 from analyst.chart_def import ChartDef
 from constants import (
     base_path,
@@ -224,28 +225,7 @@ class LLMAnalyst:
         concept = ac.run(
             f"How would you visually present this table? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works.\n\n{overview}\n{stats}"
         )
-        implementation = ac.run(
-            """Respond with both the SQL and Observable Plot code required to implement this visualization. 
-Respond only with a single sql code fence and a javascript code fence, nothing else.
-The SQL flavor is DuckDB. 
-The javascript code fence should include a function `plotChart` that returns a valid Observable Plot. `displayError` will be available to you as per `plot.j2`. Do not include any new imports.
-Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing.
-For example your response should be in this form:
-
-```sql
-<Your SQL code here>
-```
-
-```javascript
-function plotChart(data, {width} = {}) {
-  return Plot.plot({
-    width,
-    ...
-  });
-}
-```
-"""
-        )
+        implementation = ac.run(prompts.generate_chart)
         max_tries = 3
 
         df = None
@@ -305,3 +285,13 @@ Instructions: {instructions}"""
         reloaded = ChartDef.from_path(at_dir)
         reloaded.render_main_artifact(at_dir)
         return reloaded
+
+
+if __name__ == "__main__":
+    db_path = base_path / "fw/src/data/us_ag.db"
+    analyst = LLMAnalyst(db_path=db_path)
+    at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
+    cd = ChartDef.from_path(at_dir)
+    print(cd.sql)
+    df = analyst.execute_sql(cd.sql)
+    print(df)

@@ -3,6 +3,7 @@ import shutil
 import re
 from unidecode import unidecode
 
+from analyst.chart_def import ChartDef
 from analyst.llm import LLMAnalyst
 from constants import observable_pages_dir, default_data_dir, base_path
 
@@ -37,10 +38,25 @@ def slugify(title):
 
 
 if __name__ == "__main__":
-    sha = "eac2414a-e382-43b4-befc-d8efe18813fc"
     gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
-    slug_override = "us-agriculture"
-    # gen.generate_pages(slug_override=slug_override)
-    instruct = "Error: d.get is not a function"
-    at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
-    gen.modify_page(instruct, at_dir, slug_override=slug_override)
+
+    def new_chart(override=None):
+        gen.generate_pages(slug_override=override)
+
+    def update_chart(sha, instruct, override=None):
+        at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
+        gen.modify_page(instruct, at_dir, slug_override=override)
+
+    at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
+    cd = ChartDef.from_path(at_dir)
+    print(gen.analyst)
+    cd_after = cd.save(in_dir=default_data_dir)
+    print(cd_after)
+
+    # new_chart(base_path / "fw/src/data/us_ag.db", override="us-agriculture")
+    # update_chart(
+    #     db_path=base_path / "fw/src/data/us_ag.db",
+    #     sha="eac2414a-e382-43b4-befc-d8efe18813fc",
+    #     instruct="Error: d.get is not a function",
+    #     override="us-agriculture",
+    # )
