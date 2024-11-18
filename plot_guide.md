@@ -388,13 +388,30 @@ Plot.plot({
 })
 ```
 
+### Data format
 This is Important!
 NB: `data` is an Apache Arrow Table object, not a standard JavaScript array:
-No direct indexing (e.g., data[0] doesn't work)
-Use Arrow-specific methods for data access (e.g., getChild(), getChildAt(), numRows, numCols)
+No direct indexing (e.g., data[0] does NOT work)
+Use Arrow Table-specific methods for data access (e.g., getChild(), getChildAt(), numRows, numCols)
 Columnar structure: optimized for column-wise operations
 May support lazy evaluation
 Can't use standard array methods (map, filter, etc.) directly
 Potentially more memory-efficient for large datasets
-May require conversion (toArray()) for some operations, but at a performance cost
+Only use (toArray()) if absolutely necessary. In general if you need to transform a value for a mark, use the e.g. `x` and `y` attribute and provide a function so that it can be done lazily.
 Consider Arrow-specific or SQL operations for best performance
+Table Properties and Methods
+Basic Properties
+table.schema: Access the table's schema
+table.numRows: Get total number of rows
+table.numCols: Get total number of columns
+table.batches: Access the underlying RecordBatch chunks1
+Data Access
+javascript
+// Get element by position
+const value = data.get(rowIndex)
+// Get first occurrence of a value
+const index = data.indexOf(value, optionalOffset)
+// Select specific columns by name
+const subset = data.select(['column1', 'column2'])
+// Select columns by index
+const subset = data.selectAt([0, 2])[1]
