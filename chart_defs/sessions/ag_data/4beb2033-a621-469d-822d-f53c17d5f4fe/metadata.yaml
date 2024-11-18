@@ -1,8 +1,7 @@
-title: 'Agricultural Commodity Trends: Top 5 Products (2010-Present)'
-description: This stacked area chart displays trends for the top 5 agricultural commodities,
-  showing beginning stocks, production, and imports from 2010 onwards. The chart is
-  faceted by commodity type and individual commodities, allowing for easy comparison
-  of trends across different products and categories.
+title: 'Agricultural Commodity Type Trends (2010-Present)'
+description: This stacked area chart displays trends for agricultural commodity types,
+  showing the total value of beginning stocks, production, and imports from 2010 onwards.
+  The chart allows for easy comparison of trends across different commodity types over time.
 db_path: data/us_ag.db
 table_name: ag_data
 id: 4beb2033-a621-469d-822d-f53c17d5f4fe

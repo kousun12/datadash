@@ -1,6 +1,6 @@
 function plotChart(data, {width} = {}) {
-  const height = 800;
-  const margin = {top: 40, right: 120, bottom: 40, left: 60};
+  const height = 500;
+  const margin = {top: 20, right: 30, bottom: 40, left: 60};
 
   return Plot.plot({
     width,
@@ -11,38 +11,26 @@ function plotChart(data, {width} = {}) {
       tickFormat: d => d.slice(0, 4)
     },
     y: {
-      label: "Value",
+      label: "Total Value",
       grid: true,
-      transform: d => d / 1e6,
-      tickFormat: d => d.toFixed(0) + "M"
+      transform: d => d / 1e9,
+      tickFormat: d => d.toFixed(1) + "B"
     },
     color: {
       legend: true,
       scheme: "category10"
     },
-    facet: {
-      data: data,
-      x: "Commodity Type",
-      y: "Commodity",
-      marginRight: 120
-    },
     marks: [
       Plot.areaY(data, Plot.stackY({
         x: "Year",
-        y: d => +d.Value,
-        fill: "Attribute",
-        title: d => `${d.Commodity}\n${d.Attribute}\nYear: ${d.Year}\nValue: ${(+d.Value).toLocaleString()}`
+        y: d => d.TotalValue,
+        fill: "Commodity Type",
+        title: d => `${d["Commodity Type"]}\nYear: ${d.Year}\nValue: ${d.TotalValue.toLocaleString()}`
       })),
       Plot.ruleY([0])
     ],
     style: {
       fontSize: "12px"
-    },
-    fx: {
-      label: null
-    },
-    fy: {
-      label: null
     }
   });
 }
