@@ -42,8 +42,7 @@ function plotChart(data, {width} = {}) {
   return Plot.plot({
     width,
     height: 600,
-    marginBottom: 80,
-    marginRight: 120,
+    marginBottom: 64,
     x: {
       label: "Marketing/Calendar Year",
       tickRotate: 45,
@@ -55,7 +54,7 @@ function plotChart(data, {width} = {}) {
     },
     color: {
       legend: true,
-      scheme: "tableau10"
+      // scheme: "tableau10"
     },
     marks: [
       Plot.areaY(data, Plot.stackY({
@@ -96,6 +95,8 @@ function plotOrError(data, options) {
 </div>
 
 ### Data
+
+Raw data from the query
 
 ```js
 display(Inputs.table(data));
