@@ -8,4 +8,4 @@ WITH trip_counts AS (
 )
 SELECT * FROM trip_counts
 ORDER BY trip_count DESC
-LIMIT 10000
+LIMIT 100

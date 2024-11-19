@@ -1,24 +1,31 @@
 function plotChart(data, {width} = {}) {
   const height = width * 0.7;
   
-  // Get the maximum values for PULocationID and DOLocationID
-  const maxPULocationID = d3.max(data, d => d.PULocationID);
-  const maxDOLocationID = d3.max(data, d => d.DOLocationID);
+  // Get unique location IDs
+  const locationIDs = new Set([...data.map(d => d.PULocationID), ...data.map(d => d.DOLocationID)]);
+  const sortedLocationIDs = Array.from(locationIDs).sort((a, b) => a - b);
   
   return Plot.plot({
     width,
     height,
+    marginLeft: 60,
+    marginBottom: 60,
     color: {
       type: "log",
-      scheme: "YlOrRd"
+      scheme: "YlOrRd",
+      label: "Trip Count"
     },
     x: {
       label: "Pickup Location ID",
-      domain: d3.range(1, maxPULocationID + 1)
+      tickFormat: d => d,
+      domain: sortedLocationIDs,
+      padding: 0.1
     },
     y: {
       label: "Dropoff Location ID",
-      domain: d3.range(1, maxDOLocationID + 1)
+      tickFormat: d => d,
+      domain: sortedLocationIDs,
+      padding: 0.1
     },
     marks: [
       Plot.cell(data, {
@@ -30,8 +37,9 @@ function plotChart(data, {width} = {}) {
       Plot.text(data, {
         x: "PULocationID",
         y: "DOLocationID",
-        text: d => d.trip_count > 1000 ? d.trip_count.toString() : "",
-        fill: "white"
+        text: d => d.trip_count.toString(),
+        fill: "white",
+        fontSize: 8
       })
     ]
   });
