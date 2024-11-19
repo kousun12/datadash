@@ -27,7 +27,7 @@ class ChartDef(pydantic.BaseModel):
     concept: str
     sql: str
     db_path: str
-    table_name: str
+    table_names: list[str]
     plot_js: Optional[str] = None
     dataframe: Any = None
     vega_lite: Optional[Dict[str, Any]] = None
@@ -57,7 +57,7 @@ class ChartDef(pydantic.BaseModel):
             concept=concept,
             sql=sql,
             db_path=metadata["db_path"],
-            table_name=metadata["table_name"],
+            table_names=metadata.get("table_names", [metadata.get("table_name")]),
             plot_js=plot_js,
             dataframe=dataframe,
         )
@@ -101,7 +101,7 @@ class ChartDef(pydantic.BaseModel):
         context = {
             "title": self.title,
             "db_path": f"/{self.db_path}",
-            "sql_block": qualify_table_refs(self.sql, "ds", self.table_name),
+            "sql_block": qualify_table_refs(self.sql, "ds", self.table_names),
             "plot_code": self.plot_js,
             "description": self.description,
         }
@@ -124,7 +124,8 @@ class ChartDef(pydantic.BaseModel):
             raise ValueError("No plot data available")
 
     def save(self, in_dir: Path, skip_df=True) -> Path:
-        dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
+        db_stem = Path(self.db_path).stem
+        dest_dir = in_dir / f"sessions/{db_stem}/{self.id}"
         dest_dir.mkdir(parents=True, exist_ok=True)
         with open(dest_dir / self.FileTypes.CONCEPT, "w") as f:
             f.write(self.concept)
@@ -139,7 +140,7 @@ class ChartDef(pydantic.BaseModel):
                     "title": self.title,
                     "description": self.description,
                     "db_path": self.db_path,
-                    "table_name": self.table_name,
+                    "table_names": self.table_names,
                     "id": str(self.id),
                 },
                 f,
@@ -157,11 +158,12 @@ class ChartDef(pydantic.BaseModel):
     def add_to_git(self, in_dir: Path):
         import subprocess
 
-        dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
+        db_stem = Path(self.db_path).stem
+        dest_dir = in_dir / f"sessions/{db_stem}/{self.id}"
         subprocess.run(["git", "add", dest_dir], check=True)
 
 
-def qualify_table_refs(sql, schema, table_name) -> str:
+def _qualify_ref_for_table(sql, schema, table_name) -> str:
     """
     Quirk of observable is that you have to bind the tables to a schema.
     """
@@ -195,6 +197,12 @@ def qualify_table_refs(sql, schema, table_name) -> str:
 
     traverse(parsed)
     return str(parsed)
+
+
+def qualify_table_refs(sql, schema, table_names) -> str:
+    for table_name in table_names:
+        sql = _qualify_ref_for_table(sql, schema, table_name)
+    return sql
 
 
 if __name__ == "__main__":

@@ -218,12 +218,16 @@ class LLMAnalyst:
             return self.db.execute(sql).fetchdf()
         return self.db.execute(sql).fetchall()
 
-    def create_chart(self, table_name: str):
-        stats = self.table_summary_stats(table_name)
-        overview = self.table_human_summary(table_name)
+    def create_chart(self):
+        overview = ""
+        table_names = self.get_tables()
+        for table in table_names:
+            overview += self.table_summary_stats(table)
+            overview += "\n\n"
+            overview += self.table_human_summary(table)
         ac = self.get_ask_coder()
         concept = ac.run(
-            f"How would you visually present this table? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works.\n\n{overview}\n{stats}"
+            f"{overview}\n\nHow would you visually present data from this data source? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works."
         )
         implementation = ac.run(prompts.generate_chart)
         max_tries = 3
@@ -260,7 +264,7 @@ class LLMAnalyst:
             description=desc,
             concept=concept,
             sql=parsed_sql,
-            table_name=table_name,
+            table_names=table_names,
             db_path=self.db_path.relative_to(base_path / "fw/src").as_posix(),
             dataframe=df,
             plot_js=parsed_ob_plot,
