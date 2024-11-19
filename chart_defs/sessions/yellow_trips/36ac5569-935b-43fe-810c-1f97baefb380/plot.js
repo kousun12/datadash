@@ -10,11 +10,11 @@ function plotChart(data, {width} = {}) {
     },
     x: {
       label: "Pickup Location ID",
-      domain: d3.range(1, d3.max(data.map(d => d.PULocationID)) + 1)
+      domain: d3.range(1, d3.max(data.getColumn('PULocationID').toArray()) + 1)
     },
     y: {
       label: "Dropoff Location ID",
-      domain: d3.range(1, d3.max(data.map(d => d.DOLocationID)) + 1)
+      domain: d3.range(1, d3.max(data.getColumn('DOLocationID').toArray()) + 1)
     },
     marks: [
       Plot.cell(data, {
@@ -26,7 +26,7 @@ function plotChart(data, {width} = {}) {
       Plot.text(data, {
         x: "PULocationID",
         y: "DOLocationID",
-        text: d => d.trip_count > 1000 ? d.trip_count : "",
+        text: d => d.trip_count > 1000 ? d.trip_count.toString() : "",
         fill: "white"
       })
     ]
