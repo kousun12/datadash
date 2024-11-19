@@ -1,24 +1,22 @@
-Given the rich dataset of New York City taxi trips, one effective visual presentation could be a heat map showing the distribution of pickup locations throughout the city, with color intensity representing the frequency of pickups.
+Given the rich dataset of New York City taxi trips, this visualization presents a heat map showing the distribution of pickup locations throughout the city, with color intensity representing the frequency of pickups. The key improvement is the inclusion of human-readable zone names for each location.
 
-Here's how this visualization would work:
+Here's how this visualization works:
 
 1. Data preparation:
    - Group the data by PULocationID (pickup location ID)
    - Count the number of trips for each location
+   - Join with a lookup table to get human-readable zone names
 
 2. Visualization:
-   - Use a map of New York City as the base layer
-   - Overlay a grid corresponding to the taxi zones (represented by PULocationID)
-   - Color each grid cell based on the number of pickups, with a color gradient from cool (low frequency) to warm (high frequency) colors
+   - Create a grid where each cell represents a unique taxi zone
+   - Color each grid cell based on the number of pickups, using a color gradient from cool (low frequency) to warm (high frequency) colors
 
 3. Interactivity:
-   - Add hover functionality to show the exact number of pickups for each zone when a user moves their cursor over a cell
-   - Include a time slider to allow users to see how the pickup distribution changes over different times of day or days of the week
+   - Hover functionality shows the zone name, location ID, and exact number of pickups for each cell when a user moves their cursor over it
 
 4. Additional features:
-   - Include a legend to help interpret the color scale
-   - Add options to filter by other factors like passenger count or fare amount
+   - Include a color legend to help interpret the pickup frequency scale
 
-This visualization would provide an immediate, intuitive understanding of which areas of the city have the highest demand for taxis, helping to identify popular pickup locations and potentially busy times. It could be valuable for taxi drivers, city planners, and researchers studying urban transportation patterns.
+This visualization provides an immediate, intuitive understanding of which areas of the city have the highest demand for taxis, now with the added context of recognizable zone names. It helps identify popular pickup locations and potentially busy areas. This information could be valuable for taxi drivers, city planners, and researchers studying urban transportation patterns.
 
-To implement this in Observable Plot, you would use the `Plot.dot` or `Plot.cell` function with appropriate x and y coordinates for each location, and the `fill` option to represent the pickup frequency.
+The implementation uses Observable Plot's `Plot.cell` function, with x and y coordinates derived from the location ID, and the `fill` option representing the pickup frequency. The `title` attribute of each cell is used to display the zone name and pickup count on hover.

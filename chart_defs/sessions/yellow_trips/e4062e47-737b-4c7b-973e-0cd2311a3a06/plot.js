@@ -21,7 +21,7 @@ function plotChart(data, {width} = {}) {
         x: d => d.PULocationID % 10,
         y: d => Math.floor(d.PULocationID / 10),
         fill: d => d.pickup_count,
-        title: d => `Location ID: ${d.PULocationID}\nPickups: ${d.pickup_count.toLocaleString()}`,
+        title: d => `Zone: ${d.zone_name}\nLocation ID: ${d.PULocationID}\nPickups: ${d.pickup_count.toLocaleString()}`,
       })
     ],
     x: {
@@ -36,6 +36,6 @@ function plotChart(data, {width} = {}) {
     marginRight: 40,
     marginBottom: 40,
     marginLeft: 40,
-    caption: "Heatmap of Taxi Pickups by Location ID"
+    caption: "Heatmap of Taxi Pickups by Zone"
   });
 }

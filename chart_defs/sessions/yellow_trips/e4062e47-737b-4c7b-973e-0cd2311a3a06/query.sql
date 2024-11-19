@@ -5,8 +5,10 @@ WITH pickup_counts AS (
 )
 SELECT 
   y.PULocationID,
-  COALESCE(p.pickup_count, 0) as pickup_count
+  COALESCE(p.pickup_count, 0) as pickup_count,
+  COALESCE(z.Zone, 'Unknown') as zone_name
 FROM yellow_trips y
 LEFT JOIN pickup_counts p ON y.PULocationID = p.PULocationID
-GROUP BY y.PULocationID, p.pickup_count
+LEFT JOIN taxi_zone_lookup z ON y.PULocationID = z.LocationID
+GROUP BY y.PULocationID, p.pickup_count, z.Zone
 ORDER BY pickup_count DESC
