@@ -1,6 +1,10 @@
 function plotChart(data, {width} = {}) {
   const height = width * 0.7;
   
+  // Get the maximum values for PULocationID and DOLocationID
+  const maxPULocationID = d3.max(data, d => d.PULocationID);
+  const maxDOLocationID = d3.max(data, d => d.DOLocationID);
+  
   return Plot.plot({
     width,
     height,
@@ -10,11 +14,11 @@ function plotChart(data, {width} = {}) {
     },
     x: {
       label: "Pickup Location ID",
-      domain: d3.range(1, d3.max(data.getColumn('PULocationID').toArray()) + 1)
+      domain: d3.range(1, maxPULocationID + 1)
     },
     y: {
       label: "Dropoff Location ID",
-      domain: d3.range(1, d3.max(data.getColumn('DOLocationID').toArray()) + 1)
+      domain: d3.range(1, maxDOLocationID + 1)
     },
     marks: [
       Plot.cell(data, {
