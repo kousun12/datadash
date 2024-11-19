@@ -1,6 +1,37 @@
 // See https://observablehq.com/framework/config for documentation.
+
+import { fileURLToPath } from 'url';
+import path from "path";
+import fs from "fs";
+
+function getPaths() {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const dir = path.join(__dirname, '../chart_defs/sessions');
+  const tableNames = fs.readdirSync(dir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
+  const allPaths = [];
+  for (const tableName of tableNames) {
+    const tablePath = path.join(dir, tableName);
+    const sessionIds = fs.readdirSync(tablePath, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+
+    for (const sessionId of sessionIds) {
+      const subPath = path.join(dir, tableName, sessionId, "plot.md");
+      if (fs.existsSync(subPath)) {
+        const registerPath = path.join("/d/", tableName, sessionId);
+        allPaths.push(registerPath);
+      }
+    }
+  }
+  return allPaths;
+}
+
 export default {
-  // The app’s title; used in the sidebar and webpage titles.
   title: "fred",
 
   // The pages and sections in the sidebar. If you don’t specify this option,
@@ -21,7 +52,7 @@ export default {
 
   // The path to the source root.
   root: "src",
-  dynamicPaths: ['/components/timeline.js'],
+  dynamicPaths: getPaths(),
 
   // Some additional configuration options and their defaults:
   theme: ["cotton", "alt", "wide"], // try "light", "dark", "slate", etc.
