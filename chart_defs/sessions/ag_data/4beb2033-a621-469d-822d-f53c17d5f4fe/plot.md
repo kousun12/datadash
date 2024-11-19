@@ -35,12 +35,10 @@ ORDER BY "Commodity Type", "Marketing/calendar year"
 ```js
 function plotChart(data, {width} = {}) {
   const height = 500;
-  const margin = {top: 20, right: 30, bottom: 60, left: 60};
 
   return Plot.plot({
     width,
     height,
-    margin,
     x: {
       label: "Year",
       tickFormat: d => d.slice(0, 4),
