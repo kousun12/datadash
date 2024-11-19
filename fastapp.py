@@ -18,18 +18,24 @@ fast_app.add_middleware(
     allow_headers=["*"],
 )
 
+db_paths = {
+    "ag_data": base_path / "fw/src/data/us_ag.db",
+    "yellow_trips": base_path / "fw/src/data/yellow_trips.db",
+}
+
 
 @fast_app.post("/")
 async def root(request: Request):
     body_json = await request.json()
     print("body json", body_json)
     prompt = body_json["message"]
-    db_path = base_path / "fw/src/data/us_ag.db"
-    sha = "4beb2033-a621-469d-822d-f53c17d5f4fe"
-    at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
     slug = body_json.get("slug")
+    table_name = body_json.get("tableName", "ag_data")
+    at_dir = base_path / f"chart_defs/sessions/{table_name}/{slug}"
+    print("at_dir", at_dir)
+    db_path = db_paths[table_name]
+
     pg = ObservablePageGenerator(db_path=db_path)
-    print(pg)
     pg.modify_page(prompt, at_dir=at_dir, slug_override=slug)
 
     return {"you_sent": body_json}

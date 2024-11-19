@@ -1,9 +1,9 @@
 title: Heatmap of Taxi Pickups in New York City by Zone
 description: This visualization shows the frequency of taxi pickups across different
-  zones in New York City. Each cell represents a unique taxi zone, with color
-  intensity indicating the number of pickups. Darker colors represent higher pickup
-  frequencies, providing insight into the most popular pickup areas. Hover over cells
-  to see the zone name, location ID, and exact pickup count.
+  zones in New York City. Each cell represents a unique taxi zone, with color intensity
+  indicating the number of pickups. Darker colors represent higher pickup frequencies,
+  providing insight into the most popular pickup areas. Hover over cells to see the
+  zone name, location ID, and exact pickup count.
 db_path: data/yellow_trips.db
 table_name: yellow_trips
 id: e4062e47-737b-4c7b-973e-0cd2311a3a06

@@ -1,31 +1,40 @@
 'use client';
 import {use, useState, useRef, KeyboardEvent} from 'react';
 
-const sampleMessages = [
-  { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
-  { id: 2, role: 'assistant', content: 'I\'d be happy to help analyze the agricultural data. What specific aspects would you like to explore?' },
-  { id: 3, role: 'user', content: 'Show me trends in corn stocks over time.' },
-  { id: 4, role: 'assistant', content: 'I\'ve loaded the visualization showing corn stock trends. You can see there are significant seasonal variations, with peaks typically occurring after harvest seasons.' },
-];
+// const sampleMessages = [
+  // { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
+  // { id: 2, role: 'assistant', content: 'I\'d be happy to help analyze the agricultural data. What specific aspects would you like to explore?' },
+  // { id: 3, role: 'user', content: 'Show me trends in corn stocks over time.' },
+  // { id: 4, role: 'assistant', content: 'I\'ve loaded the visualization showing corn stock trends. You can see there are significant seasonal variations, with peaks typically occurring after harvest seasons.' },
+// ];
+
+type Message = {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 export default function PlotPage({
   params
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string, tableName: string }>;
 }) {
-  const { slug } = use(params);
+  const { slug, tableName } = use(params);
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
-  const iframeUrl = `${baseUrl}/p/${slug}`;
+  console.log(tableName, slug);
+  const iframeUrl = `${baseUrl}/d/${tableName}/${slug}`;
   const [input, setInput] = useState('');
+  const [sampleMessages, setSampleMessages] = useState<Message[]>([])
   const [isCollapsed, setIsCollapsed] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
 
   const handleKeyPress = async (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      const newMessage = { id: sampleMessages.length + 1, role: 'user', content: input };
-      sampleMessages.push(newMessage);
+      const newMessage: Message = { id: sampleMessages.length + 1, role: 'user', content: input };
+      setSampleMessages((prev: Message[]) => [...prev, newMessage]);
       setInput('');
 
       try {
@@ -34,7 +43,7 @@ export default function PlotPage({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ message: input, slug: slug }),
+          body: JSON.stringify({ message: input, slug: slug, tableName }),
         });
 
         if (!response.ok) {
