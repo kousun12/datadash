@@ -1,5 +1,5 @@
 'use client';
-import {use, useState, useRef, useEffect} from 'react';
+import {use, useState, useRef, KeyboardEvent} from 'react';
 
 const sampleMessages = [
   { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
@@ -21,7 +21,7 @@ export default function PlotPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
 
-  const handleKeyPress = async (e: React.KeyboardEvent) => {
+  const handleKeyPress = async (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       const newMessage = { id: sampleMessages.length + 1, role: 'user', content: input };
@@ -44,7 +44,7 @@ export default function PlotPage({
         // Scroll to bottom after API call completes and DOM updates
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView();
-        }, 20);
+        }, 24);
       } catch (error) {
         console.error('Error sending message:', error);
         // TODO: Add proper error handling UI
@@ -82,7 +82,7 @@ export default function PlotPage({
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Explore the data..."
-              className="w-full p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg resize-none focus:outline-none"
               rows={3}
             />
           </div>

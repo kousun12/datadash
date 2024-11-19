@@ -37,7 +37,10 @@ def slugify(title):
 
 
 if __name__ == "__main__":
-    gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
+    # gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
+    gen = ObservablePageGenerator(
+        db_path=base_path / "fw/src/data/yellow_tripdata_2024-01.parquet"
+    )
 
     def new_chart(override=None):
         gen.generate_pages(slug_override=override)
@@ -52,9 +55,9 @@ if __name__ == "__main__":
     # cd_after = cd.save(in_dir=default_data_dir)
     # print(cd_after)
 
-    # new_chart(override="us-agriculture")
-    update_chart(
-        sha="4beb2033-a621-469d-822d-f53c17d5f4fe",
-        instruct="i don't see anything other than a few colors in the top right for the legend and a whole bunch of overlapping text in the top right. chart area is blank",
-        override="us-agriculture",
-    )
+    new_chart(override="nyc-trips")
+    # update_chart(
+    #     sha="4beb2033-a621-469d-822d-f53c17d5f4fe",
+    #     instruct="i don't see anything other than a few colors in the top right for the legend and a whole bunch of overlapping text in the top right. chart area is blank",
+    #     override="us-agriculture",
+    # )
