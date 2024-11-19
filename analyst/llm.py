@@ -278,7 +278,7 @@ class LLMAnalyst:
 Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
 The SQL flavor is DuckDB. 
 The javascript code should ALWAYS include a function `plotChart` that returns a valid Observable Plot; do not change this signature. `displayError` will be available to you as per `plot.j2`. Do not include any new imports.
-Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing.
+Remember that `data` is an Apache Arrow table, so you cannot use normal array functions or indexing. this is extremely important. Never use data.map for example or index data with an array index bracket.s
             
 Instructions: {instructions}"""
         )

@@ -1,0 +1,6 @@
+title: New York City Taxi Trip Heatmap
+description: Visualizes the density of taxi trips across different times of day and
+  days of the week, revealing patterns in urban transportation demand.
+db_path: data/yellow_trips.db
+table_name: yellow_trips
+id: d54b2615-9d9f-468d-8048-b249249f1e59

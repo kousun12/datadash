@@ -61,6 +61,6 @@ if __name__ == "__main__":
     new_chart(override="nyc-trips")
     update_chart(
         sha="36ac5569-935b-43fe-810c-1f97baefb380",
-        instruct="I have no idea what is going on here. there are an insane number of colored boxes and labels that overlap with each other meaning nothing is readable",
+        instruct="data.map is not a function",
         override="nyc-trips",
     )

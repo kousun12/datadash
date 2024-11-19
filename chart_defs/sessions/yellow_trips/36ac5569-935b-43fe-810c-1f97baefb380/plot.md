@@ -29,7 +29,8 @@ WITH trip_counts AS (
 )
 SELECT * FROM trip_counts
 ORDER BY trip_count DESC
-LIMIT 10000`
+LIMIT 100
+`
 ```
 
 
@@ -37,37 +38,49 @@ LIMIT 10000`
 function plotChart(data, {width} = {}) {
   const height = width * 0.7;
   
-  // Get the maximum values for PULocationID and DOLocationID
-  const maxPULocationID = d3.max(data, d => d.PULocationID);
-  const maxDOLocationID = d3.max(data, d => d.DOLocationID);
+  // Get unique location IDs
+  const locationIDs = new Set();
+  for (let i = 0; i < data.numRows; i++) {
+    locationIDs.add(data.getChild('PULocationID').get(i));
+    locationIDs.add(data.getChild('DOLocationID').get(i));
+  }
+  const sortedLocationIDs = Array.from(locationIDs).sort((a, b) => a - b);
   
   return Plot.plot({
     width,
     height,
+    marginLeft: 60,
+    marginBottom: 60,
     color: {
       type: "log",
-      scheme: "YlOrRd"
+      scheme: "YlOrRd",
+      label: "Trip Count"
     },
     x: {
       label: "Pickup Location ID",
-      domain: d3.range(1, maxPULocationID + 1)
+      tickFormat: d => d,
+      domain: sortedLocationIDs,
+      padding: 0.1
     },
     y: {
       label: "Dropoff Location ID",
-      domain: d3.range(1, maxDOLocationID + 1)
+      tickFormat: d => d,
+      domain: sortedLocationIDs,
+      padding: 0.1
     },
     marks: [
       Plot.cell(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
-        fill: "trip_count",
+        x: d => d.PULocationID,
+        y: d => d.DOLocationID,
+        fill: d => d.trip_count,
         tip: true
       }),
       Plot.text(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
-        text: d => d.trip_count > 1000 ? d.trip_count.toString() : "",
-        fill: "white"
+        x: d => d.PULocationID,
+        y: d => d.DOLocationID,
+        text: d => d.trip_count.toString(),
+        fill: "white",
+        fontSize: 8
       })
     ]
   });

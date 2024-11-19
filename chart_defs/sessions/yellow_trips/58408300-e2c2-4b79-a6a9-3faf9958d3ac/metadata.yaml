@@ -1,0 +1,7 @@
+title: 'Taxi Pickup Heatmap: Weekly Patterns in NYC'
+description: This heatmap visualizes the density of taxi pickups in New York City
+  across different hours of the day and days of the week, revealing patterns in urban
+  transportation demand.
+db_path: data/yellow_trips.db
+table_name: yellow_trips
+id: 58408300-e2c2-4b79-a6a9-3faf9958d3ac

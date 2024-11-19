@@ -149,7 +149,16 @@ class ChartDef(pydantic.BaseModel):
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
                 self.dataframe.to_csv(f, index=False)
 
-        return self.render_main_artifact(dest_dir)
+        artifact_path = self.render_main_artifact(dest_dir)
+        self.add_to_git(in_dir)
+
+        return artifact_path
+
+    def add_to_git(self, in_dir: Path):
+        import subprocess
+
+        dest_dir = in_dir / f"sessions/{self.table_name}/{self.id}"
+        subprocess.run(["git", "add", dest_dir], check=True)
 
 
 def qualify_table_refs(sql, schema, table_name) -> str:
@@ -173,9 +182,12 @@ def qualify_table_refs(sql, schema, table_name) -> str:
                         break
                 token.tokens = original_tokens
         # Handle raw tokens that might be table references
-        elif token.ttype == sqlparse.tokens.Name and token.value.lower() == table_name.lower():
+        elif (
+            token.ttype == sqlparse.tokens.Name
+            and token.value.lower() == table_name.lower()
+        ):
             token.value = f"{schema}.{table_name}"
-        
+
         # Recursively process child tokens
         if hasattr(token, "tokens"):
             for sub_token in token.tokens:
