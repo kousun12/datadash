@@ -2,7 +2,11 @@ function plotChart(data, {width} = {}) {
   const height = width * 0.7;
   
   // Get unique location IDs
-  const locationIDs = new Set([...data.map(d => d.PULocationID), ...data.map(d => d.DOLocationID)]);
+  const locationIDs = new Set();
+  for (let i = 0; i < data.numRows; i++) {
+    locationIDs.add(data.getChild('PULocationID').get(i));
+    locationIDs.add(data.getChild('DOLocationID').get(i));
+  }
   const sortedLocationIDs = Array.from(locationIDs).sort((a, b) => a - b);
   
   return Plot.plot({
@@ -29,14 +33,14 @@ function plotChart(data, {width} = {}) {
     },
     marks: [
       Plot.cell(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
-        fill: "trip_count",
+        x: d => d.PULocationID,
+        y: d => d.DOLocationID,
+        fill: d => d.trip_count,
         tip: true
       }),
       Plot.text(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
+        x: d => d.PULocationID,
+        y: d => d.DOLocationID,
         text: d => d.trip_count.toString(),
         fill: "white",
         fontSize: 8
