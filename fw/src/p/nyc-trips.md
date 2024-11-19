@@ -1,5 +1,5 @@
 ---
-title: "NYC Taxi Trip Heatmap: Popular Routes"
+title: "Hourly Heatmap of NYC Taxi Pickups by Location"
 toc: false
 sidebar: false
 header: false
@@ -8,9 +8,9 @@ pager: false
 
 ---
 
-# NYC Taxi Trip Heatmap: Popular Routes
+# Hourly Heatmap of NYC Taxi Pickups by Location
 
-This heatmap visualizes the frequency of taxi trips between different locations in New York City, highlighting the most common routes and busiest areas for taxi services.
+This heatmap visualizes the distribution of taxi pickups across the top 20 most frequent pickup locations in New York City over a 24-hour period. The color intensity represents the number of trips, allowing viewers to identify peak hours and popular locations for taxi usage throughout the day.
 
 
 ```js
@@ -19,56 +19,74 @@ const db = DuckDBClient.of({ds: FileAttachment("/data/yellow_trips.db")});
 
 ```js
 const data = db.sql`
-WITH trip_counts AS (
+WITH hourly_counts AS (
   SELECT 
-    PULocationID, 
-    DOLocationID, 
-    COUNT(*) as trip_count
+    EXTRACT(HOUR FROM tpep_pickup_datetime) AS hour,
+    PULocationID,
+    COUNT(*) AS trip_count
   FROM ds.yellow_trips
-  GROUP BY PULocationID, DOLocationID
+  GROUP BY 1, 2
+),
+top_locations AS (
+  SELECT PULocationID
+  FROM hourly_counts
+  GROUP BY PULocationID
+  ORDER BY SUM(trip_count) DESC
+  LIMIT 20
 )
-SELECT * FROM trip_counts
-ORDER BY trip_count DESC
-LIMIT 10000`
+SELECT 
+  h.hour,
+  h.PULocationID,
+  h.trip_count
+FROM hourly_counts h
+JOIN top_locations t ON h.PULocationID = t.PULocationID
+ORDER BY h.PULocationID, h.hour`
 ```
 
 
 ```js
 function plotChart(data, {width} = {}) {
-  const height = width * 0.7;
-  
+  const height = 500;
+  const marginTop = 30;
+  const marginRight = 30;
+  const marginBottom = 40;
+  const marginLeft = 60;
+
+  // Convert Arrow table to array
+  const dataArray = data.toArray();
+
   return Plot.plot({
     width,
     height,
-    color: {
-      type: "log",
-      scheme: "YlOrRd"
-    },
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
     x: {
-      label: "Pickup Location ID",
-      domain: d3.range(1, d3.max(data.getColumn('PULocationID').toArray()) + 1)
+      label: "Hour of Day",
+      tickFormat: d => d.toString().padStart(2, '0') + ":00",
+      domain: d3.range(24)
     },
     y: {
-      label: "Dropoff Location ID",
-      domain: d3.range(1, d3.max(data.getColumn('DOLocationID').toArray()) + 1)
+      label: "Pickup Location ID",
+      domain: d3.groupSort(dataArray, g => -d3.sum(g, d => d.trip_count), d => d.PULocationID)
+    },
+    color: {
+      type: "linear",
+      scheme: "YlOrRd",
+      label: "Number of Trips"
     },
     marks: [
-      Plot.cell(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
-        fill: "trip_count",
-        tip: true
-      }),
-      Plot.text(data, {
-        x: "PULocationID",
-        y: "DOLocationID",
-        text: d => d.trip_count > 1000 ? d.trip_count.toString() : "",
-        fill: "white"
+      Plot.cell(dataArray, {
+        x: d => d.hour,
+        y: d => d.PULocationID,
+        fill: d => d.trip_count,
+        tip: true,
+        title: d => `Location: ${d.PULocationID}\nHour: ${d.hour}:00\nTrips: ${d.trip_count}`
       })
     ]
   });
 }
-
 
 function displayError(message) {
     return html`<div style="color: red; text-align: center; padding: 20px;">Error: ${message}</div>`;
