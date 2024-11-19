@@ -38,15 +38,13 @@ def slugify(title):
 
 if __name__ == "__main__":
     # gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
-    gen = ObservablePageGenerator(
-        db_path=base_path / "fw/src/data/yellow_tripdata_2024-01.parquet"
-    )
+    gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/yellow_trips.db")
 
     def new_chart(override=None):
         gen.generate_pages(slug_override=override)
 
     def update_chart(sha, instruct, override=None):
-        at_dir = base_path / f"chart_defs/sessions/ag_data/{sha}"
+        at_dir = base_path / f"chart_defs/sessions/yellow_trips/{sha}"
         gen.modify_page(instruct, at_dir, slug_override=override)
 
     # at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
@@ -54,10 +52,15 @@ if __name__ == "__main__":
     # print(gen.analyst)
     # cd_after = cd.save(in_dir=default_data_dir)
     # print(cd_after)
-
-    new_chart(override="nyc-trips")
     # update_chart(
     #     sha="4beb2033-a621-469d-822d-f53c17d5f4fe",
     #     instruct="i don't see anything other than a few colors in the top right for the legend and a whole bunch of overlapping text in the top right. chart area is blank",
     #     override="us-agriculture",
     # )
+
+    new_chart(override="nyc-trips")
+    update_chart(
+        sha="36ac5569-935b-43fe-810c-1f97baefb380",
+        instruct="Error: d.getHours is not a function",
+        override="nyc-trips",
+    )

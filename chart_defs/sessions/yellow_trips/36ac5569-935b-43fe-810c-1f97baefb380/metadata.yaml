@@ -1,0 +1,7 @@
+title: 'NYC Taxi Trip Heatmap: Popular Routes'
+description: This heatmap visualizes the frequency of taxi trips between different
+  locations in New York City, highlighting the most common routes and busiest areas
+  for taxi services.
+db_path: data/yellow_trips.db
+table_name: yellow_trips
+id: 36ac5569-935b-43fe-810c-1f97baefb380

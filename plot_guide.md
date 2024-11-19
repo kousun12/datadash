@@ -422,6 +422,10 @@ instead of:
 Plot.areaY(data, Plot.stackY({ x: d => d.get('year') + 1 })
 
 This is very important. Do not forget these semantics around data.
+these are the only methods that the apache arrow table object has:
+[ "constructor", "data", "numCols", "numRows", "nullCount", "isValid", "get", "at", "set", "indexOf", "toArray", "toString", "concat", "slice", "getChild", "getChildAt", "setChild", "setChildAt", "select", "selectAt", "assign", "schema", "batches", "_offsets", "_nullCount" ]
+
+Remember: never ever use data.map or data.filter on an Apache Arrow Table object. It is not an array!
 
 
 # Chart display

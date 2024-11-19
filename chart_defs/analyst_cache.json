@@ -1,7 +1,7 @@
 {
-  "/Users/robcheung/code/fred/fw/src/data/us_ag.db": {
+  "/Users/robcheung/code/fred/fw/src/data/yellow_trips.db": {
     "human_summary": {
-      "ag_data": "The \"ag_data\" table contains comprehensive agricultural data, including projections and historical information for various crops and livestock/dairy commodities. It covers aspects such as production, stocks, and market trends, with data sourced primarily from the Office of the Chief Economist, spanning multiple marketing years and using diverse units of measurement."
+      "yellow_trips": "The \"yellow_trips\" table contains detailed information about taxi trips in New York City, including pickup and dropoff times, locations, passenger counts, fare details, and various surcharges, with nearly 3 million records providing comprehensive data for analyzing taxi service patterns and financial aspects of rides."
     }
   }
 }
