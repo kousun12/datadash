@@ -18,7 +18,7 @@ class TestChartDef:
             concept="Test concept markdown",
             sql="SELECT * FROM test_table",
             db_path="test.db",
-            table_name="test_table",
+            table_names=["test_table"],
             plot_js="console.log('test plot')",
             dataframe=df,
         )

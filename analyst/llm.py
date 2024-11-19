@@ -223,8 +223,9 @@ class LLMAnalyst:
         table_names = self.get_tables()
         for table in table_names:
             overview += self.table_summary_stats(table)
-            overview += "\n\n"
+            overview += "\n"
             overview += self.table_human_summary(table)
+            overview += "\n"
         ac = self.get_ask_coder()
         concept = ac.run(
             f"{overview}\n\nHow would you visually present data from this data source? In considering this, think about the types of data in the table and what presentation would be most useful for a reader. Come up with just one idea and describe how it works."

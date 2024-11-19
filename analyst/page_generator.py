@@ -38,9 +38,7 @@ def slugify(title):
 if __name__ == "__main__":
     # gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/us_ag.db")
     gen = ObservablePageGenerator(db_path=base_path / "fw/src/data/yellow_trips.db")
-
-    def new_chart(override=None):
-        gen.generate_pages(slug_override=override)
+    gen.generate_pages()
 
     def update_chart(sha, instruct, override=None):
         at_dir = base_path / f"chart_defs/sessions/yellow_trips/{sha}"
@@ -57,9 +55,8 @@ if __name__ == "__main__":
     #     override="us-agriculture",
     # )
 
-    new_chart(override="nyc-trips")
-    update_chart(
-        sha="36ac5569-935b-43fe-810c-1f97baefb380",
-        instruct="data.map is not a function",
-        override="nyc-trips",
-    )
+    # update_chart(
+    #     sha="36ac5569-935b-43fe-810c-1f97baefb380",
+    #     instruct="data.map is not a function",
+    #     override="nyc-trips",
+    # )
