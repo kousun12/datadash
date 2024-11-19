@@ -12,7 +12,8 @@ function plotChart(data, {width} = {}) {
     x: {
       label: "Hour of Day",
       tickFormat: d => d.toString().padStart(2, '0') + ":00",
-      domain: [0, 23]
+      domain: [0, 23],
+      ticks: 12  // Show 12 ticks, which will be every 2 hours
     },
     y: {
       label: null,
