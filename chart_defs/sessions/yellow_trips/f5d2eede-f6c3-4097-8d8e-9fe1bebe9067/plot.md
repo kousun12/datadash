@@ -7,6 +7,9 @@ footer: false
 pager: false
 
 ---
+```js
+import {Editor} from "/components/Editor.js";
+```
 
 # Hourly Taxi Pickup Heatmap for Top 20 Zones in NYC
 
@@ -44,33 +47,24 @@ ORDER BY hp.Zone, hp.hour`
 
 ```js
 function plotChart(data, {width} = {}) {
-  const height = Math.max(500, data.numRows * 25); // Adjust height based on number of zones
-  const margin = {top: 40, right: 100, bottom: 60, left: 200};
+  const margin = {top: 40, right: 200, bottom: 60, left: 200};
 
   return Plot.plot({
     width,
-    height,
     marginLeft: margin.left,
     marginRight: margin.right,
     marginTop: margin.top,
     marginBottom: margin.bottom,
     x: {
       label: "Hour of Day",
-      tickFormat: d => d + "h",
-      domain: [0, 23],
-      ticks: 24
     },
     y: {
       label: null,
-      domain: data.select('Zone').distinct().toArray().sort((a, b) => {
-        const sumA = data.filter(d => d.Zone === a).select('pickup_count').sum();
-        const sumB = data.filter(d => d.Zone === b).select('pickup_count').sum();
-        return sumB - sumA;
-      })
+      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
     },
     color: {
       type: "linear",
-      scheme: "Greens",
+      scheme: "YlGn",
       label: "Pickup Count",
       legend: true
     },
@@ -80,7 +74,7 @@ function plotChart(data, {width} = {}) {
         y: d => d.Zone,
         fill: d => d.pickup_count,
         tip: true,
-        title: d => `${d.Zone}\nPickups: ${d.pickup_count.toLocaleString()}`
+        title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count.toLocaleString()}`
       }),
       Plot.text(data, Plot.groupY({x: "count"}, {
         y: d => d.Zone,
@@ -108,18 +102,14 @@ function plotOrError(data, options) {
 }
 ```
 
-
-<div class="grid grid-cols-1">
-    <div class="card">
-        ${resize((width) => plotOrError(data, {width}))}
-    </div>
-</div>
-
-<div class="grid grid-cols-1">
-    <div class="card">
-
-```sql run=false
-WITH hourly_pickups AS (
+```js
+function getJSView() {
+  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 40, right: 200, bottom: 60, left: 200};\n\n  return Plot.plot({\n    width,\n    marginLeft: margin.left,\n    marginRight: margin.right,\n    marginTop: margin.top,\n    marginBottom: margin.bottom,\n    x: {\n      label: \"Hour of Day\",\n    },\n    y: {\n      label: null,\n      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)\n    },\n    color: {\n      type: \"linear\",\n      scheme: \"YlGn\",\n      label: \"Pickup Count\",\n      legend: true\n    },\n    marks: [\n      Plot.cell(data, {\n        x: d => d.hour,\n        y: d => d.Zone,\n        fill: d => d.pickup_count,\n        tip: true,\n        title: d => `${d.Zone}\\nHour: ${d.hour}:00\\nPickups: ${d.pickup_count.toLocaleString()}`\n      }),\n      Plot.text(data, Plot.groupY({x: \"count\"}, {\n        y: d => d.Zone,\n        text: d => d.Zone,\n        dx: -10,\n        dy: 0,\n        fontSize: 9,\n        textAnchor: \"end\"\n      }))\n    ]\n  });\n}\n";
+  const e = Editor({value: plotCodeString, lang: "javascript"});
+  return e;
+}
+function getSQLView() {
+    const sqlString = `WITH hourly_pickups AS (
   SELECT 
     z.Zone,
     EXTRACT(HOUR FROM y.tpep_pickup_datetime) AS hour,
@@ -138,66 +128,34 @@ top_zones AS (
 SELECT hp.Zone, hp.hour, hp.pickup_count
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour
-```
-
-```js run=false
-function plotChart(data, {width} = {}) {
-  const height = Math.max(500, data.numRows * 25); // Adjust height based on number of zones
-  const margin = {top: 40, right: 100, bottom: 60, left: 200};
-
-  return Plot.plot({
-    width,
-    height,
-    marginLeft: margin.left,
-    marginRight: margin.right,
-    marginTop: margin.top,
-    marginBottom: margin.bottom,
-    x: {
-      label: "Hour of Day",
-      tickFormat: d => d + "h",
-      domain: [0, 23],
-      ticks: 24
-    },
-    y: {
-      label: null,
-      domain: data.select('Zone').distinct().toArray().sort((a, b) => {
-        const sumA = data.filter(d => d.Zone === a).select('pickup_count').sum();
-        const sumB = data.filter(d => d.Zone === b).select('pickup_count').sum();
-        return sumB - sumA;
-      })
-    },
-    color: {
-      type: "linear",
-      scheme: "Greens",
-      label: "Pickup Count",
-      legend: true
-    },
-    marks: [
-      Plot.cell(data, {
-        x: d => d.hour,
-        y: d => d.Zone,
-        fill: d => d.pickup_count,
-        tip: true,
-        title: d => `${d.Zone}\nPickups: ${d.pickup_count.toLocaleString()}`
-      }),
-      Plot.text(data, Plot.groupY({x: "count"}, {
-        y: d => d.Zone,
-        text: d => d.Zone,
-        dx: -10,
-        dy: 0,
-        fontSize: 9,
-        textAnchor: "end"
-      }))
-    ]
-  });
+ORDER BY hp.Zone, hp.hour`;
+    const e = Editor({value: sqlString, lang: "sql"});
+    return e;
 }
-
 ```
+
+<div class="grid grid-cols-1">
+    <div class="card">
+        ${resize((width) => plotOrError(data, {width}))}
+    </div>
+</div>
+
+### Raw Code
+
+The following shows the `Plot` code as well as the `sql` used to drive the above visualizations.
+
+<div class="grid grid-cols-2">
+    <div class="card">
+        ${getJSView()}
+    </div>
+    <div class="card">
+        ${getSQLView()}
     </div>
 </div>
 
 ### Data
+
+This is the raw data resulting from the SQL query.
 
 ```js
 display(Inputs.table(data));

@@ -7,6 +7,9 @@ footer: false
 pager: false
 
 ---
+```js
+import {Editor} from "/components/Editor.js";
+```
 
 # {{ title }}
 
@@ -39,6 +42,18 @@ function plotOrError(data, options) {
 }
 ```
 
+```js
+function getJSView() {
+  const plotCodeString = {{ plot_code_str|safe }};
+  const e = Editor({value: plotCodeString, lang: "javascript"});
+  return e;
+}
+function getSQLView() {
+    const sqlString = `{{ sql_block }}`;
+    const e = Editor({value: sqlString, lang: "sql"});
+    return e;
+}
+```
 
 <div class="grid grid-cols-1">
     <div class="card">
@@ -46,20 +61,22 @@ function plotOrError(data, options) {
     </div>
 </div>
 
-<div class="grid grid-cols-1">
+### Raw Code
+
+The following shows the `Plot` code as well as the `sql` used to drive the above visualizations.
+
+<div class="grid grid-cols-2">
     <div class="card">
-
-```sql run=false
-{{ sql_block }}
-```
-
-```js run=false
-{{ plot_code }}
-```
+        ${getJSView()}
+    </div>
+    <div class="card">
+        ${getSQLView()}
     </div>
 </div>
 
 ### Data
+
+This is the raw data resulting from the SQL query.
 
 ```js
 display(Inputs.table(data));

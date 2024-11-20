@@ -1,3 +1,5 @@
+import json
+
 import yaml
 import uuid
 import pandas as pd
@@ -101,6 +103,7 @@ class ChartDef(pydantic.BaseModel):
             "db_path": f"/{self.db_path}",
             "sql_block": qualify_table_refs(self.sql, "ds", self.table_names),
             "plot_code": self.plot_js,
+            "plot_code_str": json.dumps(self.plot_js),
             "description": self.description,
         }
         return template.render(context)
