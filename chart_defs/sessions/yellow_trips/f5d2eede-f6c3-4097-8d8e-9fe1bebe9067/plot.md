@@ -47,13 +47,11 @@ ORDER BY hp.Zone, hp.hour`
 
 ```js
 function plotChart(data, {width} = {}) {
-  const margin = {top: 40, right: 200, bottom: 60, left: 200};
+  const margin = {bottom: 60, left: 200};
 
   return Plot.plot({
     width,
     marginLeft: margin.left,
-    marginRight: margin.right,
-    marginTop: margin.top,
     marginBottom: margin.bottom,
     x: {
       label: "Hour of Day",
@@ -104,7 +102,7 @@ function plotOrError(data, options) {
 
 ```js
 function getJSView() {
-  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 40, right: 200, bottom: 60, left: 200};\n\n  return Plot.plot({\n    width,\n    marginLeft: margin.left,\n    marginRight: margin.right,\n    marginTop: margin.top,\n    marginBottom: margin.bottom,\n    x: {\n      label: \"Hour of Day\",\n    },\n    y: {\n      label: null,\n      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)\n    },\n    color: {\n      type: \"linear\",\n      scheme: \"YlGn\",\n      label: \"Pickup Count\",\n      legend: true\n    },\n    marks: [\n      Plot.cell(data, {\n        x: d => d.hour,\n        y: d => d.Zone,\n        fill: d => d.pickup_count,\n        tip: true,\n        title: d => `${d.Zone}\\nHour: ${d.hour}:00\\nPickups: ${d.pickup_count.toLocaleString()}`\n      }),\n      Plot.text(data, Plot.groupY({x: \"count\"}, {\n        y: d => d.Zone,\n        text: d => d.Zone,\n        dx: -10,\n        dy: 0,\n        fontSize: 9,\n        textAnchor: \"end\"\n      }))\n    ]\n  });\n}\n";
+  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {bottom: 60, left: 200};\n\n  return Plot.plot({\n    width,\n    marginLeft: margin.left,\n    marginBottom: margin.bottom,\n    x: {\n      label: \"Hour of Day\",\n    },\n    y: {\n      label: null,\n      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)\n    },\n    color: {\n      type: \"linear\",\n      scheme: \"YlGn\",\n      label: \"Pickup Count\",\n      legend: true\n    },\n    marks: [\n      Plot.cell(data, {\n        x: d => d.hour,\n        y: d => d.Zone,\n        fill: d => d.pickup_count,\n        tip: true,\n        title: d => `${d.Zone}\\nHour: ${d.hour}:00\\nPickups: ${d.pickup_count.toLocaleString()}`\n      }),\n      Plot.text(data, Plot.groupY({x: \"count\"}, {\n        y: d => d.Zone,\n        text: d => d.Zone,\n        dx: -10,\n        dy: 0,\n        fontSize: 9,\n        textAnchor: \"end\"\n      }))\n    ]\n  });\n}\n";
   const e = Editor({value: plotCodeString, lang: "javascript"});
   return e;
 }
