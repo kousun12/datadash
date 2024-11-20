@@ -44,24 +44,33 @@ ORDER BY hp.Zone, hp.hour`
 
 ```js
 function plotChart(data, {width} = {}) {
+  const height = Math.max(500, data.numRows * 25); // Adjust height based on number of zones
   const margin = {top: 40, right: 100, bottom: 60, left: 200};
 
   return Plot.plot({
     width,
+    height,
     marginLeft: margin.left,
     marginRight: margin.right,
     marginTop: margin.top,
     marginBottom: margin.bottom,
     x: {
       label: "Hour of Day",
+      tickFormat: d => d + "h",
+      domain: [0, 23],
+      ticks: 24
     },
     y: {
       label: null,
-      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
+      domain: data.select('Zone').distinct().toArray().sort((a, b) => {
+        const sumA = data.filter(d => d.Zone === a).select('pickup_count').sum();
+        const sumB = data.filter(d => d.Zone === b).select('pickup_count').sum();
+        return sumB - sumA;
+      })
     },
     color: {
       type: "linear",
-      scheme: "YlOrRd",
+      scheme: "Greens",
       label: "Pickup Count",
       legend: true
     },
@@ -103,6 +112,88 @@ function plotOrError(data, options) {
 <div class="grid grid-cols-1">
     <div class="card">
         ${resize((width) => plotOrError(data, {width}))}
+    </div>
+</div>
+
+<div class="grid grid-cols-1">
+    <div class="card">
+
+```sql run=false
+WITH hourly_pickups AS (
+  SELECT 
+    z.Zone,
+    EXTRACT(HOUR FROM y.tpep_pickup_datetime) AS hour,
+    COUNT(*) AS pickup_count
+  FROM ds.yellow_trips y
+  JOIN ds.zones z ON y.PULocationID = z.LocationID
+  GROUP BY z.Zone, EXTRACT(HOUR FROM y.tpep_pickup_datetime)
+),
+top_zones AS (
+  SELECT Zone
+  FROM hourly_pickups
+  GROUP BY Zone
+  ORDER BY SUM(pickup_count) DESC
+  LIMIT 20
+)
+SELECT hp.Zone, hp.hour, hp.pickup_count
+FROM hourly_pickups hp
+JOIN top_zones tz ON hp.Zone = tz.Zone
+ORDER BY hp.Zone, hp.hour
+```
+
+```js run=false
+function plotChart(data, {width} = {}) {
+  const height = Math.max(500, data.numRows * 25); // Adjust height based on number of zones
+  const margin = {top: 40, right: 100, bottom: 60, left: 200};
+
+  return Plot.plot({
+    width,
+    height,
+    marginLeft: margin.left,
+    marginRight: margin.right,
+    marginTop: margin.top,
+    marginBottom: margin.bottom,
+    x: {
+      label: "Hour of Day",
+      tickFormat: d => d + "h",
+      domain: [0, 23],
+      ticks: 24
+    },
+    y: {
+      label: null,
+      domain: data.select('Zone').distinct().toArray().sort((a, b) => {
+        const sumA = data.filter(d => d.Zone === a).select('pickup_count').sum();
+        const sumB = data.filter(d => d.Zone === b).select('pickup_count').sum();
+        return sumB - sumA;
+      })
+    },
+    color: {
+      type: "linear",
+      scheme: "Greens",
+      label: "Pickup Count",
+      legend: true
+    },
+    marks: [
+      Plot.cell(data, {
+        x: d => d.hour,
+        y: d => d.Zone,
+        fill: d => d.pickup_count,
+        tip: true,
+        title: d => `${d.Zone}\nPickups: ${d.pickup_count.toLocaleString()}`
+      }),
+      Plot.text(data, Plot.groupY({x: "count"}, {
+        y: d => d.Zone,
+        text: d => d.Zone,
+        dx: -10,
+        dy: 0,
+        fontSize: 9,
+        textAnchor: "end"
+      }))
+    ]
+  });
+}
+
+```
     </div>
 </div>
 
