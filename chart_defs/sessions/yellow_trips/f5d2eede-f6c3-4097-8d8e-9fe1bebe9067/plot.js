@@ -17,8 +17,7 @@ function plotChart(data, {width} = {}) {
     color: {
       type: "linear",
       scheme: "YlGn",
-      label: "Pickup Count",
-      legend: true
+      label: "Pickup Count"
     },
     marks: [
       Plot.cell(data, {
