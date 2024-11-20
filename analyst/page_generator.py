@@ -24,8 +24,8 @@ class ObservablePageGenerator:
 
     def modify_page(self, instructions: str, at_dir: Path, slug_override=None):
         new_chart = self.analyst.modify_chart(instructions, at_dir)
-        out_path = new_chart.save(in_dir=default_data_dir)
-        self.write_page(new_chart, out_path, slug_override=slug_override)
+        new_chart.save(in_dir=default_data_dir)
+        # self.write_page(new_chart, out_path, slug_override=slug_override)
 
 
 def slugify(title):

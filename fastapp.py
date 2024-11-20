@@ -34,7 +34,7 @@ async def root(request: Request):
     at_dir = base_path / f"chart_defs/sessions/{table_name}/{slug}"
     db_path = db_paths[table_name]
     pg = ObservablePageGenerator(db_path=db_path)
-    pg.modify_page(prompt, at_dir=at_dir, slug_override=slug)
+    pg.modify_page(prompt, at_dir=at_dir)
     # touch the file: fw/src/d/[tableName]/[uuid].md.js to trigger observable to rebuild
     (base_path / f"fw/src/d/[tableName]/[uuid].md.js").touch()
 

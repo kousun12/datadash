@@ -73,9 +73,7 @@ class ChartDef(pydantic.BaseModel):
 
     @classmethod
     def readonly_file_names(cls):
-        return [
-            cls.FileTypes.OBSERVABLE_PLOT,
-        ]
+        return []
 
     def render_vega_lite(self):
         import altair as alt
