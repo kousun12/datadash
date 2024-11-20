@@ -1,5 +1,5 @@
 function plotChart(data, {width} = {}) {
-  const margin = {top: 40, right: 100, bottom: 60, left: 200};
+  const margin = {top: 40, right: 120, bottom: 60, left: 200};
 
   return Plot.plot({
     width,
@@ -17,7 +17,8 @@ function plotChart(data, {width} = {}) {
     color: {
       type: "linear",
       scheme: "YlGn",
-      label: "Pickup Count"
+      label: "Pickup Count",
+      legend: true
     },
     marks: [
       Plot.cell(data, {
