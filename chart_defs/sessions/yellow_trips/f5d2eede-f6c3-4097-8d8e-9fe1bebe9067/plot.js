@@ -11,9 +11,9 @@ function plotChart(data, {width} = {}) {
     marginBottom: margin.bottom,
     x: {
       label: "Hour of Day",
-      tickFormat: d => d.toString().padStart(2, '0') + ":00",
+      tickFormat: d => d + "h",
       domain: [0, 23],
-      ticks: 12
+      ticks: 24
     },
     y: {
       label: null,
