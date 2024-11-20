@@ -35,7 +35,7 @@ function plotChart(data, {width} = {}) {
         y: d => d.Zone,
         fill: d => d.pickup_count,
         tip: true,
-        title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count}`
+        title: d => `${d.Zone}\nPickups: ${d.pickup_count.toLocaleString()}`
       }),
       Plot.text(data, Plot.groupY({x: "count"}, {
         y: d => d.Zone,
