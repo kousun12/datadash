@@ -1,11 +1,9 @@
 function plotChart(data, {width} = {}) {
-  const margin = {top: 40, right: 200, bottom: 60, left: 200};
+  const margin = {bottom: 60, left: 200};
 
   return Plot.plot({
     width,
     marginLeft: margin.left,
-    marginRight: margin.right,
-    marginTop: margin.top,
     marginBottom: margin.bottom,
     x: {
       label: "Hour of Day",
