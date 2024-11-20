@@ -25,7 +25,7 @@ function plotChart(data, {width} = {}) {
     },
     color: {
       type: "linear",
-      scheme: "YlGn",
+      scheme: "Greens",
       label: "Pickup Count",
       legend: true
     },
