@@ -1,5 +1,5 @@
 function plotChart(data, {width} = {}) {
-  const margin = {top: 40, right: 160, bottom: 60, left: 200};
+  const margin = {top: 40, right: 180, bottom: 60, left: 200};
 
   return Plot.plot({
     width,
@@ -17,7 +17,8 @@ function plotChart(data, {width} = {}) {
     color: {
       type: "linear",
       scheme: "YlGn",
-      label: "Pickup Count"
+      label: "Pickup Count",
+      legend: true
     },
     marks: [
       Plot.cell(data, {
@@ -25,7 +26,7 @@ function plotChart(data, {width} = {}) {
         y: d => d.Zone,
         fill: d => d.pickup_count,
         tip: true,
-        title: d => `${d.Zone}\nPickups: ${d.pickup_count.toLocaleString()}`
+        title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count.toLocaleString()}`
       }),
       Plot.text(data, Plot.groupY({x: "count"}, {
         y: d => d.Zone,
