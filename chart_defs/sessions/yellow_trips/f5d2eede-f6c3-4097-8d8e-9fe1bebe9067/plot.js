@@ -1,9 +1,6 @@
 function plotChart(data, {width} = {}) {
-  const height = 500;
-  const margin = {top: 30, right: 30, bottom: 50, left: 150};
-
-  // Convert Apache Arrow Table to a regular JavaScript array
-  const dataArray = data.toArray();
+  const height = Math.max(500, data.numRows * 25); // Adjust height based on number of zones
+  const margin = {top: 40, right: 100, bottom: 60, left: 200};
 
   return Plot.plot({
     width,
@@ -16,11 +13,18 @@ function plotChart(data, {width} = {}) {
       label: "Hour of Day",
       tickFormat: d => d.toString().padStart(2, '0') + ":00",
       domain: [0, 23],
-      ticks: 12  // Show 12 ticks, which will be every 2 hours
+      ticks: 12
     },
     y: {
       label: null,
-      domain: d3.groupSort(dataArray, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
+      domain: data.select('Zone').distinct().toArray().sort((a, b) => 
+        data.filter(d => d.Zone === b.Zone)
+            .select('pickup_count')
+            .sum() - 
+        data.filter(d => d.Zone === a.Zone)
+            .select('pickup_count')
+            .sum()
+      )
     },
     color: {
       type: "linear",
@@ -29,19 +33,19 @@ function plotChart(data, {width} = {}) {
       legend: true
     },
     marks: [
-      Plot.cell(dataArray, {
+      Plot.cell(data, {
         x: d => d.hour,
         y: d => d.Zone,
         fill: d => d.pickup_count,
         tip: true,
         title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count}`
       }),
-      Plot.text(dataArray, Plot.groupY({x: "count"}, {
+      Plot.text(data, Plot.groupY({x: "count"}, {
         y: d => d.Zone,
         text: d => d.Zone,
-        dx: -15,
+        dx: -10,
         dy: 0,
-        fontSize: 10,
+        fontSize: 9,
         textAnchor: "end"
       }))
     ]
