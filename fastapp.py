@@ -32,10 +32,10 @@ async def root(request: Request):
     slug = body_json.get("slug")
     table_name = body_json.get("tableName", "ag_data")
     at_dir = base_path / f"chart_defs/sessions/{table_name}/{slug}"
-    print("at_dir", at_dir)
     db_path = db_paths[table_name]
-
     pg = ObservablePageGenerator(db_path=db_path)
     pg.modify_page(prompt, at_dir=at_dir, slug_override=slug)
+    # touch the file: fw/src/d/[tableName]/[uuid].md.js to trigger observable to rebuild
+    (base_path / f"fw/src/d/[tableName]/[uuid].md.js").touch()
 
     return {"you_sent": body_json}

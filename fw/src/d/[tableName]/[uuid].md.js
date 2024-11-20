@@ -14,7 +14,6 @@ function getMdText(uuid, tableName) {
   const __dirname = path.dirname(__filename);
   const fp = path.join(__dirname, '../../../../chart_defs/sessions', tableName, uuid, "plot.md");
   return fs.readFileSync(fp, 'utf8');
-
 }
 
 process.stdout.write(getMdText(uuid, tableName));

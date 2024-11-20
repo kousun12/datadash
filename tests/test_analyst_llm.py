@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from analyst.llm import LLMAnalyst, ChartDef
+from analyst.analyst_llm import LLMAnalyst, ChartDef
 
 
 class TestLLMAnalyst(unittest.TestCase):
@@ -57,8 +57,8 @@ class TestLLMAnalyst(unittest.TestCase):
         self.assertIn("col1: INT", summary)
         self.assertIn("col2: TEXT", summary)
 
-    @patch("analyst.llm.LLMAnalyst.get_ask_coder")
-    @patch("analyst.llm.LLMAnalyst.table_summary_stats")
+    @patch("analyst.analyst_llm.LLMAnalyst.get_ask_coder")
+    @patch("analyst.analyst_llm.LLMAnalyst.table_summary_stats")
     def test_table_human_summary(self, mock_stats, mock_get_coder):
         mock_stats.return_value = "Mock stats"
         mock_coder = MagicMock()
@@ -79,10 +79,10 @@ class TestLLMAnalyst(unittest.TestCase):
         df = self.analyst.execute_sql("SELECT * FROM test")
         pd.testing.assert_frame_equal(df, pd.DataFrame({"a": [1, 2, 3]}))
 
-    @patch("analyst.llm.LLMAnalyst.get_ask_coder")
-    @patch("analyst.llm.LLMAnalyst.table_summary_stats")
-    @patch("analyst.llm.LLMAnalyst.table_human_summary")
-    @patch("analyst.llm.LLMAnalyst.execute_sql")
+    @patch("analyst.analyst_llm.LLMAnalyst.get_ask_coder")
+    @patch("analyst.analyst_llm.LLMAnalyst.table_summary_stats")
+    @patch("analyst.analyst_llm.LLMAnalyst.table_human_summary")
+    @patch("analyst.analyst_llm.LLMAnalyst.execute_sql")
     def test_get_chart_idea(
         self, mock_execute, mock_human_summary, mock_stats, mock_get_coder
     ):

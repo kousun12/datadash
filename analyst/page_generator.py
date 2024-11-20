@@ -3,7 +3,7 @@ import shutil
 import re
 from unidecode import unidecode
 
-from analyst.llm import LLMAnalyst
+from analyst.analyst_llm import LLMAnalyst
 from constants import observable_pages_dir, default_data_dir, base_path
 
 
@@ -16,7 +16,6 @@ class ObservablePageGenerator:
         slug = slug_override or slugify(chart_def.title)
         copy_pth = observable_pages_dir / f"{slug}{out_path.suffix}"
         shutil.copy2(out_path, copy_pth)
-        print(f"Generated {copy_pth}")
 
     def generate_pages(self, slug_override=None):
         chart_def = self.analyst.create_chart()
