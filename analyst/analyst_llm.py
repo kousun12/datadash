@@ -1,3 +1,5 @@
+import tempfile
+
 from aider.models import Model
 import textwrap
 from io import StringIO
@@ -33,6 +35,7 @@ class LLMAnalyst:
         data_dir.mkdir(parents=True, exist_ok=True)
         self._cache_file = Path(data_dir) / cache_filename
         self._load_cache()
+        self.tmp_ignore_path = None
 
     def _load_cache(self):
         if self._cache_file.exists():
@@ -53,6 +56,8 @@ class LLMAnalyst:
         if self.db:
             self.db.close()
             self.db = None
+        if self.tmp_ignore_path:
+            Path(self.tmp_ignore_path).unlink()
 
     def __enter__(self):
         self.connect()
@@ -81,12 +86,29 @@ class LLMAnalyst:
             verbose=True,
             **kwargs,
         )
-        coder.repo.aider_ignore_file = base_path / ".aiderignore-modify"
+
+        coder.repo.aider_ignore_file = base_path / ".aiderignore-template"
         print(coder.get_all_relative_files())
         print(coder.get_repo_map())
 
         coder.temperature = temp
         return coder
+
+    def _make_tmp_aiderignore(self, session_id: str):
+        ignore_template = base_path / ".aiderignore-template"
+        with open(ignore_template, "r") as tf:
+            template_content = tf.read()
+
+        stem = Path(self.db_path).stem
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".aiderignore"
+        ) as tmp_file:
+            tmp_file.write(template_content)
+            tmp_file.write("\n")
+            tmp_file.write(f"!chart_defs/sessions/{stem}/{session_id}/\n")
+
+        self.tmp_ignore_path = tmp_file.name
+        return self.tmp_ignore_path
 
     def get_ask_coder(self, fnames=None, read_only_fnames=None, **kwargs):
         if kwargs is None:
@@ -107,14 +129,15 @@ class LLMAnalyst:
             **kwargs,
         )
 
-    def get_modify_coder(self, fnames=None, read_only_fnames=None, auto_commits=False):
+    def get_modify_coder(self, chart_def, auto_commits=False):
+        at_dir = base_path / f"chart_defs/sessions/yellow_trips/{chart_def.id}"
+        fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
+        read_only_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
+
         if fnames is None:
             fnames = []
         req_readonly = [observable_template_file, guide_path]
-        if read_only_fnames:
-            read_only_fnames.extend(req_readonly)
-        else:
-            read_only_fnames = req_readonly
+        read_only_fnames.extend(req_readonly)
 
         return self.get_coder(
             fnames=fnames, read_only_fnames=read_only_fnames, auto_commits=auto_commits
@@ -272,12 +295,8 @@ class LLMAnalyst:
         )
 
     def modify_chart(self, instructions: str, at_dir: Path):
-        ChartDef.from_path(at_dir)
-        fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
-        readonly_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
-        modifier = self.get_modify_coder(
-            fnames=fnames, read_only_fnames=readonly_fnames, auto_commits=True
-        )
+        chart_def = ChartDef.from_path(at_dir)
+        modifier = self.get_modify_coder(chart_def=chart_def, auto_commits=True)
         modifier.run(
             f"""
 Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
@@ -295,8 +314,8 @@ Instructions: {instructions}"""
 if __name__ == "__main__":
     db_path = base_path / "fw/src/data/us_ag.db"
     analyst = LLMAnalyst(db_path=db_path)
-    at_dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
-    cd = ChartDef.from_path(at_dir)
+    _dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
+    cd = ChartDef.from_path(_dir)
     print(cd.sql)
     df = analyst.execute_sql(cd.sql)
     print(df)
