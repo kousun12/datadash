@@ -2,6 +2,9 @@ function plotChart(data, {width} = {}) {
   const height = 500;
   const margin = {top: 30, right: 30, bottom: 50, left: 150};
 
+  // Convert Apache Arrow Table to a regular JavaScript array
+  const dataArray = data.toArray();
+
   return Plot.plot({
     width,
     height,
@@ -17,7 +20,7 @@ function plotChart(data, {width} = {}) {
     },
     y: {
       label: null,
-      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
+      domain: d3.groupSort(dataArray, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
     },
     color: {
       type: "linear",
@@ -26,14 +29,14 @@ function plotChart(data, {width} = {}) {
       legend: true
     },
     marks: [
-      Plot.cell(data, {
+      Plot.cell(dataArray, {
         x: d => d.hour,
         y: d => d.Zone,
         fill: d => d.pickup_count,
         tip: true,
         title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count}`
       }),
-      Plot.text(data, Plot.groupY({x: "count"}, {
+      Plot.text(dataArray, Plot.groupY({x: "count"}, {
         y: d => d.Zone,
         text: d => d.Zone,
         dx: -15,
