@@ -17,14 +17,11 @@ function plotChart(data, {width} = {}) {
     },
     y: {
       label: null,
-      domain: data.select('Zone').distinct().toArray().sort((a, b) => 
-        data.filter(d => d.Zone === b.Zone)
-            .select('pickup_count')
-            .sum() - 
-        data.filter(d => d.Zone === a.Zone)
-            .select('pickup_count')
-            .sum()
-      )
+      domain: data.select('Zone').distinct().toArray().sort((a, b) => {
+        const sumA = data.filter(d => d.Zone === a).select('pickup_count').sum();
+        const sumB = data.filter(d => d.Zone === b).select('pickup_count').sum();
+        return sumB - sumA;
+      })
     },
     color: {
       type: "linear",
