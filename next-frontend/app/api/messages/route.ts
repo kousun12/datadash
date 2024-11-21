@@ -13,13 +13,19 @@ export async function POST(request: Request) {
       body: JSON.stringify(body),
     });
 
-    // Create a TransformStream to proxy the response
-    const { readable, writable } = new TransformStream();
-    
-    // Pipe the response body to our transform stream
-    response.body?.pipeTo(writable);
+    // Create a transform stream that will handle the chunked response
+    const { readable, writable } = new TransformStream({
+      transform(chunk, controller) {
+        controller.enqueue(chunk);
+      },
+    });
 
-    // Return a streaming response
+    // Start piping the response in the background
+    response.body?.pipeTo(writable).catch((error) => {
+      console.error('Pipe error:', error);
+    });
+
+    // Return a streaming response with appropriate headers
     return new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',

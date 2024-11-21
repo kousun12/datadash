@@ -35,16 +35,19 @@ async def root(request: Request):
     analyst = LLMAnalyst(chart_def=cd)
 
     async def event_generator():
-        for event in analyst.modify_chart(instructions=prompt):
-            print("~~~~~~~~~~~~~~~~~~~~event~~~~~~~~~~~~~~~~~\n", event)
-            if event.get("type") == "complete":
-                loader_file.touch()
-                # Send the complete event too, just don't include the full chart data
-                yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-            else:
-                yield f"data: {json.dumps(event)}\n\n"
-            # Force flush after each event
-            await request.send_push_promise('/')
+        async def generate():
+            for event in analyst.modify_chart(instructions=prompt):
+                print("~~~~~~~~~~~~~~~~~~~~event~~~~~~~~~~~~~~~~~\n", event)
+                if event.get("type") == "complete":
+                    loader_file.touch()
+                    # Send the complete event too, just don't include the full chart data
+                    yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+                else:
+                    yield f"data: {json.dumps(event)}\n\n"
+                await request.send_push_promise('/')
+
+        async for chunk in generate():
+            yield chunk.encode('utf-8')
 
     return StreamingResponse(
         event_generator(),
@@ -52,7 +55,8 @@ async def root(request: Request):
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # Disable nginx buffering if present
+            "X-Accel-Buffering": "no",
+            "Transfer-Encoding": "chunked"
         }
     )
 
