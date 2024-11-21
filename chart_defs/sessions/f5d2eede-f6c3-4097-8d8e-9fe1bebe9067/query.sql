@@ -17,4 +17,4 @@ top_zones AS (
 SELECT hp.Zone, hp.hour, hp.pickup_count
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour
+ORDER BY SUM(hp.pickup_count) OVER (PARTITION BY hp.Zone) DESC, hp.hour

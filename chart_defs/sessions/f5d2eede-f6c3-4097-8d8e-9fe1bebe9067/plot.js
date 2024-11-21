@@ -1,51 +1,42 @@
 function plotChart(data, {width} = {}) {
-  const margin = {top: 20, right: 200, bottom: 40, left: 60};
+  const margin = {top: 40, right: 40, bottom: 60, left: 120};
 
   return Plot.plot({
     width,
-    height: 500,
+    height: 600,
     marginTop: margin.top,
     marginRight: margin.right,
     marginBottom: margin.bottom,
     marginLeft: margin.left,
     x: {
       label: "Hour of Day",
-      domain: [0, 23],
       tickFormat: d => d.toString().padStart(2, '0') + ':00'
     },
     y: {
-      label: "Pickup Count",
-      grid: true
+      label: null,
+      axis: "left"
     },
     color: {
+      type: "linear",
+      scheme: "YlOrRd",
+      label: "Pickup Count",
       legend: true
     },
     marks: [
-      Plot.line(data, {
+      Plot.cell(data, {
         x: "hour",
-        y: "pickup_count",
-        stroke: "Zone",
-        strokeWidth: 2,
-        curve: "monotone-x"
-      }),
-      Plot.dot(data, {
-        x: "hour",
-        y: "pickup_count",
-        stroke: "Zone",
-        fill: "white",
-        r: 3,
+        y: "Zone",
+        fill: "pickup_count",
         title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
-        strokeWidth: 2,
         tip: true
       }),
-      Plot.ruleY([0]),
       Plot.text(data, Plot.selectLast({
-        x: "hour",
-        y: "pickup_count",
-        z: "Zone",
+        x: d => 24,
+        y: "Zone",
         text: "Zone",
-        textAnchor: "start",
-        dx: 5
+        dx: 6,
+        fontSize: 10,
+        textAnchor: "start"
       }))
     ],
     tip: true
