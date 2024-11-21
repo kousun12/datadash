@@ -39,13 +39,13 @@ function plotChart(data, {width} = {}) {
       label: "Price ($)"
     },
     x: {
-      type: "utc",
+      type: "band",
       label: "Date"
     },
     marks: [
       Plot.ruleY([0]),
       Plot.rect(data, {
-        x: d => safeParseDate(d.date),
+        x: d => d.date,
         y1: d => Math.min(d.open, d.close),
         y2: d => Math.max(d.open, d.close),
         fill: d => d.open > d.close ? "red" : "green",
@@ -56,20 +56,20 @@ function plotChart(data, {width} = {}) {
         }
       }),
       Plot.ruleY(data, {
-        x: d => safeParseDate(d.date),
+        x: d => d.date,
         y1: d => d.low,
         y2: d => d.high,
         stroke: d => d.open > d.close ? "red" : "green"
       }),
       Plot.rectY(data, {
-        x: d => safeParseDate(d.date),
+        x: d => d.date,
         y: d => d.volume,
         fill: "lightblue",
         fillOpacity: 0.5,
       }),
       Plot.axisX({
         label: "Date",
-        tickFormat: d => safeFormatDate(d)
+        tickFormat: d => safeFormatDate(parseDate(d))
       }),
       Plot.axisY({
         label: "Price ($)",
