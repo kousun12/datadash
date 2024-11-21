@@ -6,9 +6,10 @@ function plotChart(data, {width} = {}) {
     width,
     height: Math.max(500, phoneNumbers.length * 25),
     x: {
-      type: "time",
+      type: "band",
       label: "Date",
-      tickFormat: "%Y-%m-%d"
+      tickFormat: d => d.slice(0, 10), // Format date as YYYY-MM-DD
+      domain: days
     },
     y: {
       label: "Phone Number",
@@ -22,9 +23,9 @@ function plotChart(data, {width} = {}) {
     },
     marks: [
       Plot.cell(data, {
-        x: "day",
-        y: "phone_number",
-        fill: "message_count",
+        x: d => d.day,
+        y: d => d.phone_number,
+        fill: d => d.message_count,
         title: d => `${d.phone_number}\n${d.day}\nMessages: ${d.message_count}`
       })
     ]
