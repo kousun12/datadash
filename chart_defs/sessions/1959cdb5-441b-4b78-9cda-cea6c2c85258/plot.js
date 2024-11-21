@@ -18,18 +18,15 @@ function plotChart(data, {width} = {}) {
     },
     y: {
       label: "Price ($)",
-      domain: [d3.min(data, d => d.low), d3.max(data, d => d.high)],
     },
     y2: {
       label: "Volume",
-      domain: [0, d3.max(data, d => d.volume)],
     },
     marks: [
       Plot.ruleY([0]),
       Plot.barY(data, {
         x: "date",
         y: "volume",
-        y2: 0,
         fill: d => d.close > d.open ? "green" : "red",
         fillOpacity: 0.3,
         y2: "y2"
