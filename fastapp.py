@@ -19,18 +19,12 @@ fast_app.add_middleware(
     allow_headers=["*"],
 )
 
-db_paths = {
-    "ag_data": base_path / "fw/src/data/us_ag.db",
-    "yellow_trips": base_path / "fw/src/data/yellow_trips.db",
-}
-
 loader_file = base_path / f"fw/src/d/[uuid].md.js"
 
 
 @fast_app.post("/")
 async def root(request: Request):
     body_json = await request.json()
-    print("body json", body_json)
     prompt = body_json["message"]
     slug = body_json.get("slug")
     cd = ChartDef.load(slug)

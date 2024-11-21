@@ -102,7 +102,8 @@ class LLMAnalyst:
             **kwargs,
         )
 
-        coder.repo.aider_ignore_file = base_path / ".aiderignore-template"
+        # coder.repo.aider_ignore_file = base_path / ".aiderignore-template"
+        coder.repo.aider_ignore_file = self._make_tmp_aiderignore(self.chart_def.id)
         print(coder.get_all_relative_files())
         print(coder.get_repo_map())
 
@@ -114,15 +115,14 @@ class LLMAnalyst:
         with open(ignore_template, "r") as tf:
             template_content = tf.read()
 
-        stem = Path(self.chart_def.db_path).stem
         with tempfile.NamedTemporaryFile(
             mode="w+", delete=False, suffix=".aiderignore"
         ) as tmp_file:
             tmp_file.write(template_content)
             tmp_file.write("\n")
             relative_sessions = sessions_dir.relative_to(base_path).as_posix()
-            include_session = f"!{relative_sessions}/{stem}/{session_id}/\n"
-            print("~~~~~INCLUDE", include_session)
+            include_session = f"!{relative_sessions}/{session_id}/\n"
+            print("~~~~~INCLUDE", include_session, tmp_file)
             tmp_file.write(include_session)
 
         self.tmp_ignore_path = tmp_file.name
