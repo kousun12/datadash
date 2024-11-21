@@ -27,7 +27,7 @@ function plotChart(data, {width} = {}) {
       label: "Price ($)"
     },
     x: {
-      type: "time",
+      type: "utc",
       label: "Date"
     },
     marks: [
@@ -49,10 +49,9 @@ function plotChart(data, {width} = {}) {
         y2: d => d.high,
         stroke: d => d.open > d.close ? "red" : "green"
       }),
-      Plot.barY(data, {
+      Plot.rectY(data, {
         x: d => parseDate(d.date),
         y: d => d.volume,
-        y1: 0,
         fill: "lightblue",
         fillOpacity: 0.5,
       }),
