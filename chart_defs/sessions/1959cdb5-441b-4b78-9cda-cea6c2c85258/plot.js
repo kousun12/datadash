@@ -46,8 +46,8 @@ function plotChart(data, options = {}) {
       domain: [0, d3.max(data, d => d.high)],
     },
     y2: {
-      label: "Volume",
-      domain: [0, d3.max(data, d => d.volume)],
+      label: "Volume (millions)",
+      domain: [0, d3.max(data, d => d.volume / 1000000)],
     },
     marks: [
       Plot.ruleY([0]),
@@ -67,8 +67,8 @@ function plotChart(data, options = {}) {
       }),
       Plot.barY(data, {
         x: d => d.date,
-        y2: d => d.volume,  // Changed y to y2
-        y: 0,               // Changed y2 to y
+        y2: d => d.volume / 1000000,  // Scale down volume by dividing by 1 million
+        y: 0,
         fill: "lightblue",
         opacity: 0.5,
       }),
