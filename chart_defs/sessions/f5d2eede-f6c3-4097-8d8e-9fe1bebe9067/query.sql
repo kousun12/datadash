@@ -8,13 +8,13 @@ WITH hourly_pickups AS (
   GROUP BY z.Zone, EXTRACT(HOUR FROM y.tpep_pickup_datetime)
 ),
 top_zones AS (
-  SELECT Zone
+  SELECT Zone, SUM(pickup_count) as total_pickups
   FROM hourly_pickups
   GROUP BY Zone
-  ORDER BY SUM(pickup_count) DESC
+  ORDER BY total_pickups DESC
   LIMIT 10
 )
-SELECT hp.Zone, hp.hour, hp.pickup_count
+SELECT hp.Zone, hp.hour, hp.pickup_count, tz.total_pickups
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY SUM(hp.pickup_count) OVER (PARTITION BY hp.Zone) DESC, hp.hour
+ORDER BY tz.total_pickups DESC, hp.hour

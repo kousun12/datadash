@@ -1,5 +1,5 @@
 function plotChart(data, {width} = {}) {
-  const margin = {top: 40, right: 40, bottom: 60, left: 120};
+  const margin = {top: 40, right: 160, bottom: 60, left: 60};
 
   return Plot.plot({
     width,
@@ -13,32 +13,41 @@ function plotChart(data, {width} = {}) {
       tickFormat: d => d.toString().padStart(2, '0') + ':00'
     },
     y: {
-      label: null,
+      label: "Pickup Count",
       axis: "left"
     },
     color: {
-      type: "linear",
-      scheme: "YlGn",
-      label: "Pickup Count",
       legend: true
     },
     marks: [
-      Plot.cell(data, {
+      Plot.line(data, {
         x: "hour",
-        y: "Zone",
-        fill: "pickup_count",
+        y: "pickup_count",
+        stroke: "Zone",
+        strokeWidth: 2,
+        curve: "monotone-x"
+      }),
+      Plot.dot(data, {
+        x: "hour",
+        y: "pickup_count",
+        stroke: "Zone",
+        fill: "white",
         title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
-        tip: true
       }),
       Plot.text(data, Plot.selectLast({
         x: d => 24,
-        y: "Zone",
+        y: "pickup_count",
         text: "Zone",
         dx: 6,
         fontSize: 10,
         textAnchor: "start"
       }))
     ],
-    tip: true
+    tip: {
+      format: {
+        x: x => x.toString().padStart(2, '0') + ':00',
+        y: y => y.toLocaleString()
+      }
+    }
   });
 }

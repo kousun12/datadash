@@ -1,8 +1,8 @@
-title: Hourly Taxi Pickup Heatmap for Top 10 Zones in NYC
-description: This heatmap visualizes the number of taxi pickups across the top 10
-  most popular zones in New York City, broken down by hour of the day. The color intensity
-  represents the number of pickups, allowing viewers to easily identify patterns and
-  hotspots across different locations and times.
+title: Hourly Taxi Pickup Line Chart for Top 10 Zones in NYC
+description: This line chart visualizes the number of taxi pickups across the top 10
+  most popular zones in New York City, broken down by hour of the day. Each line
+  represents a different zone, allowing viewers to easily compare patterns and trends
+  across different locations and times.
 db_path: fw/src/data/yellow_trips.db
 table_names:
 - yellow_trips
