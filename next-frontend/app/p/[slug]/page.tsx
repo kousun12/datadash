@@ -1,5 +1,5 @@
 'use client';
-import {use, useState, useRef, KeyboardEvent} from 'react';
+import {use, useState, useRef, KeyboardEvent, useEffect} from 'react';
 
 // const sampleMessages = [
   // { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
@@ -24,7 +24,8 @@ export default function PlotPage({
   console.log(slug);
   const iframeUrl = `${baseUrl}/d/${slug}`;
   const [input, setInput] = useState('');
-  const [sampleMessages, setSampleMessages] = useState<Message[]>([])
+  const [sampleMessages, setSampleMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -36,8 +37,13 @@ export default function PlotPage({
       const newMessage: Message = { id: sampleMessages.length + 1, role: 'user', content: input };
       setSampleMessages((prev: Message[]) => [...prev, newMessage]);
       setInput('');
+      setIsLoading(true);
 
       try {
+        // Scroll to bottom immediately after user message
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView();
+        }, 24);
         const response = await fetch('/api/messages', {
           method: 'POST',
           headers: {
@@ -50,11 +56,8 @@ export default function PlotPage({
           throw new Error('Failed to send message');
         }
         
-        // Scroll to bottom after API call completes and DOM updates
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView();
-        }, 24);
       } catch (error) {
+        setIsLoading(false);
         console.error('Error sending message:', error);
         // TODO: Add proper error handling UI
       }
@@ -82,6 +85,13 @@ export default function PlotPage({
                 </div>
               ))}
               </div>
+              {isLoading && (
+                <div className="flex gap-1 p-3 max-w-[85%] bg-gray-100 rounded-lg">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           </div>
