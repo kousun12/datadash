@@ -21,7 +21,7 @@ function plotChart(data, {width} = {}) {
   const getMaxValue = (columnName) => {
     let max = -Infinity;
     for (let i = 0; i < data.numRows; i++) {
-      const value = data.get(i)[columnName];
+      const value = data.getChild(columnName).get(i);
       if (value !== null && value !== undefined && !isNaN(value)) {
         max = Math.max(max, value);
       }
@@ -36,7 +36,8 @@ function plotChart(data, {width} = {}) {
   };
 
   try {
-    const xDomain = data.toArray().map(d => d.date).filter(d => d !== null && d !== undefined);
+    const xDomain = Array.from({length: data.numRows}, (_, i) => data.getChild('date').get(i))
+      .filter(d => d !== null && d !== undefined);
     const yMax = getMaxValue("high");
     const y2Max = getMaxValue("volume");
 
@@ -54,11 +55,9 @@ function plotChart(data, {width} = {}) {
       },
       y: {
         label: "Price ($)",
-        domain: [0, yMax],
       },
       y2: {
         label: "Volume",
-        domain: [0, y2Max],
       },
       marks: [
         Plot.ruleY([0]),
