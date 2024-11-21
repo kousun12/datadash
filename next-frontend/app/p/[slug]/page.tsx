@@ -43,6 +43,7 @@ export default function PlotPage({
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView();
         }, 24);
+
         const response = await fetch('/api/messages', {
           method: 'POST',
           headers: {
@@ -50,12 +51,60 @@ export default function PlotPage({
           },
           body: JSON.stringify({ message: input, slug: slug }),
         });
-        const data = await response.json();
-        console.log(data);
-        // const assistantMessage: Message = { id: sampleMessages.length + 2, role: 'assistant', content: data.message };
-        // setSampleMessages((prev: Message[]) => [...prev, assistantMessage]);
-        setIsLoading(false);
 
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) {
+          throw new Error('No reader available');
+        }
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const events = chunk.split('\n\n').filter(Boolean);
+
+          for (const event of events) {
+            if (event.startsWith('data: ')) {
+              const data = JSON.parse(event.slice(6));
+              
+              switch (data.type) {
+                case 'start':
+                  setMessages(prev => [...prev, { 
+                    id: prev.length + 1, 
+                    role: 'system', 
+                    content: data.message 
+                  }]);
+                  break;
+                case 'commit':
+                  setMessages(prev => [...prev, {
+                    id: prev.length + 1,
+                    role: 'system',
+                    content: `Committed changes: ${data.message}`
+                  }]);
+                  break;
+                case 'summary':
+                  setMessages(prev => [...prev, {
+                    id: prev.length + 1,
+                    role: 'assistant',
+                    content: data.message
+                  }]);
+                  break;
+                case 'complete':
+                  // Refresh the iframe or update chart as needed
+                  break;
+              }
+              
+              setTimeout(() => {
+                messagesEndRef.current?.scrollIntoView();
+              }, 24);
+            }
+          }
+        }
+
+        setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         console.error('Error sending message:', error);
