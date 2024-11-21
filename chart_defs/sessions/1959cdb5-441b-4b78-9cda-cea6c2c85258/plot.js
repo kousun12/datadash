@@ -1,4 +1,7 @@
 function plotChart(data, {width} = {}) {
+  // Convert Arrow table to JavaScript array
+  const dataArray = data.toArray();
+
   const height = 500;
   const marginTop = 20;
   const marginRight = 30;
@@ -15,6 +18,7 @@ function plotChart(data, {width} = {}) {
     x: {
       type: "band",
       label: "Date",
+      domain: dataArray.map(d => d.date),
     },
     y: {
       label: "Price ($)",
@@ -24,20 +28,20 @@ function plotChart(data, {width} = {}) {
     },
     marks: [
       Plot.ruleY([0]),
-      Plot.barY(data, {
+      Plot.barY(dataArray, {
         x: "date",
         y: "volume",
         fill: d => d.close > d.open ? "green" : "red",
         fillOpacity: 0.3,
         y2: "y2"
       }),
-      Plot.ruleY(data, {
+      Plot.ruleY(dataArray, {
         x: "date",
         y1: "low",
         y2: "high",
         stroke: d => d.close > d.open ? "green" : "red",
       }),
-      Plot.rectY(data, {
+      Plot.rectY(dataArray, {
         x: "date",
         y1: d => Math.min(d.open, d.close),
         y2: d => Math.max(d.open, d.close),
@@ -45,14 +49,4 @@ function plotChart(data, {width} = {}) {
       }),
     ],
   });
-}
-
-// Error handling wrapper
-function plotChartWithErrorHandling(data, options) {
-  try {
-    return plotChart(data, options);
-  } catch (error) {
-    console.error("Error in plotChart:", error);
-    return displayError(`Error plotting chart: ${error.message}`);
-  }
 }
