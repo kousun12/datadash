@@ -1,5 +1,6 @@
 import tempfile
 
+import llm
 from aider.models import Model
 import textwrap
 from io import StringIO
@@ -20,6 +21,12 @@ from constants import (
 guide_path = base_path / "plot_guide.md"
 cache_filename = "analyst_cache.json"
 observable_plot_version = "0.6.0"
+
+
+def ask(prompt: str, system=None):
+    model = llm.get_model("claude-3-5-sonnet-latest")
+    response = model.prompt(prompt, system=system)
+    return response.text()
 
 
 class LLMAnalyst:
@@ -134,11 +141,8 @@ class LLMAnalyst:
         if fnames is None:
             fnames = []
 
-        req_readonly = [observable_template_file, guide_path]
-        if read_only_fnames:
-            read_only_fnames.extend(req_readonly)
-        else:
-            read_only_fnames = req_readonly
+        if read_only_fnames is None:
+            read_only_fnames = [observable_template_file, guide_path]
 
         return self.get_coder(
             edit_format="ask",
@@ -245,8 +249,7 @@ class LLMAnalyst:
             return cached
 
         stats = self.table_summary_stats(table_name)
-        ac = self.get_ask_coder()
-        res = ac.run(
+        res = ask(
             f"""Give a detailed summary of this table, "{table_name}". What is it for, and what what kinds of information does it include? answer in only a sentence or two. Reply with just the summary, nothing else. {stats}"""
         )
         self._set_cache("human_summary", table_name, res)
@@ -315,6 +318,7 @@ class LLMAnalyst:
 
     def modify_chart(self, instructions: str):
         import time
+
         modifier = self.get_modify_coder(auto_commits=True)
 
         # First yield the start event
