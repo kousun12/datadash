@@ -13,7 +13,7 @@ import {Editor} from "/components/Editor.js";
 
 # Hourly Taxi Pickup Line Chart for Top 10 Zones in NYC
 
-This line chart visualizes the number of taxi pickups across the top 10 most popular zones in New York City, broken down by hour of the day. Each line represents a different zone, allowing viewers to compare pickup patterns and identify peak hours across different locations.
+This line chart visualizes the number of taxi pickups across the top 10 most popular zones in New York City, broken down by hour of the day. Each line represents a different zone, allowing viewers to easily compare patterns and trends across different locations and times.
 
 
 ```js
@@ -32,39 +32,38 @@ WITH hourly_pickups AS (
   GROUP BY z.Zone, EXTRACT(HOUR FROM y.tpep_pickup_datetime)
 ),
 top_zones AS (
-  SELECT Zone
+  SELECT Zone, SUM(pickup_count) as total_pickups
   FROM hourly_pickups
   GROUP BY Zone
-  ORDER BY SUM(pickup_count) DESC
+  ORDER BY total_pickups DESC
   LIMIT 10
 )
-SELECT hp.Zone, hp.hour, hp.pickup_count
+SELECT hp.Zone, hp.hour, hp.pickup_count, tz.total_pickups
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour
+ORDER BY tz.total_pickups DESC, hp.hour
 `
 ```
 
 
 ```js
 function plotChart(data, {width} = {}) {
-  const margin = {top: 20, right: 200, bottom: 40, left: 60};
+  const margin = {top: 40, right: 160, bottom: 60, left: 60};
 
   return Plot.plot({
     width,
-    height: 500,
+    height: 600,
     marginTop: margin.top,
     marginRight: margin.right,
     marginBottom: margin.bottom,
     marginLeft: margin.left,
     x: {
       label: "Hour of Day",
-      domain: [0, 23],
       tickFormat: d => d.toString().padStart(2, '0') + ':00'
     },
     y: {
       label: "Pickup Count",
-      grid: true
+      axis: "left"
     },
     color: {
       legend: true
@@ -82,22 +81,22 @@ function plotChart(data, {width} = {}) {
         y: "pickup_count",
         stroke: "Zone",
         fill: "white",
-        r: 3,
-        title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
-        strokeWidth: 2,
-        tip: true
+        title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}\nTotal Pickups: ${d.total_pickups.toLocaleString()}`,
       }),
-      Plot.ruleY([0]),
       Plot.text(data, Plot.selectLast({
-        x: "hour",
+        x: d => 24,
         y: "pickup_count",
-        z: "Zone",
         text: "Zone",
-        textAnchor: "start",
-        dx: 5
+        dx: 6,
+        fontSize: 10,
+        textAnchor: "start"
       }))
     ],
-    tip: true
+    tip: true,
+    color: {
+      legend: true,
+      scheme: "tableau10"
+    }
   });
 }
 
@@ -117,7 +116,7 @@ function plotOrError(data, options) {
 
 ```js
 function getJSView() {
-  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 20, right: 200, bottom: 40, left: 60};\n\n  return Plot.plot({\n    width,\n    height: 500,\n    marginTop: margin.top,\n    marginRight: margin.right,\n    marginBottom: margin.bottom,\n    marginLeft: margin.left,\n    x: {\n      label: \"Hour of Day\",\n      domain: [0, 23],\n      tickFormat: d => d.toString().padStart(2, '0') + ':00'\n    },\n    y: {\n      label: \"Pickup Count\",\n      grid: true\n    },\n    color: {\n      legend: true\n    },\n    marks: [\n      Plot.line(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        strokeWidth: 2,\n        curve: \"monotone-x\"\n      }),\n      Plot.dot(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        fill: \"white\",\n        r: 3,\n        title: d => `Zone: ${d.Zone}\\nHour: ${d.hour.toString().padStart(2, '0')}:00\\nPickups: ${d.pickup_count.toLocaleString()}`,\n        strokeWidth: 2,\n        tip: true\n      }),\n      Plot.ruleY([0]),\n      Plot.text(data, Plot.selectLast({\n        x: \"hour\",\n        y: \"pickup_count\",\n        z: \"Zone\",\n        text: \"Zone\",\n        textAnchor: \"start\",\n        dx: 5\n      }))\n    ],\n    tip: true\n  });\n}\n";
+  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 40, right: 160, bottom: 60, left: 60};\n\n  return Plot.plot({\n    width,\n    height: 600,\n    marginTop: margin.top,\n    marginRight: margin.right,\n    marginBottom: margin.bottom,\n    marginLeft: margin.left,\n    x: {\n      label: \"Hour of Day\",\n      tickFormat: d => d.toString().padStart(2, '0') + ':00'\n    },\n    y: {\n      label: \"Pickup Count\",\n      axis: \"left\"\n    },\n    color: {\n      legend: true\n    },\n    marks: [\n      Plot.line(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        strokeWidth: 2,\n        curve: \"monotone-x\"\n      }),\n      Plot.dot(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        fill: \"white\",\n        title: d => `Zone: ${d.Zone}\\nHour: ${d.hour.toString().padStart(2, '0')}:00\\nPickups: ${d.pickup_count.toLocaleString()}\\nTotal Pickups: ${d.total_pickups.toLocaleString()}`,\n      }),\n      Plot.text(data, Plot.selectLast({\n        x: d => 24,\n        y: \"pickup_count\",\n        text: \"Zone\",\n        dx: 6,\n        fontSize: 10,\n        textAnchor: \"start\"\n      }))\n    ],\n    tip: true,\n    color: {\n      legend: true,\n      scheme: \"tableau10\"\n    }\n  });\n}\n";
   const e = Editor({value: plotCodeString, lang: "javascript"});
   return e;
 }
@@ -132,16 +131,16 @@ function getSQLView() {
   GROUP BY z.Zone, EXTRACT(HOUR FROM y.tpep_pickup_datetime)
 ),
 top_zones AS (
-  SELECT Zone
+  SELECT Zone, SUM(pickup_count) as total_pickups
   FROM hourly_pickups
   GROUP BY Zone
-  ORDER BY SUM(pickup_count) DESC
+  ORDER BY total_pickups DESC
   LIMIT 10
 )
-SELECT hp.Zone, hp.hour, hp.pickup_count
+SELECT hp.Zone, hp.hour, hp.pickup_count, tz.total_pickups
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour
+ORDER BY tz.total_pickups DESC, hp.hour
 `;
     const e = Editor({value: sqlString, lang: "sql"});
     return e;
