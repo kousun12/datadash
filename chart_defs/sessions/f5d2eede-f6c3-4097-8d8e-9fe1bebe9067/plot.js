@@ -32,7 +32,7 @@ function plotChart(data, {width} = {}) {
         y: "pickup_count",
         stroke: "Zone",
         fill: "white",
-        title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
+        title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}\nTotal Pickups: ${d.total_pickups.toLocaleString()}`,
       }),
       Plot.text(data, Plot.selectLast({
         x: d => 24,
@@ -48,6 +48,10 @@ function plotChart(data, {width} = {}) {
         x: x => x.toString().padStart(2, '0') + ':00',
         y: y => y.toLocaleString()
       }
+    },
+    color: {
+      legend: true,
+      scheme: "tableau10"
     }
   });
 }
