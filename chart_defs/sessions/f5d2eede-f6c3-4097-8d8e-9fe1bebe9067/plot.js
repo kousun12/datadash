@@ -18,7 +18,8 @@ function plotChart(data, {width} = {}) {
       grid: true
     },
     color: {
-      legend: true
+      legend: true,
+      scheme: "tableau10"
     },
     marks: [
       Plot.line(data, {
@@ -33,7 +34,11 @@ function plotChart(data, {width} = {}) {
         y: "pickup_count",
         stroke: "Zone",
         fill: "white",
-        r: 3
+        r: 3,
+        title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
+        stroke: "Zone",
+        strokeWidth: 2,
+        fill: "white"
       }),
       Plot.ruleY([0]),
       Plot.text(data, Plot.selectLast({
@@ -45,14 +50,6 @@ function plotChart(data, {width} = {}) {
         dx: 5
       }))
     ],
-    color: {
-      scheme: "tableau10"
-    },
-    tip: {
-      format: {
-        x: x => `Hour: ${x.toString().padStart(2, '0')}:00`,
-        y: y => `Pickups: ${y.toLocaleString()}`
-      }
-    }
+    tip: true
   });
 }
