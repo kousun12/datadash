@@ -10,6 +10,7 @@ type Message = {
 const sampleMessages: Message[] = [
   { id: 1, role: 'user', content: "Let's dive into this dataset" },
   { id: 2, role: 'assistant', content: 'Sounds good, I can help with visualizations, sql queries, and more.' },
+  { id: 3, role: 'system', content: 'Loading visualization...' }
 ];
 
 
