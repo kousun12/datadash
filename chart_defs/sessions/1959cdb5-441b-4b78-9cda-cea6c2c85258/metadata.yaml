@@ -1,0 +1,8 @@
+title: MMM Stock Price and Volume Over Time
+description: Candlestick chart showing daily price movements and trading volume for
+  3M Company (MMM) stock, with green candles indicating price increases and red candles
+  indicating decreases.
+db_path: fw/src/data/dji.db
+table_names:
+- dji_data
+id: 1959cdb5-441b-4b78-9cda-cea6c2c85258

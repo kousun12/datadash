@@ -29,7 +29,7 @@ if __name__ == "__main__":
     # analyst = LLMAnalyst(chart_def=cd)
     # print(analyst)
     # analyst.modify_chart(instructions="remove the legend")
-    analyst = LLMAnalyst.create(observable_source / "data/imessages.db")
+    analyst = LLMAnalyst.create(observable_source / "data/dji.db")
     print(analyst)
     print(analyst.get_tables())
     analyst.create_chart()

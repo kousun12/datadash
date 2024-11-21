@@ -1,5 +1,6 @@
 {
   "human_summary": {
-    "messages": "This appears to be a message database table storing SMS/iMessage communications, containing fields for message IDs, phone numbers, timestamps, message content, and message status, with most messages being iMessages and including both sent and received messages between different phone numbers."
+    "messages": "This appears to be a message database table storing SMS/iMessage communications, containing fields for message IDs, phone numbers, timestamps, message content, and message status, with most messages being iMessages and including both sent and received messages between different phone numbers.",
+    "dji_data": "This dataset contains daily stock market trading data for a Dow Jones Industrial Average (DJI) component stock (MMM), including daily opening, high, low, and closing prices along with trading volume, spanning multiple trading days in October 2024."
   }
 }
