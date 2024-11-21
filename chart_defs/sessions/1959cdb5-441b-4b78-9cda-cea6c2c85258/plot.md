@@ -1,5 +1,5 @@
 ---
-title: "MMM Stock Price and Volume Over Time"
+title: "MMM Stock Price Over Time"
 toc: false
 sidebar: false
 header: false
@@ -11,9 +11,9 @@ pager: false
 import {Editor} from "/components/Editor.js";
 ```
 
-# MMM Stock Price and Volume Over Time
+# MMM Stock Price Over Time
 
-Candlestick chart showing daily price movements and trading volume for 3M Company (MMM) stock, with green candles indicating price increases and red candles indicating decreases.
+OHLC (Open, High, Low, Close) chart showing daily price movements for 3M Company (MMM) stock, with green lines indicating price increases and red lines indicating decreases.
 
 
 ```js
@@ -37,98 +37,48 @@ ORDER BY date
 
 
 ```js
-function plotChart(data, {width} = {}) {
+function plotChart(data, options = {}) {
   if (!data || data.numRows === 0) {
     return displayError("No data available to plot.");
   }
 
-  const height = 500;
-  const marginTop = 20;
-  const marginRight = 30;
-  const marginBottom = 30;
-  const marginLeft = 40;
-
-  const volumeHeight = 100;
-  const priceHeight = height - volumeHeight - marginTop - marginBottom;
-
-  // Parse date strings to Date objects
+  const width = options.width || 960;
   const parseDate = d3.utcParse("%Y-%m-%d");
 
-  // Helper function to safely parse dates
-  const safeParseDate = (dateString) => {
-    if (!dateString) return null;
-    return parseDate(dateString);
-  };
-
-  // Helper function to safely format dates
-  const safeFormatDate = (date) => {
-    if (!date) return "N/A";
-    return d3.utcFormat("%b %Y")(date);
-  };
+  const color = d => d.close > d.open ? "#4daf4a" : "#e41a1c";
 
   return Plot.plot({
     width,
-    height,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    y: {
-      grid: true,
-      label: "Price ($)"
+    inset: 6,
+    grid: true,
+    style: {
+      backgroundColor: "#f5f5f5",
     },
     x: {
-      type: "band",
-      label: "Date"
+      type: "utc",
+      label: "Date",
+      tickFormat: d3.utcFormat("%b %Y"),
     },
+    y: {
+      label: "↑ MMM stock price ($)",
+    },
+    color,
     marks: [
-      Plot.ruleY([0]),
-      Plot.rect(data, {
-        x: d => d.date,
-        y1: d => Math.min(d.open, d.close),
-        y2: d => Math.max(d.open, d.close),
-        fill: d => d.open > d.close ? "red" : "green",
-        tip: true,
-        title: d => {
-          const date = safeParseDate(d.date);
-          return `Date: ${safeFormatDate(date)}\nOpen: $${d.open.toFixed(2)}\nClose: $${d.close.toFixed(2)}\nHigh: $${d.high.toFixed(2)}\nLow: $${d.low.toFixed(2)}\nVolume: ${d.volume.toLocaleString()}`;
-        }
+      Plot.ruleX(data, {
+        x: d => parseDate(d.date),
+        y1: "low",
+        y2: "high",
+        stroke: color,
       }),
-      Plot.ruleY(data, {
-        x: d => d.date,
-        y1: d => d.low,
-        y2: d => d.high,
-        stroke: d => d.open > d.close ? "red" : "green"
+      Plot.ruleX(data, {
+        x: d => parseDate(d.date),
+        y1: "open",
+        y2: "close",
+        stroke: color,
+        strokeWidth: 4,
+        strokeLinecap: "round",
       }),
-      Plot.rectY(data, {
-        x: d => d.date,
-        y: d => d.volume,
-        fill: "lightblue",
-        fillOpacity: 0.5,
-      }),
-      Plot.axisX({
-        label: "Date",
-        tickFormat: d => safeFormatDate(parseDate(d))
-      }),
-      Plot.axisY({
-        label: "Price ($)",
-        tickFormat: ".0f"
-      }),
-      Plot.axisY({
-        label: "Volume",
-        tickFormat: "~s",
-        ticks: 3,
-        y: d => d.volume,
-      })
     ],
-    facet: {
-      data: data,
-      y: d => d.volume ? "Volume" : "Price",
-      marginTop: 30
-    },
-    fy: {
-      axis: null
-    }
   });
 }
 
@@ -148,7 +98,7 @@ function plotOrError(data, options) {
 
 ```js
 function getJSView() {
-  const plotCodeString = "function plotChart(data, {width} = {}) {\n  if (!data || data.numRows === 0) {\n    return displayError(\"No data available to plot.\");\n  }\n\n  const height = 500;\n  const marginTop = 20;\n  const marginRight = 30;\n  const marginBottom = 30;\n  const marginLeft = 40;\n\n  const volumeHeight = 100;\n  const priceHeight = height - volumeHeight - marginTop - marginBottom;\n\n  // Parse date strings to Date objects\n  const parseDate = d3.utcParse(\"%Y-%m-%d\");\n\n  // Helper function to safely parse dates\n  const safeParseDate = (dateString) => {\n    if (!dateString) return null;\n    return parseDate(dateString);\n  };\n\n  // Helper function to safely format dates\n  const safeFormatDate = (date) => {\n    if (!date) return \"N/A\";\n    return d3.utcFormat(\"%b %Y\")(date);\n  };\n\n  return Plot.plot({\n    width,\n    height,\n    marginTop,\n    marginRight,\n    marginBottom,\n    marginLeft,\n    y: {\n      grid: true,\n      label: \"Price ($)\"\n    },\n    x: {\n      type: \"band\",\n      label: \"Date\"\n    },\n    marks: [\n      Plot.ruleY([0]),\n      Plot.rect(data, {\n        x: d => d.date,\n        y1: d => Math.min(d.open, d.close),\n        y2: d => Math.max(d.open, d.close),\n        fill: d => d.open > d.close ? \"red\" : \"green\",\n        tip: true,\n        title: d => {\n          const date = safeParseDate(d.date);\n          return `Date: ${safeFormatDate(date)}\\nOpen: $${d.open.toFixed(2)}\\nClose: $${d.close.toFixed(2)}\\nHigh: $${d.high.toFixed(2)}\\nLow: $${d.low.toFixed(2)}\\nVolume: ${d.volume.toLocaleString()}`;\n        }\n      }),\n      Plot.ruleY(data, {\n        x: d => d.date,\n        y1: d => d.low,\n        y2: d => d.high,\n        stroke: d => d.open > d.close ? \"red\" : \"green\"\n      }),\n      Plot.rectY(data, {\n        x: d => d.date,\n        y: d => d.volume,\n        fill: \"lightblue\",\n        fillOpacity: 0.5,\n      }),\n      Plot.axisX({\n        label: \"Date\",\n        tickFormat: d => safeFormatDate(parseDate(d))\n      }),\n      Plot.axisY({\n        label: \"Price ($)\",\n        tickFormat: \".0f\"\n      }),\n      Plot.axisY({\n        label: \"Volume\",\n        tickFormat: \"~s\",\n        ticks: 3,\n        y: d => d.volume,\n      })\n    ],\n    facet: {\n      data: data,\n      y: d => d.volume ? \"Volume\" : \"Price\",\n      marginTop: 30\n    },\n    fy: {\n      axis: null\n    }\n  });\n}\n";
+  const plotCodeString = "function plotChart(data, options = {}) {\n  if (!data || data.numRows === 0) {\n    return displayError(\"No data available to plot.\");\n  }\n\n  const width = options.width || 960;\n  const parseDate = d3.utcParse(\"%Y-%m-%d\");\n\n  const color = d => d.close > d.open ? \"#4daf4a\" : \"#e41a1c\";\n\n  return Plot.plot({\n    width,\n    inset: 6,\n    grid: true,\n    style: {\n      backgroundColor: \"#f5f5f5\",\n    },\n    x: {\n      type: \"utc\",\n      label: \"Date\",\n      tickFormat: d3.utcFormat(\"%b %Y\"),\n    },\n    y: {\n      label: \"\u2191 MMM stock price ($)\",\n    },\n    color,\n    marks: [\n      Plot.ruleX(data, {\n        x: d => parseDate(d.date),\n        y1: \"low\",\n        y2: \"high\",\n        stroke: color,\n      }),\n      Plot.ruleX(data, {\n        x: d => parseDate(d.date),\n        y1: \"open\",\n        y2: \"close\",\n        stroke: color,\n        strokeWidth: 4,\n        strokeLinecap: \"round\",\n      }),\n    ],\n  });\n}\n";
   const e = Editor({value: plotCodeString, lang: "javascript"});
   return e;
 }

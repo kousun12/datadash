@@ -431,3 +431,4 @@ Remember: never ever use data.map or data.filter on an Apache Arrow Table object
 # Chart display
 - Don't mess with the chart margins unless there is a very good reason to. assume that the chart will be embedded properly within a nice card element.
 - If it is not necessary to put in explicit domains, do not include them in your Plot.
+- Do not add manual margins unless it's necessary. assume the plot is rendered in a card that already some padding. Always use the `width` parameter that was given though.
