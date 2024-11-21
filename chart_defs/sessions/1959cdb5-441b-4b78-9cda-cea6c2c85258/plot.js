@@ -15,6 +15,19 @@ function plotChart(data, {width} = {}) {
   // Parse date strings to Date objects
   const parseDate = d3.utcParse("%Y-%m-%d");
 
+  // Helper function to safely parse and format dates
+  const safeParseDate = (dateString) => {
+    if (!dateString) return null;
+    const parsed = parseDate(dateString);
+    return parsed ? parsed : null;
+  };
+
+  // Helper function to safely format dates
+  const safeFormatDate = (date) => {
+    if (!date) return "N/A";
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+  };
+
   return Plot.plot({
     width,
     height,
@@ -33,34 +46,31 @@ function plotChart(data, {width} = {}) {
     marks: [
       Plot.ruleY([0]),
       Plot.rect(data, {
-        x: d => parseDate(d.date),
+        x: d => safeParseDate(d.date),
         y1: d => Math.min(d.open, d.close),
         y2: d => Math.max(d.open, d.close),
         fill: d => d.open > d.close ? "red" : "green",
         tip: true,
         title: d => {
-          const date = parseDate(d.date);
-          return `Date: ${date.toLocaleDateString()}\nOpen: $${d.open.toFixed(2)}\nClose: $${d.close.toFixed(2)}\nHigh: $${d.high.toFixed(2)}\nLow: $${d.low.toFixed(2)}\nVolume: ${d.volume.toLocaleString()}`;
+          const date = safeParseDate(d.date);
+          return `Date: ${safeFormatDate(date)}\nOpen: $${d.open.toFixed(2)}\nClose: $${d.close.toFixed(2)}\nHigh: $${d.high.toFixed(2)}\nLow: $${d.low.toFixed(2)}\nVolume: ${d.volume.toLocaleString()}`;
         }
       }),
       Plot.ruleY(data, {
-        x: d => parseDate(d.date),
+        x: d => safeParseDate(d.date),
         y1: d => d.low,
         y2: d => d.high,
         stroke: d => d.open > d.close ? "red" : "green"
       }),
       Plot.rectY(data, {
-        x: d => parseDate(d.date),
+        x: d => safeParseDate(d.date),
         y: d => d.volume,
         fill: "lightblue",
         fillOpacity: 0.5,
       }),
       Plot.axisX({
         label: "Date",
-        tickFormat: d => {
-          const date = parseDate(d);
-          return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
-        }
+        tickFormat: d => safeFormatDate(safeParseDate(d))
       }),
       Plot.axisY({
         label: "Price ($)",
