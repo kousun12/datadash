@@ -10,7 +10,7 @@ type Message = {
 const sampleMessages: Message[] = [
   { id: 1, role: 'user', content: "Let's dive into this dataset" },
   { id: 2, role: 'assistant', content: 'Sounds good, I can help with visualizations, sql queries, and more.' },
-  { id: 3, role: 'system', content: 'Loading visualization...' }
+  // { id: 3, role: 'system', content: 'Loading visualization Sounds good, I can help with...' }
 ];
 
 
@@ -77,7 +77,7 @@ export default function PlotPage({
                   key={message.id}
                   className={`max-w-[85%] ${
                     message.role === 'system' 
-                      ? 'text-gray-500 text-sm px-2 text-center mx-auto'
+                      ? 'text-gray-500 text-sm px-2 text-center mx-auto my-2'
                       : `p-3 rounded-lg shadow-sm border ${
                           message.role === 'user'
                             ? 'bg-blue-100 ml-auto border-blue-200'
