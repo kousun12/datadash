@@ -22,12 +22,24 @@ function plotChart(data, {width} = {}) {
     let max = -Infinity;
     for (let i = 0; i < data.numRows; i++) {
       const value = data.get(i)[columnName];
-      if (value > max) max = value;
+      if (value !== null && value !== undefined && !isNaN(value)) {
+        max = Math.max(max, value);
+      }
     }
-    return max;
+    return max === -Infinity ? 0 : max;
+  };
+
+  // Helper function to safely access data
+  const safeGet = (d, key) => {
+    const value = d[key];
+    return value !== null && value !== undefined && !isNaN(value) ? value : null;
   };
 
   try {
+    const xDomain = data.toArray().map(d => d.date).filter(d => d !== null && d !== undefined);
+    const yMax = getMaxValue("high");
+    const y2Max = getMaxValue("volume");
+
     return Plot.plot({
       width,
       height,
@@ -38,36 +50,36 @@ function plotChart(data, {width} = {}) {
       x: {
         type: "band",
         label: "Date",
-        domain: data.toArray().map(d => d.date),
+        domain: xDomain,
       },
       y: {
         label: "Price ($)",
-        domain: [0, getMaxValue("high")],
+        domain: [0, yMax],
       },
       y2: {
         label: "Volume",
-        domain: [0, getMaxValue("volume")],
+        domain: [0, y2Max],
       },
       marks: [
         Plot.ruleY([0]),
         Plot.barY(data, {
-          x: d => d.date,
-          y: d => d.volume,
-          fill: d => d.close > d.open ? "green" : "red",
+          x: d => safeGet(d, 'date'),
+          y: d => safeGet(d, 'volume'),
+          fill: d => safeGet(d, 'close') > safeGet(d, 'open') ? "green" : "red",
           fillOpacity: 0.3,
           y2: "y2"
         }),
         Plot.ruleY(data, {
-          x: d => d.date,
-          y1: d => d.low,
-          y2: d => d.high,
-          stroke: d => d.close > d.open ? "green" : "red",
+          x: d => safeGet(d, 'date'),
+          y1: d => safeGet(d, 'low'),
+          y2: d => safeGet(d, 'high'),
+          stroke: d => safeGet(d, 'close') > safeGet(d, 'open') ? "green" : "red",
         }),
         Plot.rectY(data, {
-          x: d => d.date,
-          y1: d => Math.min(d.open, d.close),
-          y2: d => Math.max(d.open, d.close),
-          fill: d => d.close > d.open ? "green" : "red",
+          x: d => safeGet(d, 'date'),
+          y1: d => Math.min(safeGet(d, 'open'), safeGet(d, 'close')),
+          y2: d => Math.max(safeGet(d, 'open'), safeGet(d, 'close')),
+          fill: d => safeGet(d, 'close') > safeGet(d, 'open') ? "green" : "red",
         }),
       ],
     });
