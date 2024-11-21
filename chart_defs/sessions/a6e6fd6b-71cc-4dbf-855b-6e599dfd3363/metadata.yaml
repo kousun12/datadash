@@ -1,0 +1,8 @@
+title: Message Activity Timeline
+description: This stacked area chart displays the volume of messages over time, grouped
+  by phone number, allowing for easy visualization of communication patterns and relative
+  activity levels among different contacts.
+db_path: fw/src/data/imessages.db
+table_names:
+- messages
+id: a6e6fd6b-71cc-4dbf-855b-6e599dfd3363
