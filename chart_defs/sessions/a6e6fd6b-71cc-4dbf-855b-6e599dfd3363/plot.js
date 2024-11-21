@@ -27,7 +27,8 @@ function plotChart(data, {width} = {}) {
         x: d => d.formatted_day,
         y: d => d.phone_number,
         fill: d => d.message_count,
-        title: d => `${d.phone_number}\n${d.formatted_day}\nMessages: ${d.message_count}`
+        title: d => `${d.phone_number}\n${d.formatted_day}\nMessages: ${d.message_count}`,
+        tip: true
       })
     ],
     marginBottom: 50, // Increase bottom margin for date labels
