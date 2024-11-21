@@ -1,32 +1,32 @@
 function plotChart(data, {width} = {}) {
-  const hours = Array.from(new Set(data.getChild('hour').toArray())).sort();
+  const days = Array.from(new Set(data.getChild('day').toArray())).sort();
   const phoneNumbers = Array.from(new Set(data.getChild('phone_number').toArray()));
 
   return Plot.plot({
     width,
-    height: 500,
-    y: {
-      grid: true,
-      label: "Message Count"
-    },
+    height: Math.max(500, phoneNumbers.length * 25),
     x: {
       type: "time",
-      label: "Time"
+      label: "Date",
+      tickFormat: "%Y-%m-%d"
+    },
+    y: {
+      label: "Phone Number",
+      domain: phoneNumbers
     },
     color: {
-      scheme: "tableau10"
+      type: "linear",
+      scheme: "YlOrRd",
+      label: "Message Count",
+      legend: true
     },
     marks: [
-      Plot.areaY(data, Plot.stackY({
-        x: "hour",
-        y: "message_count",
-        z: "phone_number",
-        fill: "phone_number",
-        stroke: "phone_number",
-        title: d => `${d.phone_number}: ${d.message_count} messages`
-      })),
-      Plot.ruleY([0])
-    ],
-    legend: true
+      Plot.cell(data, {
+        x: "day",
+        y: "phone_number",
+        fill: "message_count",
+        title: d => `${d.phone_number}\n${d.day}\nMessages: ${d.message_count}`
+      })
+    ]
   });
 }
