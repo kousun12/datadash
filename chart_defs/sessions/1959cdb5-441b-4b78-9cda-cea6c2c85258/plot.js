@@ -50,12 +50,11 @@ function plotChart(data, {width} = {}) {
         stroke: d => d.open > d.close ? "red" : "green"
       }),
       Plot.barY(data, {
-        x: d => parseDate(d.date),
+        x: {value: d => parseDate(d.date), scale: "band"},
         y: d => d.volume,
         y1: 0,
         fill: "lightblue",
         fillOpacity: 0.5,
-        height: volumeHeight
       }),
       Plot.axisX({
         label: "Date",
@@ -70,8 +69,15 @@ function plotChart(data, {width} = {}) {
         tickFormat: "~s",
         ticks: 3,
         y: d => d.volume,
-        height: volumeHeight
       })
-    ]
+    ],
+    facet: {
+      data: data,
+      y: d => d.volume ? "Volume" : "Price",
+      marginTop: 30
+    },
+    fy: {
+      axis: null
+    }
   });
 }
