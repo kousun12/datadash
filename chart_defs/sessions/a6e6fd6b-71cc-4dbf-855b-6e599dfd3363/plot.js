@@ -8,7 +8,7 @@ function plotChart(data, {width} = {}) {
     x: {
       type: "band",
       label: "Date",
-      tickFormat: d => d.slice(0, 10), // Format date as YYYY-MM-DD
+      tickFormat: d => d.substring(0, 10), // Format date as YYYY-MM-DD
       domain: days
     },
     y: {
