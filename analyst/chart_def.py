@@ -10,7 +10,7 @@ from pathlib import Path
 import sqlparse
 from sqlparse.sql import Identifier
 
-from constants import base_path, observable_template_file
+from constants import base_path, observable_template_file, default_data_dir
 
 
 class ChartDef(pydantic.BaseModel):
@@ -28,7 +28,7 @@ class ChartDef(pydantic.BaseModel):
     description: str
     concept: str
     sql: str
-    db_path: str
+    db_path: Path
     table_names: list[str]
     plot_js: Optional[str] = None
     dataframe: Any = None
@@ -98,9 +98,10 @@ class ChartDef(pydantic.BaseModel):
         with open(observable_template_file) as f:
             template = Template(f.read())
 
+        relative_path = self.db_path.relative_to(base_path / "fw/src").as_posix()
         context = {
             "title": self.title,
-            "db_path": f"/{self.db_path}",
+            "db_path": f"/{relative_path}",
             "sql_block": qualify_table_refs(self.sql, "ds", self.table_names),
             "plot_code": self.plot_js,
             "plot_code_str": json.dumps(self.plot_js),
@@ -108,7 +109,8 @@ class ChartDef(pydantic.BaseModel):
         }
         return template.render(context)
 
-    def render_main_artifact(self, dest_dir) -> Path:
+    def render_main_artifact(self, data_dir=default_data_dir) -> Path:
+        dest_dir = data_dir / f"sessions/{self.db_path.stem}/{self.id}"
         if self.vega_lite:
             html = self.render_vega_lite()
             out = Path(dest_dir) / self.FileTypes.VEGA_CHART
@@ -122,11 +124,11 @@ class ChartDef(pydantic.BaseModel):
                 f.write(md)
             return out
         else:
-            raise ValueError("No plot data available")
+            print("No plot to render")
 
-    def save(self, in_dir: Path, skip_df=True) -> Path:
+    def save(self, data_dir=default_data_dir, skip_df=True) -> Path:
         db_stem = Path(self.db_path).stem
-        dest_dir = in_dir / f"sessions/{db_stem}/{self.id}"
+        dest_dir = data_dir / f"sessions/{db_stem}/{self.id}"
         dest_dir.mkdir(parents=True, exist_ok=True)
         with open(dest_dir / self.FileTypes.CONCEPT, "w") as f:
             f.write(self.concept)
@@ -151,16 +153,20 @@ class ChartDef(pydantic.BaseModel):
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
                 self.dataframe.to_csv(f, index=False)
 
-        artifact_path = self.render_main_artifact(dest_dir)
-        self.add_to_git(in_dir)
+        artifact_path = self.render_main_artifact(data_dir)
+        self.add_to_git()
 
         return artifact_path
 
-    def add_to_git(self, in_dir: Path):
+    def reload(self, data_dir=default_data_dir):
+        at_dir = data_dir / f"sessions/{self.db_path.stem}/{self.id}"
+        return ChartDef.from_path(at_dir)
+
+    def add_to_git(self, dat_dir: Path = default_data_dir):
         import subprocess
 
         db_stem = Path(self.db_path).stem
-        dest_dir = in_dir / f"sessions/{db_stem}/{self.id}"
+        dest_dir = dat_dir / f"sessions/{db_stem}/{self.id}"
         subprocess.run(["git", "add", dest_dir], check=True)
 
 

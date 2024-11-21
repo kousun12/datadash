@@ -3,7 +3,8 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from analyst.page_generator import ObservablePageGenerator
+from analyst.analyst_llm import LLMAnalyst
+from analyst.chart_def import ChartDef
 from constants import base_path
 
 project_root = Path(__file__).parent
@@ -23,6 +24,8 @@ db_paths = {
     "yellow_trips": base_path / "fw/src/data/yellow_trips.db",
 }
 
+loader_file = base_path / f"fw/src/d/[uuid].md.js"
+
 
 @fast_app.post("/")
 async def root(request: Request):
@@ -30,12 +33,29 @@ async def root(request: Request):
     print("body json", body_json)
     prompt = body_json["message"]
     slug = body_json.get("slug")
-    table_name = body_json.get("tableName", "ag_data")
-    at_dir = base_path / f"chart_defs/sessions/{table_name}/{slug}"
-    db_path = db_paths[table_name]
-    pg = ObservablePageGenerator(db_path=db_path)
-    pg.modify_page(prompt, at_dir=at_dir)
-    # touch the file: fw/src/d/[tableName]/[uuid].md.js to trigger observable to rebuild
-    (base_path / f"fw/src/d/[tableName]/[uuid].md.js").touch()
+    at_dir = base_path / f"chart_defs/sessions/{slug}"
+    cd = ChartDef.from_path(at_dir)
+    analyst = LLMAnalyst(chart_def=cd)
+    new_chart = analyst.modify_chart(instructions=prompt)
+    new_chart.save()
+    loader_file.touch()
+
+    return {"you_sent": body_json}
+
+
+@fast_app.post("/update")
+async def update(request: Request):
+    body_json = await request.json()
+    print("body json", body_json)
+    plot = body_json.get("new_plot")
+    slug = body_json.get("slug")
+    at_dir = base_path / f"chart_defs/sessions/{slug}"
+    cd = ChartDef.from_path(at_dir)
+    if plot:
+        with open(at_dir / "plot.js", "w") as f:
+            f.write(plot)
+    cd = cd.reload()
+    cd.render_main_artifact()
+    loader_file.touch()
 
     return {"you_sent": body_json}

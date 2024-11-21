@@ -4,16 +4,16 @@ import fs from "fs";
 import {parseArgs} from "node:util";
 
 const {
-  values: {uuid, tableName}
+  values: {uuid}
 } = parseArgs({
-  options: {uuid: {type: "string"}, tableName: {type: "string"}},
+  options: {uuid: {type: "string"}},
 });
 
-function getMdText(uuid, tableName) {
+function getMdText(uuid) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const fp = path.join(__dirname, '../../../../chart_defs/sessions', tableName, uuid, "plot.md");
+  const fp = path.join(__dirname, '../../../../chart_defs/sessions', uuid, "plot.md");
   return fs.readFileSync(fp, 'utf8');
 }
 
-process.stdout.write(getMdText(uuid, tableName));
+process.stdout.write(getMdText(uuid));

@@ -19,6 +19,10 @@ export function Editor({
 
   const langExt = lang === "sql" ? sql() : javascript();
 
+  const save = () => {
+    parent.value = editor.state.doc.toString();
+  };
+
   const editor = new EditorView({
     parent,
     doc: value,

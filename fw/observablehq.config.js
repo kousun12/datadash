@@ -9,23 +9,16 @@ function getPaths() {
   const __dirname = path.dirname(__filename);
 
   const dir = path.join(__dirname, '../chart_defs/sessions');
-  const tableNames = fs.readdirSync(dir, { withFileTypes: true })
+  const ids = fs.readdirSync(dir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
 
   const allPaths = [];
-  for (const tableName of tableNames) {
-    const tablePath = path.join(dir, tableName);
-    const sessionIds = fs.readdirSync(tablePath, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const sessionId of sessionIds) {
-      const subPath = path.join(dir, tableName, sessionId, "plot.md");
-      if (fs.existsSync(subPath)) {
-        const registerPath = path.join("/d/", tableName, sessionId);
-        allPaths.push(registerPath);
-      }
+  for (const id of ids) {
+    const subPath = path.join(dir, id, "plot.md");
+    if (fs.existsSync(subPath)) {
+      const registerPath = path.join("/d/", id);
+      allPaths.push(registerPath);
     }
   }
   return allPaths;

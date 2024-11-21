@@ -1,8 +1,0 @@
-{
-  "/Users/robcheung/code/fred/fw/src/data/yellow_trips.db": {
-    "human_summary": {
-      "yellow_trips": "The \"yellow_trips\" table contains detailed information about taxi trips in New York City, including pickup and dropoff times, locations, passenger counts, fare details, and various surcharges, with nearly 3 million records providing comprehensive data for analyzing taxi service patterns and financial aspects of rides.",
-      "zones": "The \"zones\" table contains information about taxi service zones in New York City, including their unique LocationID, Borough, Zone name, and service zone type. It covers various boroughs and distinguishes between \"Boro Zone\" and \"Yellow Zone\" service areas, likely used for taxi and ride-sharing operations."
-    }
-  }
-}

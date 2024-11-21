@@ -22,14 +22,32 @@ observable_plot_version = "0.6.0"
 
 
 class LLMAnalyst:
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
+        db_path,
         model_name=default_model,
-        db_path=None,
         data_dir=default_data_dir,
     ):
+        cd = ChartDef(
+            title="",
+            description="",
+            concept="",
+            sql="",
+            db_path=Path(db_path),
+            table_names=[],
+        )
+        cd.save()
+        return cls(chart_def=cd, model_name=model_name, data_dir=data_dir)
+
+    def __init__(
+        self,
+        chart_def,
+        model_name=default_model,
+        data_dir=default_data_dir,
+    ):
+        self.chart_def: ChartDef = chart_def
         self.model_name = model_name
-        self.db_path = db_path
         self.db = None
         self._cache = {}
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -40,17 +58,15 @@ class LLMAnalyst:
     def _load_cache(self):
         if self._cache_file.exists():
             with open(self._cache_file) as f:
-                cache = json.load(f)
-                self._cache = cache.get(str(self.db_path) or "", {})
+                self._cache = json.load(f)
 
     def _save_cache(self):
-        cache = {str(self.db_path): self._cache}
         with open(self._cache_file, "w") as f:
-            json.dump(cache, f, indent=2)
+            json.dump(self._cache, f, indent=2)
 
     def connect(self):
-        if self.db_path and not self.db:
-            self.db = duckdb.connect(self.db_path)
+        if self.chart_def.db_path and not self.db:
+            self.db = duckdb.connect(self.chart_def.db_path)
 
     def close(self):
         if self.db:
@@ -99,7 +115,7 @@ class LLMAnalyst:
         with open(ignore_template, "r") as tf:
             template_content = tf.read()
 
-        stem = Path(self.db_path).stem
+        stem = Path(self.chart_def.db_path).stem
         with tempfile.NamedTemporaryFile(
             mode="w+", delete=False, suffix=".aiderignore"
         ) as tmp_file:
@@ -283,20 +299,20 @@ class LLMAnalyst:
         )
         title, desc = [i for i in title_desc.split("\n") if i]
 
-        return ChartDef(
+        overrides = dict(
             title=title,
             description=desc,
             concept=concept,
             sql=parsed_sql,
             table_names=table_names,
-            db_path=self.db_path.relative_to(base_path / "fw/src").as_posix(),
             dataframe=df,
             plot_js=parsed_ob_plot,
         )
+        self.chart_def = ChartDef(**{**self.chart_def.dict(), **overrides})
+        return self.chart_def
 
-    def modify_chart(self, instructions: str, at_dir: Path):
-        chart_def = ChartDef.from_path(at_dir)
-        modifier = self.get_modify_coder(chart_def=chart_def, auto_commits=True)
+    def modify_chart(self, instructions: str):
+        modifier = self.get_modify_coder(chart_def=self.chart_def, auto_commits=True)
         modifier.run(
             f"""
 Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
@@ -306,16 +322,16 @@ Remember that `data` is an Apache Arrow table, so you cannot use normal array fu
             
 Instructions: {instructions}"""
         )
-        reloaded = ChartDef.from_path(at_dir)
-        reloaded.render_main_artifact(at_dir)
-        return reloaded
+        self.chart_def = self.chart_def.reload()
+        self.chart_def.render_main_artifact()
+        return self.chart_def
 
 
 if __name__ == "__main__":
-    db_path = base_path / "fw/src/data/us_ag.db"
-    analyst = LLMAnalyst(db_path=db_path)
+    _db_path = base_path / "fw/src/data/us_ag.db"
+    analyst = LLMAnalyst.create(_db_path)
     _dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
-    cd = ChartDef.from_path(_dir)
-    print(cd.sql)
-    df = analyst.execute_sql(cd.sql)
-    print(df)
+    _cd = ChartDef.from_path(_dir)
+    print(_cd.sql)
+    _df = analyst.execute_sql(_cd.sql)
+    print(_df)
