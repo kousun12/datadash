@@ -1,5 +1,7 @@
 title: Message Frequency Heatmap
-description: This heatmap displays the frequency of messages over time for different phone numbers, allowing for easy visualization of communication patterns and relative activity levels among different contacts.
+description: This heatmap displays the frequency of messages over time for different
+  phone numbers, allowing for easy visualization of communication patterns and relative
+  activity levels among different contacts.
 db_path: fw/src/data/imessages.db
 table_names:
 - messages

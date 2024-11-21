@@ -1,0 +1,5 @@
+{
+  "human_summary": {
+    "messages": "This appears to be a message database table storing SMS/iMessage communications, containing fields for message IDs, phone numbers, timestamps, message content, and message status, with most messages being iMessages and including both sent and received messages between different phone numbers."
+  }
+}

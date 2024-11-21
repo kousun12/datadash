@@ -314,6 +314,7 @@ class LLMAnalyst:
             plot_js=parsed_ob_plot,
         )
         self.chart_def = ChartDef(**{**self.chart_def.dict(), **overrides})
+        self.chart_def.save()
         return self.chart_def
 
     def modify_chart(self, instructions: str):
