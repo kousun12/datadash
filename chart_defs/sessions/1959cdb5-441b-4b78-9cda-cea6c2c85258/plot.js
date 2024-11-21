@@ -15,17 +15,16 @@ function plotChart(data, {width} = {}) {
   // Parse date strings to Date objects
   const parseDate = d3.utcParse("%Y-%m-%d");
 
-  // Helper function to safely parse and format dates
+  // Helper function to safely parse dates
   const safeParseDate = (dateString) => {
     if (!dateString) return null;
-    const parsed = parseDate(dateString);
-    return parsed ? parsed : null;
+    return parseDate(dateString);
   };
 
   // Helper function to safely format dates
   const safeFormatDate = (date) => {
     if (!date) return "N/A";
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+    return d3.utcFormat("%b %Y")(date);
   };
 
   return Plot.plot({
@@ -40,7 +39,7 @@ function plotChart(data, {width} = {}) {
       label: "Price ($)"
     },
     x: {
-      type: "band",
+      type: "utc",
       label: "Date"
     },
     marks: [
@@ -70,7 +69,7 @@ function plotChart(data, {width} = {}) {
       }),
       Plot.axisX({
         label: "Date",
-        tickFormat: d => safeFormatDate(safeParseDate(d))
+        tickFormat: d => safeFormatDate(d)
       }),
       Plot.axisY({
         label: "Price ($)",
