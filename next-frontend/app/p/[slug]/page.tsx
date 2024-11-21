@@ -76,10 +76,10 @@ export default function PlotPage({
               {sampleMessages.map((message) => (
                 <div
                   key={message.id}
-                  className={`max-w-[85%] p-3 rounded-lg ${
+                  className={`max-w-[85%] p-3 rounded-lg shadow-sm border ${
                     message.role === 'user'
-                      ? 'bg-blue-100 ml-auto'
-                      : 'bg-gray-100'
+                      ? 'bg-blue-100 ml-auto border-blue-200'
+                      : 'bg-gray-100 border-gray-200'
                   }`}
                 >
                   {message.content}
@@ -87,7 +87,7 @@ export default function PlotPage({
               ))}
               </div>
               {isLoading && (
-                <div className="inline-flex gap-1 pt-3 pb-2 px-3 bg-gray-200 rounded-lg mt-4">
+                <div className="inline-flex gap-1 pt-3 pb-2 px-3 bg-gray-200 rounded-lg mt-4 shadow-sm border border-gray-300">
                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
