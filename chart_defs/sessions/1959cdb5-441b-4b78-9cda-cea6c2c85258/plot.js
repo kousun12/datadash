@@ -1,16 +1,7 @@
-function plotChart(data, {width} = {}) {
+function plotChart(data) {
   if (!data || data.numRows === 0) {
     return displayError("No data available to plot.");
   }
-
-  const height = 500;
-  const marginTop = 20;
-  const marginRight = 30;
-  const marginBottom = 30;
-  const marginLeft = 40;
-
-  const volumeHeight = 100;
-  const priceHeight = height - volumeHeight - marginTop - marginBottom;
 
   // Parse date strings to Date objects
   const parseDate = d3.utcParse("%Y-%m-%d");
@@ -28,12 +19,6 @@ function plotChart(data, {width} = {}) {
   };
 
   return Plot.plot({
-    width,
-    height,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
     y: {
       grid: true,
       label: "Price ($)"
@@ -84,8 +69,7 @@ function plotChart(data, {width} = {}) {
     ],
     facet: {
       data: data,
-      y: d => d.volume ? "Volume" : "Price",
-      marginTop: 30
+      y: d => d.volume ? "Volume" : "Price"
     },
     fy: {
       axis: null
