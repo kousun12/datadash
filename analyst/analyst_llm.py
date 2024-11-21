@@ -324,8 +324,16 @@ Remember that `data` is an Apache Arrow table, so you cannot use normal array fu
             
 Instructions: {instructions}"""
         )
+        # todo - stream a message back with the commit message
+        # modifier.last_aider_commit_message
         self.chart_def = self.chart_def.reload()
         self.chart_def.render_main_artifact()
+        self.chart_def.save()
+        # todo stream the summary back
+        # result = modifier.run(
+        #     "Now just give me a concise summary of what was just changed. Respond with just the summary, nothing else."
+        # )
+
         return self.chart_def
 
 

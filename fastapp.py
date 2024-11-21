@@ -29,8 +29,7 @@ async def root(request: Request):
     slug = body_json.get("slug")
     cd = ChartDef.load(slug)
     analyst = LLMAnalyst(chart_def=cd)
-    new_chart = analyst.modify_chart(instructions=prompt)
-    new_chart.save()
+    analyst.modify_chart(instructions=prompt)
     loader_file.touch()
 
     return {"you_sent": body_json}
