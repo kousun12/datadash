@@ -35,6 +35,11 @@ class ChartDef(pydantic.BaseModel):
     vega_lite: Optional[Dict[str, Any]] = None
 
     @classmethod
+    def load(cls, id):
+        at_dir = base_path / f"chart_defs/sessions/{id}"
+        return cls.from_path(at_dir)
+
+    @classmethod
     def from_path(cls, path: Path) -> "ChartDef":
         path = Path(path)
         with open(path / cls.FileTypes.METADATA) as f:
@@ -52,13 +57,19 @@ class ChartDef(pydantic.BaseModel):
             dataframe = pd.read_csv(path / cls.FileTypes.DATA)
         id = uuid.UUID(metadata.get("id")) if metadata.get("id") else uuid.uuid4()
 
+        db_path = metadata["db_path"]
+        if db_path.startswith("data/"):
+            db_path = base_path / "fw/src" / db_path
+        else:
+            db_path = Path(db_path)
+
         return cls(
             id=id,
             title=metadata["title"],
             description=metadata["description"],
             concept=concept,
             sql=sql,
-            db_path=metadata["db_path"],
+            db_path=db_path,
             table_names=metadata.get("table_names", [metadata.get("table_name")]),
             plot_js=plot_js,
             dataframe=dataframe,

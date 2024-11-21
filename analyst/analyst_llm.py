@@ -329,9 +329,8 @@ Instructions: {instructions}"""
 
 if __name__ == "__main__":
     _db_path = base_path / "fw/src/data/us_ag.db"
-    analyst = LLMAnalyst.create(_db_path)
-    _dir = default_data_dir / "sessions/ag_data/4beb2033-a621-469d-822d-f53c17d5f4fe"
-    _cd = ChartDef.from_path(_dir)
+    _cd = ChartDef.load("4beb2033-a621-469d-822d-f53c17d5f4fe")
+    analyst = LLMAnalyst(chart_def=_cd)
     print(_cd.sql)
     _df = analyst.execute_sql(_cd.sql)
     print(_df)

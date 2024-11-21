@@ -17,12 +17,12 @@ type Message = {
 export default function PlotPage({
   params
 }: {
-  params: Promise<{ slug: string, tableName: string }>;
+  params: Promise<{ slug: string}>;
 }) {
-  const { slug, tableName } = use(params);
+  const { slug } = use(params);
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
-  console.log(tableName, slug);
-  const iframeUrl = `${baseUrl}/d/${tableName}/${slug}`;
+  console.log(slug);
+  const iframeUrl = `${baseUrl}/d/${slug}`;
   const [input, setInput] = useState('');
   const [sampleMessages, setSampleMessages] = useState<Message[]>([])
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -43,7 +43,7 @@ export default function PlotPage({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ message: input, slug: slug, tableName }),
+          body: JSON.stringify({ message: input, slug: slug }),
         });
 
         if (!response.ok) {
