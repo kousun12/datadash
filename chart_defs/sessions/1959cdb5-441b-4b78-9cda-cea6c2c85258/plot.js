@@ -18,16 +18,31 @@ function plotChart(data, options = {}) {
     return d3.utcFormat("%b %Y")(date);
   };
 
-  return Plot.plot({
-    width: options.width || 640,
-    height: options.width ? options.width * 0.6 : 400,
-    y: {
-      grid: true,
-      label: "Price ($)"
+  const width = options.width || 640;
+  const height = options.width ? options.width * 0.8 : 500;
+  const marginTop = 20;
+  const marginRight = 30;
+  const marginBottom = 30;
+  const marginLeft = 40;
+
+  const candlestickChart = Plot.plot({
+    width,
+    height: height * 0.7,
+    marginTop,
+    marginRight,
+    marginBottom: 0,
+    marginLeft,
+    style: {
+      backgroundColor: "#f5f5f5",
     },
     x: {
       type: "band",
-      label: "Date"
+      label: null,
+      tickFormat: d => safeFormatDate(parseDate(d)),
+    },
+    y: {
+      grid: true,
+      label: "Price ($)",
     },
     marks: [
       Plot.ruleY([0]),
@@ -35,46 +50,61 @@ function plotChart(data, options = {}) {
         x: d => d.date,
         y1: d => Math.min(d.open, d.close),
         y2: d => Math.max(d.open, d.close),
-        fill: d => d.open > d.close ? "red" : "green",
+        fill: d => d.close > d.open ? "green" : "red",
         tip: true,
-        title: d => {
-          const date = safeParseDate(d.date);
-          return `Date: ${safeFormatDate(date)}\nOpen: $${d.open.toFixed(2)}\nClose: $${d.close.toFixed(2)}\nHigh: $${d.high.toFixed(2)}\nLow: $${d.low.toFixed(2)}\nVolume: ${d.volume.toLocaleString()}`;
-        }
+        title: d => `Date: ${safeFormatDate(safeParseDate(d.date))}\nOpen: $${d.open.toFixed(2)}\nClose: $${d.close.toFixed(2)}\nHigh: $${d.high.toFixed(2)}\nLow: $${d.low.toFixed(2)}\nVolume: ${d.volume.toLocaleString()}`,
       }),
       Plot.ruleY(data, {
         x: d => d.date,
         y1: d => d.low,
         y2: d => d.high,
-        stroke: d => d.open > d.close ? "red" : "green"
+        stroke: d => d.close > d.open ? "green" : "red",
       }),
-      Plot.rectY(data, {
+    ],
+  });
+
+  const volumeChart = Plot.plot({
+    width,
+    height: height * 0.3,
+    marginTop: 0,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    style: {
+      backgroundColor: "#f5f5f5",
+    },
+    x: {
+      type: "band",
+      label: "Date",
+      tickFormat: d => safeFormatDate(parseDate(d)),
+    },
+    y: {
+      grid: true,
+      label: "Volume",
+    },
+    marks: [
+      Plot.ruleY([0]),
+      Plot.barY(data, {
         x: d => d.date,
         y: d => d.volume,
         fill: "lightblue",
-        fillOpacity: 0.5,
+        tip: true,
+        title: d => `Date: ${safeFormatDate(safeParseDate(d.date))}\nVolume: ${d.volume.toLocaleString()}`,
       }),
-      Plot.axisX({
-        label: "Date",
-        tickFormat: d => safeFormatDate(parseDate(d))
-      }),
-      Plot.axisY({
-        label: "Price ($)",
-        tickFormat: ".0f"
-      }),
-      Plot.axisY({
-        label: "Volume",
-        tickFormat: "~s",
-        ticks: 3,
-        y: d => d.volume,
-      })
     ],
-    facet: {
-      data: data,
-      y: d => d.volume ? "Volume" : "Price"
+  });
+
+  return Plot.plot({
+    width,
+    height,
+    style: {
+      display: "flex",
+      flexDirection: "column",
     },
-    fy: {
-      axis: null
-    }
+    marks: [
+      Plot.frame({fill: "transparent"}),
+      candlestickChart,
+      volumeChart,
+    ],
   });
 }
