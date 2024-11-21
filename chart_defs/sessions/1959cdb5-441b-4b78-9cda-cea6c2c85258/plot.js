@@ -5,6 +5,16 @@ function plotChart(data, {width} = {}) {
   const marginBottom = 50;
   const marginLeft = 40;
 
+  // Helper function to get max value from a column
+  const getMaxValue = (columnName) => {
+    let max = -Infinity;
+    for (let i = 0; i < data.numRows; i++) {
+      const value = data.get(i)[columnName];
+      if (value > max) max = value;
+    }
+    return max;
+  };
+
   return Plot.plot({
     width,
     height,
@@ -15,15 +25,15 @@ function plotChart(data, {width} = {}) {
     x: {
       type: "band",
       label: "Date",
-      domain: data.getColumn("date"),
+      domain: data.toArray().map(d => d.date),
     },
     y: {
       label: "Price ($)",
-      domain: [0, Math.max(...data.getColumn("high"))],
+      domain: [0, getMaxValue("high")],
     },
     y2: {
       label: "Volume",
-      domain: [0, Math.max(...data.getColumn("volume"))],
+      domain: [0, getMaxValue("volume")],
     },
     marks: [
       Plot.ruleY([0]),
