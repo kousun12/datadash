@@ -3,6 +3,13 @@ function plotChart(data, options = {}) {
     return displayError("No data available to plot.");
   }
 
+  const width = options.width || 640;
+  const height = options.width ? options.width * 0.8 : 500;
+  const marginTop = 20;
+  const marginRight = 30;
+  const marginBottom = 30;
+  const marginLeft = 40;
+
   // Parse date strings to Date objects
   const parseDate = d3.utcParse("%Y-%m-%d");
 
@@ -18,31 +25,29 @@ function plotChart(data, options = {}) {
     return d3.utcFormat("%b %Y")(date);
   };
 
-  const width = options.width || 640;
-  const height = options.width ? options.width * 0.8 : 500;
-  const marginTop = 20;
-  const marginRight = 30;
-  const marginBottom = 30;
-  const marginLeft = 40;
-
-  const candlestickChart = Plot.plot({
+  return Plot.plot({
     width,
-    height: height * 0.7,
+    height,
     marginTop,
     marginRight,
-    marginBottom: 0,
+    marginBottom,
     marginLeft,
     style: {
       backgroundColor: "#f5f5f5",
     },
     x: {
       type: "band",
-      label: null,
+      label: "Date",
       tickFormat: d => safeFormatDate(parseDate(d)),
     },
     y: {
       grid: true,
       label: "Price ($)",
+      domain: [0, d3.max(data, d => d.high)],
+    },
+    y2: {
+      label: "Volume",
+      domain: [0, d3.max(data, d => d.volume)],
     },
     marks: [
       Plot.ruleY([0]),
@@ -60,51 +65,13 @@ function plotChart(data, options = {}) {
         y2: d => d.high,
         stroke: d => d.close > d.open ? "green" : "red",
       }),
-    ],
-  });
-
-  const volumeChart = Plot.plot({
-    width,
-    height: height * 0.3,
-    marginTop: 0,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    style: {
-      backgroundColor: "#f5f5f5",
-    },
-    x: {
-      type: "band",
-      label: "Date",
-      tickFormat: d => safeFormatDate(parseDate(d)),
-    },
-    y: {
-      grid: true,
-      label: "Volume",
-    },
-    marks: [
-      Plot.ruleY([0]),
       Plot.barY(data, {
         x: d => d.date,
         y: d => d.volume,
+        y2: 0,
         fill: "lightblue",
-        tip: true,
-        title: d => `Date: ${safeFormatDate(safeParseDate(d.date))}\nVolume: ${d.volume.toLocaleString()}`,
+        opacity: 0.5,
       }),
-    ],
-  });
-
-  return Plot.plot({
-    width,
-    height,
-    style: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    marks: [
-      Plot.frame({fill: "transparent"}),
-      candlestickChart,
-      volumeChart,
     ],
   });
 }
