@@ -67,8 +67,7 @@ function plotChart(data, {width} = {}) {
       grid: true
     },
     color: {
-      legend: true,
-      scheme: "tableau10"
+      legend: true
     },
     marks: [
       Plot.line(data, {
@@ -85,7 +84,8 @@ function plotChart(data, {width} = {}) {
         fill: "white",
         r: 3,
         title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
-        strokeWidth: 2
+        strokeWidth: 2,
+        tip: true
       }),
       Plot.ruleY([0]),
       Plot.text(data, Plot.selectLast({
@@ -117,7 +117,7 @@ function plotOrError(data, options) {
 
 ```js
 function getJSView() {
-  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 20, right: 200, bottom: 40, left: 60};\n\n  return Plot.plot({\n    width,\n    height: 500,\n    marginTop: margin.top,\n    marginRight: margin.right,\n    marginBottom: margin.bottom,\n    marginLeft: margin.left,\n    x: {\n      label: \"Hour of Day\",\n      domain: [0, 23],\n      tickFormat: d => d.toString().padStart(2, '0') + ':00'\n    },\n    y: {\n      label: \"Pickup Count\",\n      grid: true\n    },\n    color: {\n      legend: true,\n      scheme: \"tableau10\"\n    },\n    marks: [\n      Plot.line(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        strokeWidth: 2,\n        curve: \"monotone-x\"\n      }),\n      Plot.dot(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        fill: \"white\",\n        r: 3,\n        title: d => `Zone: ${d.Zone}\\nHour: ${d.hour.toString().padStart(2, '0')}:00\\nPickups: ${d.pickup_count.toLocaleString()}`,\n        strokeWidth: 2\n      }),\n      Plot.ruleY([0]),\n      Plot.text(data, Plot.selectLast({\n        x: \"hour\",\n        y: \"pickup_count\",\n        z: \"Zone\",\n        text: \"Zone\",\n        textAnchor: \"start\",\n        dx: 5\n      }))\n    ],\n    tip: true\n  });\n}\n";
+  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 20, right: 200, bottom: 40, left: 60};\n\n  return Plot.plot({\n    width,\n    height: 500,\n    marginTop: margin.top,\n    marginRight: margin.right,\n    marginBottom: margin.bottom,\n    marginLeft: margin.left,\n    x: {\n      label: \"Hour of Day\",\n      domain: [0, 23],\n      tickFormat: d => d.toString().padStart(2, '0') + ':00'\n    },\n    y: {\n      label: \"Pickup Count\",\n      grid: true\n    },\n    color: {\n      legend: true\n    },\n    marks: [\n      Plot.line(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        strokeWidth: 2,\n        curve: \"monotone-x\"\n      }),\n      Plot.dot(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        fill: \"white\",\n        r: 3,\n        title: d => `Zone: ${d.Zone}\\nHour: ${d.hour.toString().padStart(2, '0')}:00\\nPickups: ${d.pickup_count.toLocaleString()}`,\n        strokeWidth: 2,\n        tip: true\n      }),\n      Plot.ruleY([0]),\n      Plot.text(data, Plot.selectLast({\n        x: \"hour\",\n        y: \"pickup_count\",\n        z: \"Zone\",\n        text: \"Zone\",\n        textAnchor: \"start\",\n        dx: 5\n      }))\n    ],\n    tip: true\n  });\n}\n";
   const e = Editor({value: plotCodeString, lang: "javascript"});
   return e;
 }
