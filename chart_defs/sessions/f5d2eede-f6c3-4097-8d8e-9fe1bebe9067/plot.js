@@ -43,12 +43,7 @@ function plotChart(data, {width} = {}) {
         textAnchor: "start"
       }))
     ],
-    tip: {
-      format: {
-        x: x => x.toString().padStart(2, '0') + ':00',
-        y: y => y.toLocaleString()
-      }
-    },
+    tip: true,
     color: {
       legend: true,
       scheme: "tableau10"
