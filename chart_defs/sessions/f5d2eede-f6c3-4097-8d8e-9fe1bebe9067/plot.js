@@ -36,9 +36,7 @@ function plotChart(data, {width} = {}) {
         fill: "white",
         r: 3,
         title: d => `Zone: ${d.Zone}\nHour: ${d.hour.toString().padStart(2, '0')}:00\nPickups: ${d.pickup_count.toLocaleString()}`,
-        stroke: "Zone",
-        strokeWidth: 2,
-        fill: "white"
+        strokeWidth: 2
       }),
       Plot.ruleY([0]),
       Plot.text(data, Plot.selectLast({
