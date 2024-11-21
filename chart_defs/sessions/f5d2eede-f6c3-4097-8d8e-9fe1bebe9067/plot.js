@@ -18,8 +18,7 @@ function plotChart(data, {width} = {}) {
       grid: true
     },
     color: {
-      legend: true,
-      scheme: "tableau10"
+      legend: true
     },
     marks: [
       Plot.line(data, {
