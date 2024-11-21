@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from analyst.analyst_llm import LLMAnalyst
 from analyst.chart_def import ChartDef
-from constants import base_path, default_data_dir, sessions_dir
+from constants import base_path, default_data_dir, sessions_dir, observable_source
 
 project_root = Path(__file__).parent
 
@@ -19,7 +19,7 @@ fast_app.add_middleware(
     allow_headers=["*"],
 )
 
-loader_file = base_path / f"fw/src/d/[uuid].md.js"
+loader_file = observable_source / "d/[uuid].md.js"
 
 
 @fast_app.post("/")

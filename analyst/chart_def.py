@@ -14,6 +14,7 @@ from constants import (
     base_path,
     observable_template_file,
     sessions_dir,
+    observable_source,
 )
 
 
@@ -60,11 +61,7 @@ class ChartDef(pydantic.BaseModel):
             dataframe = pd.read_csv(path / cls.FileTypes.DATA)
         id = metadata.get("id") if metadata.get("id") else str(uuid.uuid4())
 
-        db_path = metadata["db_path"]
-        if db_path.startswith("data/"):
-            db_path = base_path / "fw/src" / db_path
-        else:
-            db_path = Path(db_path)
+        db_path = base_path / Path(metadata["db_path"])
 
         return cls(
             id=id,
@@ -112,7 +109,7 @@ class ChartDef(pydantic.BaseModel):
         with open(observable_template_file) as f:
             template = Template(f.read())
 
-        relative_path = self.db_path.relative_to(base_path / "fw/src").as_posix()
+        relative_path = self.db_path.relative_to(observable_source).as_posix()
         context = {
             "title": self.title,
             "db_path": f"/{relative_path}",
@@ -151,11 +148,12 @@ class ChartDef(pydantic.BaseModel):
             with open(dest_dir / self.FileTypes.PLOT_JS, "w") as f:
                 f.write(self.plot_js)
         with open(dest_dir / self.FileTypes.METADATA, "w") as f:
+            relative_db_path = self.db_path.relative_to(base_path).as_posix()
             yaml.dump(
                 {
                     "title": self.title,
                     "description": self.description,
-                    "db_path": self.db_path,
+                    "db_path": relative_db_path,
                     "table_names": self.table_names,
                     "id": str(self.id),
                 },
@@ -176,10 +174,30 @@ class ChartDef(pydantic.BaseModel):
 
     def add_to_git(self):
         import subprocess
+        import os
 
         dest_dir = sessions_dir / self.id
         dest_posix = dest_dir.relative_to(base_path).as_posix()
-        subprocess.run(["git", "add", dest_posix], check=True)
+
+        if not os.path.exists(dest_dir):
+            return  # File doesn't exist, so we can't add it
+
+        try:
+            subprocess.run(
+                ["git", "ls-files", "--error-unmatch", dest_posix],
+                check=True,
+                cwd=base_path,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return
+        except subprocess.CalledProcessError:
+            pass
+
+        try:
+            subprocess.run(["git", "add", dest_posix], check=True, cwd=base_path)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to add file to Git: {e}")
 
 
 def _qualify_ref_for_table(sql, schema, table_name) -> str:

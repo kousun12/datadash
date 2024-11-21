@@ -24,11 +24,8 @@ observable_plot_version = "0.6.0"
 
 class LLMAnalyst:
     @classmethod
-    def create(
-        cls,
-        db_path,
-        model_name=default_model,
-    ):
+    def create(cls, db_path, model_name=default_model):
+        db_path = Path(db_path)
         cd = ChartDef(
             title="",
             description="",
@@ -330,9 +327,12 @@ Instructions: {instructions}"""
 
 
 if __name__ == "__main__":
-    _db_path = base_path / "fw/src/data/us_ag.db"
-    _cd = ChartDef.load("4beb2033-a621-469d-822d-f53c17d5f4fe")
-    analyst = LLMAnalyst(chart_def=_cd)
-    print(_cd.sql)
-    _df = analyst.execute_sql(_cd.sql)
-    print(_df)
+    _cd = ChartDef.load("f5d2eede-f6c3-4097-8d8e-9fe1bebe9067")
+    print(_cd.db_path)
+    _cd.save()
+    _cd = _cd.reload()
+    print(_cd.db_path)
+    # analyst = LLMAnalyst(chart_def=_cd)
+    # print(_cd.sql)
+    # _df = analyst.execute_sql(_cd.sql)
+    # print(_df)
