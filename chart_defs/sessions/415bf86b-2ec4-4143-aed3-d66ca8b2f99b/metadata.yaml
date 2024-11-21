@@ -1,8 +1,0 @@
-title: Hourly Heatmap of NYC Taxi Pickups by Location
-description: This heatmap visualizes the distribution of taxi pickups across the top
-  20 most frequent pickup locations in New York City over a 24-hour period. The color
-  intensity represents the number of trips, allowing viewers to identify peak hours
-  and popular locations for taxi usage throughout the day.
-db_path: data/yellow_trips.db
-table_name: yellow_trips
-id: 415bf86b-2ec4-4143-aed3-d66ca8b2f99b

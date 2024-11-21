@@ -1,7 +1,0 @@
-title: Hourly Taxi Pickup Patterns in New York City
-description: This chart visualizes the density of taxi pickups across different locations
-  in New York City over 24 hours, revealing popular areas and temporal trends in taxi
-  usage throughout the day.
-db_path: data/yellow_trips.db
-table_name: yellow_trips
-id: ccccb2d4-f7f4-44ce-851a-401fddf2980b

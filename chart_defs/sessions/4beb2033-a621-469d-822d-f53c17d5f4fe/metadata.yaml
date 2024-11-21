@@ -1,8 +1,0 @@
-title: Agricultural Commodity Type Trends (2010-Present)
-description: This stacked area chart displays trends for agricultural commodity types,
-  showing the total value of beginning stocks, production, and imports from 2010 onwards.
-  The chart allows for easy comparison of trends across different commodity types
-  over time.
-db_path: data/us_ag.db
-table_name: ag_data
-id: 4beb2033-a621-469d-822d-f53c17d5f4fe
