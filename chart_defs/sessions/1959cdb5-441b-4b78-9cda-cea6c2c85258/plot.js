@@ -50,7 +50,7 @@ function plotChart(data, {width} = {}) {
         stroke: d => d.open > d.close ? "red" : "green"
       }),
       Plot.barY(data, {
-        x: {value: d => parseDate(d.date), scale: "band"},
+        x: d => parseDate(d.date),
         y: d => d.volume,
         y1: 0,
         fill: "lightblue",
