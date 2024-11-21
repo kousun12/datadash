@@ -13,7 +13,7 @@ function plotChart(data, {width} = {}) {
     marginBottom,
     marginLeft,
     x: {
-      type: "time",
+      type: "band",
       label: "Date",
     },
     y: {
