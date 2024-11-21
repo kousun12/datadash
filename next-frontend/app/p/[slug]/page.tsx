@@ -1,5 +1,6 @@
 'use client';
 import {use, useState, useRef, KeyboardEvent} from 'react';
+import ReactMarkdown from 'react-markdown';
 
 type Message = {
   id: number;
@@ -135,7 +136,13 @@ export default function PlotPage({
                         }`
                   }`}
                 >
-                  {message.content}
+                  {message.role === 'system' ? (
+                    message.content
+                  ) : (
+                    <ReactMarkdown className="prose prose-sm max-w-none prose-p:my-0 prose-headings:mt-1 prose-headings:mb-2">
+                      {message.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
               ))}
               </div>
