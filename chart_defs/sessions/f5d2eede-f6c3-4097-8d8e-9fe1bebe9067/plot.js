@@ -1,10 +1,11 @@
 function plotChart(data, {width} = {}) {
-  const margin = {bottom: 60, left: 200};
+  const margin = {bottom: 60, left: 200, right: 100};
 
   return Plot.plot({
     width,
     marginLeft: margin.left,
     marginBottom: margin.bottom,
+    marginRight: margin.right,
     x: {
       label: "Hour of Day",
     },
@@ -14,8 +15,9 @@ function plotChart(data, {width} = {}) {
     },
     color: {
       type: "linear",
-      scheme: "YlGn",
-      label: "Pickup Count"
+      scheme: "Blues",
+      label: "Pickup Count",
+      legend: true
     },
     marks: [
       Plot.cell(data, {
