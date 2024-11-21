@@ -39,10 +39,22 @@ async def root(request: Request):
             print("~~~~~~~~~~~~~~~~~~~~event~~~~~~~~~~~~~~~~~\n", event)
             if event.get("type") == "complete":
                 loader_file.touch()
+                # Send the complete event too, just don't include the full chart data
+                yield f"data: {json.dumps({'type': 'complete'})}\n\n"
             else:
                 yield f"data: {json.dumps(event)}\n\n"
+            # Force flush after each event
+            await request.send_push_promise('/')
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering if present
+        }
+    )
 
 
 @fast_app.post("/update")

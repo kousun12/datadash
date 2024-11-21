@@ -314,10 +314,12 @@ class LLMAnalyst:
         return self.chart_def
 
     def modify_chart(self, instructions: str):
+        import time
         modifier = self.get_modify_coder(auto_commits=True)
 
         # First yield the start event
         yield {"type": "start", "message": "Starting update..."}
+        time.sleep(0.1)  # Small delay to ensure events are processed separately
 
         # Run the modification
         modifier.run(
