@@ -51,11 +51,12 @@ export default function PlotPage({
           },
           body: JSON.stringify({ message: input, slug: slug }),
         });
+        const data = await response.json();
+        console.log(data);
+        // const assistantMessage: Message = { id: sampleMessages.length + 2, role: 'assistant', content: data.message };
+        // setSampleMessages((prev: Message[]) => [...prev, assistantMessage]);
+        setIsLoading(false);
 
-        if (!response.ok) {
-          throw new Error('Failed to send message');
-        }
-        
       } catch (error) {
         setIsLoading(false);
         console.error('Error sending message:', error);
