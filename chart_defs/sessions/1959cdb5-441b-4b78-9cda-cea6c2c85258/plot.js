@@ -57,7 +57,10 @@ function plotChart(data, {width} = {}) {
       }),
       Plot.axisX({
         label: "Date",
-        tickFormat: d => d.toLocaleDateString(undefined, { year: 'numeric', month: 'short' })
+        tickFormat: d => {
+          const date = parseDate(d);
+          return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+        }
       }),
       Plot.axisY({
         label: "Price ($)",
