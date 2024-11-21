@@ -24,9 +24,11 @@ function plotChart(data, {width} = {}) {
       label: "Close Price ($)",
     },
     marks: [
-      Plot.dot(data, {
+      Plot.line(data, {
         x: d => d.date,
         y: d => d.close,
+        stroke: "steelblue",
+        strokeWidth: 1.5
       })
     ]
   });
