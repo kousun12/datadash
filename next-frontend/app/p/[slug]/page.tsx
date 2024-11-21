@@ -68,6 +68,7 @@ export default function PlotPage({
 
           for (const event of events) {
             if (event.startsWith('data: ')) {
+              console.log('~~~~~~~~~~~~~~~\n\nReceived event:', event);
               const data = JSON.parse(event.slice(6));
               
               switch (data.type) {
