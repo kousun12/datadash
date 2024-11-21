@@ -1,18 +1,17 @@
 'use client';
-import {use, useState, useRef, KeyboardEvent, useEffect} from 'react';
-
-// const sampleMessages = [
-  // { id: 1, role: 'user', content: 'Can you analyze the agricultural data?' },
-  // { id: 2, role: 'assistant', content: 'I\'d be happy to help analyze the agricultural data. What specific aspects would you like to explore?' },
-  // { id: 3, role: 'user', content: 'Show me trends in corn stocks over time.' },
-  // { id: 4, role: 'assistant', content: 'I\'ve loaded the visualization showing corn stock trends. You can see there are significant seasonal variations, with peaks typically occurring after harvest seasons.' },
-// ];
+import {use, useState, useRef, KeyboardEvent} from 'react';
 
 type Message = {
   id: number;
   role: 'user' | 'assistant';
   content: string;
 };
+
+const sampleMessages: Message[] = [
+  { id: 1, role: 'user', content: "Let's dive into this dataset" },
+  { id: 2, role: 'assistant', content: 'Sounds good, I can help with visualizations, sql queries, and more.' },
+];
+
 
 export default function PlotPage({
   params
@@ -21,10 +20,9 @@ export default function PlotPage({
 }) {
   const { slug } = use(params);
   const baseUrl = process.env.NEXT_PUBLIC_DEFAULT_IFRAME_URL || 'http://localhost:3000';
-  console.log(slug);
   const iframeUrl = `${baseUrl}/d/${slug}`;
   const [input, setInput] = useState('');
-  const [sampleMessages, setSampleMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(sampleMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -34,8 +32,8 @@ export default function PlotPage({
   const handleKeyPress = async (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      const newMessage: Message = { id: sampleMessages.length + 1, role: 'user', content: input };
-      setSampleMessages((prev: Message[]) => [...prev, newMessage]);
+      const newMessage: Message = { id: messages.length + 1, role: 'user', content: input };
+      setMessages((prev: Message[]) => [...prev, newMessage]);
       setInput('');
       setIsLoading(true);
 
@@ -73,7 +71,7 @@ export default function PlotPage({
           <div className="messages-container overflow-hidden">
             <div className="messages-content p-4 w-[360px]">
               <div className="flex flex-col gap-4">
-              {sampleMessages.map((message) => (
+              {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`max-w-[85%] p-3 rounded-lg shadow-sm border ${
