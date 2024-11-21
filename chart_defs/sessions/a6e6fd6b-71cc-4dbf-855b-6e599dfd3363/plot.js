@@ -7,9 +7,7 @@ function plotChart(data, {width} = {}) {
     height: Math.max(500, phoneNumbers.length * 25),
     x: {
       type: "band",
-      label: "Date",
-      tickFormat: d => d.substring(0, 10), // Format date as YYYY-MM-DD
-      domain: days
+      label: "Date"
     },
     y: {
       label: "Phone Number",
