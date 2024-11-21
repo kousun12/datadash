@@ -67,8 +67,8 @@ function plotChart(data, options = {}) {
       }),
       Plot.barY(data, {
         x: d => d.date,
-        y: d => d.volume,
-        y2: 0,
+        y2: d => d.volume,  // Changed y to y2
+        y: 0,               // Changed y2 to y
         fill: "lightblue",
         opacity: 0.5,
       }),
