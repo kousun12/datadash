@@ -3,7 +3,7 @@ import {use, useState, useRef, KeyboardEvent} from 'react';
 
 type Message = {
   id: number;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 };
 
@@ -74,10 +74,14 @@ export default function PlotPage({
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`max-w-[85%] p-3 rounded-lg shadow-sm border ${
-                    message.role === 'user'
-                      ? 'bg-blue-100 ml-auto border-blue-200'
-                      : 'bg-gray-100 border-gray-200'
+                  className={`max-w-[85%] ${
+                    message.role === 'system' 
+                      ? 'text-gray-500 text-sm px-2'
+                      : `p-3 rounded-lg shadow-sm border ${
+                          message.role === 'user'
+                            ? 'bg-blue-100 ml-auto border-blue-200'
+                            : 'bg-gray-100 border-gray-200'
+                        }`
                   }`}
                 >
                   {message.content}
