@@ -25,6 +25,7 @@ loader_file = observable_source / "d/[uuid].md.js"
 from fastapi.responses import StreamingResponse
 import json
 
+
 @fast_app.post("/")
 async def root(request: Request):
     body_json = await request.json()
@@ -35,13 +36,13 @@ async def root(request: Request):
 
     async def event_generator():
         for event in analyst.modify_chart(instructions=prompt):
-            yield f"data: {json.dumps(event)}\n\n"
-        loader_file.touch()
+            print("~~~~~~~~~~~~~~~~~~~~event~~~~~~~~~~~~~~~~~\n", event)
+            if event.get("type") == "complete":
+                loader_file.touch()
+            else:
+                yield f"data: {json.dumps(event)}\n\n"
 
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream"
-    )
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @fast_app.post("/update")

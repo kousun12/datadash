@@ -315,12 +315,12 @@ class LLMAnalyst:
 
     def modify_chart(self, instructions: str):
         modifier = self.get_modify_coder(auto_commits=True)
-        
+
         # First yield the start event
-        yield {"type": "start", "message": "Starting chart modification..."}
-        
+        yield {"type": "start", "message": "Starting update..."}
+
         # Run the modification
-        result = modifier.run(
+        modifier.run(
             f"""
 Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
 The SQL flavor is DuckDB. 
@@ -329,30 +329,25 @@ Remember that `data` is an Apache Arrow table, so you cannot use normal array fu
             
 Instructions: {instructions}"""
         )
-        
+
         # Yield the commit message if available
         if modifier.last_aider_commit_message:
-            yield {
-                "type": "commit",
-                "message": modifier.last_aider_commit_message
-            }
-            
+            yield {"type": "commit", "message": modifier.last_aider_commit_message}
+
         # Get a summary of changes
         summary = modifier.run(
             "Now just give me a concise summary of what was just changed. Respond with just the summary, nothing else."
         )
+
         yield {"type": "summary", "message": summary}
-        
+
         # Reload and render the chart
         self.chart_def = self.chart_def.reload()
         self.chart_def.render_main_artifact()
         self.chart_def.save()
-        
+
         # Finally yield the completed chart
-        yield {
-            "type": "complete",
-            "chart": self.chart_def.dict()
-        }
+        yield {"type": "complete", "chart": self.chart_def}
 
 
 if __name__ == "__main__":
