@@ -10,7 +10,11 @@ from pathlib import Path
 import sqlparse
 from sqlparse.sql import Identifier
 
-from constants import base_path, observable_template_file, default_data_dir
+from constants import (
+    base_path,
+    observable_template_file,
+    sessions_dir,
+)
 
 
 class ChartDef(pydantic.BaseModel):
@@ -23,7 +27,7 @@ class ChartDef(pydantic.BaseModel):
         VEGA_CHART = "chart.html"
         OBSERVABLE_PLOT = "plot.md"
 
-    id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    id: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
     description: str
     concept: str
@@ -36,8 +40,7 @@ class ChartDef(pydantic.BaseModel):
 
     @classmethod
     def load(cls, id):
-        at_dir = base_path / f"chart_defs/sessions/{id}"
-        return cls.from_path(at_dir)
+        return cls.from_path(sessions_dir / id)
 
     @classmethod
     def from_path(cls, path: Path) -> "ChartDef":
@@ -55,7 +58,7 @@ class ChartDef(pydantic.BaseModel):
         dataframe = None
         if (path / cls.FileTypes.DATA).exists():
             dataframe = pd.read_csv(path / cls.FileTypes.DATA)
-        id = uuid.UUID(metadata.get("id")) if metadata.get("id") else uuid.uuid4()
+        id = metadata.get("id") if metadata.get("id") else str(uuid.uuid4())
 
         db_path = metadata["db_path"]
         if db_path.startswith("data/"):
@@ -120,8 +123,8 @@ class ChartDef(pydantic.BaseModel):
         }
         return template.render(context)
 
-    def render_main_artifact(self, data_dir=default_data_dir) -> Path:
-        dest_dir = data_dir / f"sessions/{self.db_path.stem}/{self.id}"
+    def render_main_artifact(self) -> Path:
+        dest_dir = sessions_dir / self.id
         if self.vega_lite:
             html = self.render_vega_lite()
             out = Path(dest_dir) / self.FileTypes.VEGA_CHART
@@ -137,9 +140,8 @@ class ChartDef(pydantic.BaseModel):
         else:
             print("No plot to render")
 
-    def save(self, data_dir=default_data_dir, skip_df=True) -> Path:
-        db_stem = Path(self.db_path).stem
-        dest_dir = data_dir / f"sessions/{db_stem}/{self.id}"
+    def save(self, skip_df=True) -> Path:
+        dest_dir = sessions_dir / self.id
         dest_dir.mkdir(parents=True, exist_ok=True)
         with open(dest_dir / self.FileTypes.CONCEPT, "w") as f:
             f.write(self.concept)
@@ -164,21 +166,20 @@ class ChartDef(pydantic.BaseModel):
             with open(dest_dir / self.FileTypes.DATA, "w") as f:
                 self.dataframe.to_csv(f, index=False)
 
-        artifact_path = self.render_main_artifact(data_dir)
+        artifact_path = self.render_main_artifact()
         self.add_to_git()
 
         return artifact_path
 
-    def reload(self, data_dir=default_data_dir):
-        at_dir = data_dir / f"sessions/{self.db_path.stem}/{self.id}"
-        return ChartDef.from_path(at_dir)
+    def reload(self):
+        return ChartDef.from_path(sessions_dir / self.id)
 
-    def add_to_git(self, dat_dir: Path = default_data_dir):
+    def add_to_git(self):
         import subprocess
 
-        db_stem = Path(self.db_path).stem
-        dest_dir = dat_dir / f"sessions/{db_stem}/{self.id}"
-        subprocess.run(["git", "add", dest_dir], check=True)
+        dest_dir = sessions_dir / self.id
+        dest_posix = dest_dir.relative_to(base_path).as_posix()
+        subprocess.run(["git", "add", dest_posix], check=True)
 
 
 def _qualify_ref_for_table(sql, schema, table_name) -> str:
@@ -221,10 +222,3 @@ def qualify_table_refs(sql, schema, table_names) -> str:
     for table_name in table_names:
         sql = _qualify_ref_for_table(sql, schema, table_name)
     return sql
-
-
-if __name__ == "__main__":
-    _chart = ChartDef.from_path(
-        base_path / "chart_defs/sessions/ag_data/2faffd8d-27e1-4502-aae6-0daa6079d7c0"
-    )
-    print(_chart)

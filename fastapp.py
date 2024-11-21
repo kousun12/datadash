@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from analyst.analyst_llm import LLMAnalyst
 from analyst.chart_def import ChartDef
-from constants import base_path, default_data_dir
+from constants import base_path, default_data_dir, sessions_dir
 
 project_root = Path(__file__).parent
 
@@ -50,7 +50,7 @@ async def update(request: Request):
     slug = body_json.get("slug")
     cd = ChartDef.load(slug)
     if plot:
-        with open(default_data_dir / slug / "plot.js", "w") as f:
+        with open(sessions_dir / slug / "plot.js", "w") as f:
             f.write(plot)
     cd = cd.reload()
     cd.render_main_artifact()

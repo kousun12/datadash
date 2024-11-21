@@ -3,7 +3,16 @@ description: This heatmap visualizes the number of taxi pickups across the top 2
   most popular zones in New York City, broken down by hour of the day. The color intensity
   represents the pickup count, allowing viewers to identify peak hours and busy locations
   at a glance.
-db_path: data/yellow_trips.db
+db_path: !!python/object/apply:pathlib.PosixPath
+- /
+- Users
+- robcheung
+- code
+- fred
+- fw
+- src
+- data
+- yellow_trips.db
 table_names:
 - yellow_trips
 - zones

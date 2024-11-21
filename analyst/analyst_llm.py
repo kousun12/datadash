@@ -14,6 +14,7 @@ from constants import (
     default_data_dir,
     default_model,
     observable_template_file,
+    sessions_dir,
 )
 
 guide_path = base_path / "plot_guide.md"
@@ -27,7 +28,6 @@ class LLMAnalyst:
         cls,
         db_path,
         model_name=default_model,
-        data_dir=default_data_dir,
     ):
         cd = ChartDef(
             title="",
@@ -38,20 +38,19 @@ class LLMAnalyst:
             table_names=[],
         )
         cd.save()
-        return cls(chart_def=cd, model_name=model_name, data_dir=data_dir)
+        return cls(chart_def=cd, model_name=model_name)
 
     def __init__(
         self,
         chart_def,
         model_name=default_model,
-        data_dir=default_data_dir,
     ):
         self.chart_def: ChartDef = chart_def
         self.model_name = model_name
         self.db = None
         self._cache = {}
-        data_dir.mkdir(parents=True, exist_ok=True)
-        self._cache_file = Path(data_dir) / cache_filename
+        default_data_dir.mkdir(parents=True, exist_ok=True)
+        self._cache_file = Path(default_data_dir) / cache_filename
         self._load_cache()
         self.tmp_ignore_path = None
 
@@ -121,7 +120,10 @@ class LLMAnalyst:
         ) as tmp_file:
             tmp_file.write(template_content)
             tmp_file.write("\n")
-            tmp_file.write(f"!chart_defs/sessions/{stem}/{session_id}/\n")
+            relative_sessions = sessions_dir.relative_to(base_path).as_posix()
+            include_session = f"!{relative_sessions}/{stem}/{session_id}/\n"
+            print("~~~~~INCLUDE", include_session)
+            tmp_file.write(include_session)
 
         self.tmp_ignore_path = tmp_file.name
         return self.tmp_ignore_path
@@ -145,10 +147,10 @@ class LLMAnalyst:
             **kwargs,
         )
 
-    def get_modify_coder(self, chart_def, auto_commits=False):
-        at_dir = base_path / f"chart_defs/sessions/yellow_trips/{chart_def.id}"
-        fnames = [at_dir / f for f in ChartDef.mutable_file_names()]
-        read_only_fnames = [at_dir / f for f in ChartDef.readonly_file_names()]
+    def get_modify_coder(self, auto_commits=False):
+        base_dir = sessions_dir / self.chart_def.id
+        fnames = [base_dir / f for f in ChartDef.mutable_file_names()]
+        read_only_fnames = [base_dir / f for f in ChartDef.readonly_file_names()]
 
         if fnames is None:
             fnames = []
@@ -312,7 +314,7 @@ class LLMAnalyst:
         return self.chart_def
 
     def modify_chart(self, instructions: str):
-        modifier = self.get_modify_coder(chart_def=self.chart_def, auto_commits=True)
+        modifier = self.get_modify_coder(auto_commits=True)
         modifier.run(
             f"""
 Given these instructions, update the plot.js and/or query.sql code if necessary. Sometimes you may need to update concept.md or metadata.yaml as well. 
