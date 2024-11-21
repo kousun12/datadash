@@ -15,8 +15,7 @@ function plotChart(data, {width} = {}) {
     },
     color: {
       type: "linear",
-      scheme: "Blues",
-      legend: false
+      scheme: "Blues"
     },
     marks: [
       Plot.cell(data, {
