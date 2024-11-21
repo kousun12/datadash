@@ -46,3 +46,13 @@ function plotChart(data, {width} = {}) {
     ],
   });
 }
+
+// Error handling wrapper
+function plotChartWithErrorHandling(data, options) {
+  try {
+    return plotChart(data, options);
+  } catch (error) {
+    console.error("Error in plotChart:", error);
+    return displayError(`Error plotting chart: ${error.message}`);
+  }
+}
