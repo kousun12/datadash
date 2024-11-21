@@ -1,5 +1,5 @@
 ---
-title: "Hourly Taxi Pickup Heatmap for Top 20 Zones in NYC"
+title: "Hourly Taxi Pickup Line Chart for Top 10 Zones in NYC"
 toc: false
 sidebar: false
 header: false
@@ -11,9 +11,9 @@ pager: false
 import {Editor} from "/components/Editor.js";
 ```
 
-# Hourly Taxi Pickup Heatmap for Top 20 Zones in NYC
+# Hourly Taxi Pickup Line Chart for Top 10 Zones in NYC
 
-This heatmap visualizes the number of taxi pickups across the top 20 most popular zones in New York City, broken down by hour of the day. The color intensity represents the pickup count, allowing viewers to identify peak hours and busy locations at a glance.
+This line chart visualizes the number of taxi pickups across the top 10 most popular zones in New York City, broken down by hour of the day. Each line represents a different zone, allowing viewers to compare pickup patterns and identify peak hours across different locations.
 
 
 ```js
@@ -36,54 +36,73 @@ top_zones AS (
   FROM hourly_pickups
   GROUP BY Zone
   ORDER BY SUM(pickup_count) DESC
-  LIMIT 20
+  LIMIT 10
 )
 SELECT hp.Zone, hp.hour, hp.pickup_count
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour`
+ORDER BY hp.Zone, hp.hour
+`
 ```
 
 
 ```js
 function plotChart(data, {width} = {}) {
-  const margin = {bottom: 60, left: 200, right: 150};
+  const margin = {top: 20, right: 200, bottom: 40, left: 60};
 
   return Plot.plot({
     width,
-    marginLeft: margin.left,
-    marginBottom: margin.bottom,
+    height: 500,
+    marginTop: margin.top,
     marginRight: margin.right,
+    marginBottom: margin.bottom,
+    marginLeft: margin.left,
     x: {
       label: "Hour of Day",
+      domain: [0, 23],
+      tickFormat: d => d.toString().padStart(2, '0') + ':00'
     },
     y: {
-      label: null,
-      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
+      label: "Pickup Count",
+      grid: true
     },
     color: {
-      type: "linear",
-      scheme: "Blues",
-      label: "Pickup Count",
       legend: true
     },
     marks: [
-      Plot.cell(data, {
-        x: d => d.hour,
-        y: d => d.Zone,
-        fill: d => d.pickup_count,
-        tip: true,
-        title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count.toLocaleString()}`
+      Plot.line(data, {
+        x: "hour",
+        y: "pickup_count",
+        stroke: "Zone",
+        strokeWidth: 2,
+        curve: "monotone-x"
       }),
-      Plot.text(data, Plot.groupY({x: "count"}, {
-        y: d => d.Zone,
-        text: d => d.Zone,
-        dx: -10,
-        dy: 0,
-        fontSize: 9,
-        textAnchor: "end"
+      Plot.dot(data, {
+        x: "hour",
+        y: "pickup_count",
+        stroke: "Zone",
+        fill: "white",
+        r: 3
+      }),
+      Plot.ruleY([0]),
+      Plot.text(data, Plot.selectLast({
+        x: "hour",
+        y: "pickup_count",
+        z: "Zone",
+        text: "Zone",
+        textAnchor: "start",
+        dx: 5
       }))
-    ]
+    ],
+    color: {
+      scheme: "tableau10"
+    },
+    tip: {
+      format: {
+        x: x => `Hour: ${x.toString().padStart(2, '0')}:00`,
+        y: y => `Pickups: ${y.toLocaleString()}`
+      }
+    }
   });
 }
 
@@ -103,7 +122,7 @@ function plotOrError(data, options) {
 
 ```js
 function getJSView() {
-  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {bottom: 60, left: 200, right: 150};\n\n  return Plot.plot({\n    width,\n    marginLeft: margin.left,\n    marginBottom: margin.bottom,\n    marginRight: margin.right,\n    x: {\n      label: \"Hour of Day\",\n    },\n    y: {\n      label: null,\n      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)\n    },\n    color: {\n      type: \"linear\",\n      scheme: \"Blues\",\n      label: \"Pickup Count\",\n      legend: true\n    },\n    marks: [\n      Plot.cell(data, {\n        x: d => d.hour,\n        y: d => d.Zone,\n        fill: d => d.pickup_count,\n        tip: true,\n        title: d => `${d.Zone}\\nHour: ${d.hour}:00\\nPickups: ${d.pickup_count.toLocaleString()}`\n      }),\n      Plot.text(data, Plot.groupY({x: \"count\"}, {\n        y: d => d.Zone,\n        text: d => d.Zone,\n        dx: -10,\n        dy: 0,\n        fontSize: 9,\n        textAnchor: \"end\"\n      }))\n    ]\n  });\n}\n";
+  const plotCodeString = "function plotChart(data, {width} = {}) {\n  const margin = {top: 20, right: 200, bottom: 40, left: 60};\n\n  return Plot.plot({\n    width,\n    height: 500,\n    marginTop: margin.top,\n    marginRight: margin.right,\n    marginBottom: margin.bottom,\n    marginLeft: margin.left,\n    x: {\n      label: \"Hour of Day\",\n      domain: [0, 23],\n      tickFormat: d => d.toString().padStart(2, '0') + ':00'\n    },\n    y: {\n      label: \"Pickup Count\",\n      grid: true\n    },\n    color: {\n      legend: true\n    },\n    marks: [\n      Plot.line(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        strokeWidth: 2,\n        curve: \"monotone-x\"\n      }),\n      Plot.dot(data, {\n        x: \"hour\",\n        y: \"pickup_count\",\n        stroke: \"Zone\",\n        fill: \"white\",\n        r: 3\n      }),\n      Plot.ruleY([0]),\n      Plot.text(data, Plot.selectLast({\n        x: \"hour\",\n        y: \"pickup_count\",\n        z: \"Zone\",\n        text: \"Zone\",\n        textAnchor: \"start\",\n        dx: 5\n      }))\n    ],\n    color: {\n      scheme: \"tableau10\"\n    },\n    tip: {\n      format: {\n        x: x => `Hour: ${x.toString().padStart(2, '0')}:00`,\n        y: y => `Pickups: ${y.toLocaleString()}`\n      }\n    }\n  });\n}\n";
   const e = Editor({value: plotCodeString, lang: "javascript"});
   return e;
 }
@@ -122,12 +141,13 @@ top_zones AS (
   FROM hourly_pickups
   GROUP BY Zone
   ORDER BY SUM(pickup_count) DESC
-  LIMIT 20
+  LIMIT 10
 )
 SELECT hp.Zone, hp.hour, hp.pickup_count
 FROM hourly_pickups hp
 JOIN top_zones tz ON hp.Zone = tz.Zone
-ORDER BY hp.Zone, hp.hour`;
+ORDER BY hp.Zone, hp.hour
+`;
     const e = Editor({value: sqlString, lang: "sql"});
     return e;
 }

@@ -12,7 +12,7 @@ top_zones AS (
   FROM hourly_pickups
   GROUP BY Zone
   ORDER BY SUM(pickup_count) DESC
-  LIMIT 20
+  LIMIT 10
 )
 SELECT hp.Zone, hp.hour, hp.pickup_count
 FROM hourly_pickups hp

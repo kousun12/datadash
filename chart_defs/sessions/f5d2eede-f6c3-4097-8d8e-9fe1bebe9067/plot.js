@@ -1,40 +1,58 @@
 function plotChart(data, {width} = {}) {
-  const margin = {bottom: 60, left: 200, right: 150};
+  const margin = {top: 20, right: 200, bottom: 40, left: 60};
 
   return Plot.plot({
     width,
-    marginLeft: margin.left,
-    marginBottom: margin.bottom,
+    height: 500,
+    marginTop: margin.top,
     marginRight: margin.right,
+    marginBottom: margin.bottom,
+    marginLeft: margin.left,
     x: {
       label: "Hour of Day",
+      domain: [0, 23],
+      tickFormat: d => d.toString().padStart(2, '0') + ':00'
     },
     y: {
-      label: null,
-      domain: d3.groupSort(data, g => d3.sum(g, d => d.pickup_count), d => d.Zone)
+      label: "Pickup Count",
+      grid: true
     },
     color: {
-      type: "linear",
-      scheme: "Blues",
-      label: "Pickup Count",
       legend: true
     },
     marks: [
-      Plot.cell(data, {
-        x: d => d.hour,
-        y: d => d.Zone,
-        fill: d => d.pickup_count,
-        tip: true,
-        title: d => `${d.Zone}\nHour: ${d.hour}:00\nPickups: ${d.pickup_count.toLocaleString()}`
+      Plot.line(data, {
+        x: "hour",
+        y: "pickup_count",
+        stroke: "Zone",
+        strokeWidth: 2,
+        curve: "monotone-x"
       }),
-      Plot.text(data, Plot.groupY({x: "count"}, {
-        y: d => d.Zone,
-        text: d => d.Zone,
-        dx: -10,
-        dy: 0,
-        fontSize: 9,
-        textAnchor: "end"
+      Plot.dot(data, {
+        x: "hour",
+        y: "pickup_count",
+        stroke: "Zone",
+        fill: "white",
+        r: 3
+      }),
+      Plot.ruleY([0]),
+      Plot.text(data, Plot.selectLast({
+        x: "hour",
+        y: "pickup_count",
+        z: "Zone",
+        text: "Zone",
+        textAnchor: "start",
+        dx: 5
       }))
-    ]
+    ],
+    color: {
+      scheme: "tableau10"
+    },
+    tip: {
+      format: {
+        x: x => `Hour: ${x.toString().padStart(2, '0')}:00`,
+        y: y => `Pickups: ${y.toLocaleString()}`
+      }
+    }
   });
 }
