@@ -18,7 +18,6 @@ function plotChart(data, {width} = {}) {
     x: {
       type: "band",
       label: "Date",
-      domain: dataArray.map(d => d.date),
     },
     y: {
       label: "Price ($)",
