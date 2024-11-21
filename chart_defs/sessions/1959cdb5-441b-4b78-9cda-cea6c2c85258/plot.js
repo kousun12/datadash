@@ -1,4 +1,4 @@
-function plotChart(data) {
+function plotChart(data, options = {}) {
   if (!data || data.numRows === 0) {
     return displayError("No data available to plot.");
   }
@@ -19,6 +19,8 @@ function plotChart(data) {
   };
 
   return Plot.plot({
+    width: options.width || 640,
+    height: options.width ? options.width * 0.6 : 400,
     y: {
       grid: true,
       label: "Price ($)"
